@@ -137,6 +137,26 @@ canvas{display:block}
 /* ── INSTRUCTIONS ── */
 .instr{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);z-index:90;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text2);letter-spacing:1.5px;text-align:center;opacity:0.6;transition:opacity 2s}
 .instr.hide{opacity:0}
+
+/* ── TRAD STATS CLICKABLE ── */
+.stat-side.web2-side{cursor:pointer;transition:all 0.3s}
+.stat-side.web2-side:hover{background:rgba(255,51,102,0.2);border-color:rgba(255,51,102,0.5)}
+
+/* ── TRAD MODAL ── */
+.trad-modal-overlay{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s}
+.trad-modal-overlay.vis{display:flex;opacity:1}
+.trad-modal{background:var(--surface);border:1px solid rgba(255,51,102,0.3);border-radius:16px;padding:32px 36px;max-width:560px;width:90%;max-height:85vh;overflow-y:auto;position:relative;box-shadow:0 0 60px rgba(255,51,102,0.15)}
+.trad-modal .modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;padding:4px 8px;transition:color 0.2s}
+.trad-modal .modal-close:hover{color:var(--text)}
+.trad-modal h2{font-family:'JetBrains Mono',monospace;font-size:16px;letter-spacing:3px;text-transform:uppercase;color:var(--pink);margin-bottom:20px}
+.trad-modal .modal-section{margin-bottom:20px}
+.trad-modal .modal-section h3{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.trad-modal .modal-section h3 .num-badge{display:inline-block;background:rgba(255,51,102,0.2);border:1px solid rgba(255,51,102,0.35);color:var(--pink);padding:2px 10px;border-radius:10px;font-size:14px;margin-right:8px;letter-spacing:0}
+.trad-modal .modal-list{list-style:none;padding:0;margin:0}
+.trad-modal .modal-list li{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text2);padding:5px 0 5px 16px;position:relative;line-height:1.5}
+.trad-modal .modal-list li::before{content:'›';position:absolute;left:0;color:var(--pink);font-weight:bold}
+.trad-modal .modal-divider{height:1px;background:rgba(255,255,255,0.06);margin:16px 0}
+.trad-modal .modal-footer{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:1px;text-align:center;margin-top:8px}
 </style>
 </head>
 <body>
@@ -146,11 +166,11 @@ canvas{display:block}
 <!-- Top Bar -->
 <div class="topbar">
   <div><h1>Traditional Stack vs ICP</h1><div class="sub">Interactive 3D Architecture Comparison</div></div>
-  <div class="badge web2" id="badge">TRADITIONAL STACK</div>
+  <div class="badge compare" id="badge">ICP COMPARISON</div>
 </div>
 
 <!-- Side-by-side Stats -->
-<div class="stats-bar" id="statsBar">
+<div class="stats-bar visible" id="statsBar">
   <div class="stat-side web2-side">
     <span class="side-label">TRAD</span>
     <div class="stat-item"><div class="num">7</div><div class="label">Layers</div></div>
@@ -168,6 +188,68 @@ canvas{display:block}
   </div>
 </div>
 
+<!-- Trad Stack Modal -->
+<div class="trad-modal-overlay" id="tradModal">
+  <div class="trad-modal">
+    <button class="modal-close" id="tradModalClose">✕</button>
+    <h2>Traditional Stack Complexity</h2>
+
+    <div class="modal-section">
+      <h3><span class="num-badge">7</span> Layers</h3>
+      <ul class="modal-list">
+        <li>User Interface — Browser (Chrome, Safari, Edge)</li>
+        <li>CDN / Edge Network — Cloudflare, Akamai, Fastly</li>
+        <li>Load Balancers & DNS — AWS ELB, Route53</li>
+        <li>Application Servers — EC2, Lambda, Kubernetes</li>
+        <li>Databases & Storage — RDS, DynamoDB, S3</li>
+        <li>Cloud Platform — AWS / GCP / Azure</li>
+        <li>Physical Infrastructure — Data Centers, Cables, Power</li>
+      </ul>
+    </div>
+
+    <div class="modal-divider"></div>
+
+    <div class="modal-section">
+      <h3><span class="num-badge">12+</span> Corporate Dependencies</h3>
+      <ul class="modal-list">
+        <li>Google Chrome (67% browser share)</li>
+        <li>Cloudflare (80%+ CDN market)</li>
+        <li>Akamai, Fastly, AWS CloudFront</li>
+        <li>AWS Elastic Load Balancer</li>
+        <li>AWS EC2 / Lambda (33% cloud compute)</li>
+        <li>Microsoft Azure (22% cloud compute)</li>
+        <li>Google Cloud Platform (11% cloud compute)</li>
+        <li>AWS RDS / DynamoDB</li>
+        <li>MongoDB Atlas</li>
+        <li>Equinix & Digital Realty (data centers)</li>
+        <li>Cloudflare DNS / Route53</li>
+        <li>Kubernetes / Docker (orchestration)</li>
+      </ul>
+    </div>
+
+    <div class="modal-divider"></div>
+
+    <div class="modal-section">
+      <h3><span class="num-badge">47</span> Failure Points</h3>
+      <ul class="modal-list">
+        <li>DNS resolution failures (resolver, registrar, TLD)</li>
+        <li>CDN edge node outages across 300+ PoPs</li>
+        <li>SSL/TLS certificate expiry & CA failures</li>
+        <li>Load balancer health check failures</li>
+        <li>Application server crashes & memory leaks</li>
+        <li>Database connection pool exhaustion</li>
+        <li>Cloud region outages (us-east-1 cascades)</li>
+        <li>Physical data center: power, cooling, network</li>
+        <li>Third-party API dependencies & rate limits</li>
+        <li>Cascading failures across coupled layers</li>
+      </ul>
+    </div>
+
+    <div class="modal-divider"></div>
+    <div class="modal-footer">CLICK OUTSIDE OR ✕ TO CLOSE</div>
+  </div>
+</div>
+
 <!-- Right Controls -->
 <div class="controls">
   <button class="cbtn" id="bExplode"><span>⊞</span><span class="tip">Explode Layers</span></button>
@@ -182,7 +264,7 @@ canvas{display:block}
   <button class="cbtn gold" id="bCost"><span>$</span><span class="tip">Cost Stacking</span></button>
   -->
   <div class="sep"></div>
-  <button class="cbtn icp" id="bICP"><span>∞</span><span class="tip">Compare: ICP</span></button>
+  <button class="cbtn icp on" id="bICP"><span>∞</span><span class="tip">Compare: ICP</span></button>
   <button class="cbtn" id="bReset"><span>⟲</span><span class="tip">Reset All</span></button>
 </div>
 
@@ -359,9 +441,9 @@ var flowParts = [];
 
 var st = {
   exploded:false, rotating:true, traceMode:false, cascadeMode:null,
-  icpMode:false, dataMode:false, costMode:false,
+  icpMode:true, dataMode:false, costMode:false,
   dragging:false, pmx:0, pmy:0,
-  camAX:0.3, camAY:0.5, camDist:18, targetDist:18,
+  camAX:0.3, camAY:0.5, camDist:26, targetDist:26,
   expProg:0, expTarget:0, t:0,
   traceStep:-1, traceTimer:null, traceStepICP:-1, traceTimerICP:null,
 };
@@ -525,7 +607,7 @@ function buildWeb2(){
 
 function buildICP(){
   icpG=new THREE.Group();
-  icpG.visible=false;
+  icpG.visible=true;
   icpG.position.x=14;
 
   function a(geo,mat,pos,tag){
@@ -1120,15 +1202,16 @@ function setupUI(){
 
   document.getElementById('bReset').addEventListener('click',function(){
     resetCascade();stopTrace();
-    st.exploded=false;st.expTarget=0;st.icpMode=false;st.dataMode=false;st.costMode=false;st.rotating=true;
-    st.camAX=0.3;st.camAY=0.5;st.targetDist=18;
+    st.exploded=false;st.expTarget=0;st.icpMode=true;st.dataMode=false;st.costMode=false;st.rotating=true;
+    st.camAX=0.3;st.camAY=0.5;st.targetDist=26;
     document.querySelectorAll('.cbtn').forEach(function(b){b.classList.remove('on')});
     document.getElementById('bRotate').classList.add('on');
+    document.getElementById('bICP').classList.add('on');
     document.getElementById('info').classList.remove('vis');
-    document.getElementById('statsBar').classList.remove('visible');
+    document.getElementById('statsBar').classList.add('visible');
     document.getElementById('icpSafe').classList.remove('vis');
-    icpG.visible=false;
-    var b=document.getElementById('badge');b.className='badge web2';b.textContent='TRADITIONAL STACK';
+    icpG.visible=true;
+    var b=document.getElementById('badge');b.className='badge compare';b.textContent='ICP COMPARISON';
     document.querySelectorAll('.lbtn').forEach(function(b){b.classList.remove('on')});
     document.querySelector('.lbtn[data-l="all"]').classList.add('on');
     Object.keys(layers).forEach(function(k){
@@ -1155,6 +1238,19 @@ function setupUI(){
   });
 
   window.addEventListener('resize',function(){cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)});
+
+  // ── Trad modal ──
+  var tradOverlay=document.getElementById('tradModal');
+  var tradClose=document.getElementById('tradModalClose');
+  document.querySelector('.stat-side.web2-side').addEventListener('click',function(){
+    tradOverlay.classList.add('vis');
+  });
+  tradClose.addEventListener('click',function(){
+    tradOverlay.classList.remove('vis');
+  });
+  tradOverlay.addEventListener('click',function(e){
+    if(e.target===tradOverlay) tradOverlay.classList.remove('vis');
+  });
 
   createOverlayLabels();
 }
