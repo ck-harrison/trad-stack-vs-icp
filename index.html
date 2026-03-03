@@ -52,12 +52,12 @@ canvas{display:block}
 .stat-side{padding:12px 20px;backdrop-filter:blur(12px);display:flex;gap:18px;align-items:center}
 .stat-side.web2-side{background:rgba(255,51,102,0.1);border:1px solid rgba(255,51,102,0.2);border-radius:10px 0 0 10px;border-right:none}
 .stat-side.icp-side{background:rgba(41,171,226,0.1);border:1px solid rgba(41,171,226,0.2);border-radius:0 10px 10px 0;border-left:none}
-.stat-side .side-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;writing-mode:vertical-rl;text-orientation:mixed;opacity:0.8}
+.stat-side .side-label{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:2px;text-transform:uppercase;writing-mode:vertical-rl;text-orientation:mixed;opacity:0.8}
 .stat-side.web2-side .side-label{color:var(--pink)}
 .stat-side.icp-side .side-label{color:var(--icp)}
 .stat-item{text-align:center}
 .stat-item .num{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;line-height:1}
-.stat-item .label{font-size:10px;color:var(--text2);margin-top:3px;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px;text-transform:uppercase}
+.stat-item .label{font-size:13px;color:var(--text2);margin-top:3px;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px;text-transform:uppercase}
 .web2-side .num{color:var(--pink)}
 .icp-side .num{color:var(--icp)}
 .stat-vs{display:flex;align-items:center;justify-content:center;width:36px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);background:var(--glass);border-top:1px solid rgba(255,255,255,0.08);border-bottom:1px solid rgba(255,255,255,0.08)}
@@ -84,11 +84,11 @@ canvas{display:block}
 .info .close-btn{width:24px;height:24px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--dim);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0}
 .info .close-btn:hover{color:var(--red);border-color:rgba(255,45,85,0.3);background:rgba(255,45,85,0.1)}
 .info .body{padding:0 16px 16px 16px}
-.info .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 9px;border-radius:4px;margin-bottom:10px;letter-spacing:1px}
-.info h3{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
-.info p{font-size:14px;line-height:1.7;color:var(--text2)}
-.info .corp{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);letter-spacing:0.5px}
-.info .icp-alt{margin-top:10px;padding-top:10px;border-top:1px solid rgba(41,171,226,0.2);font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--icp);letter-spacing:0.5px;white-space:pre-wrap}
+.info .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:13px;padding:3px 9px;border-radius:4px;margin-bottom:10px;letter-spacing:1px}
+.info h3{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.info p{font-size:16px;line-height:1.7;color:var(--text2)}
+.info .corp{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--red);letter-spacing:0.5px}
+.info .icp-alt{margin-top:10px;padding-top:10px;border-top:1px solid rgba(41,171,226,0.2);font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--icp);letter-spacing:0.5px;white-space:pre-wrap}
 
 /* ── LAYER NAV ── */
 .lnav{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:100;display:flex;gap:4px;background:var(--glass);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:5px}
@@ -124,18 +124,18 @@ canvas{display:block}
 .trace-step .dot{width:8px;height:8px;border-radius:50%;background:var(--dim);transition:all 0.3s;flex-shrink:0}
 .trace-step.active .dot{box-shadow:0 0 10px currentColor}
 .trace-step .line{position:absolute;left:3.5px;top:17px;width:1px;height:10px;background:rgba(255,255,255,0.08)}
-.trace-step .ms{margin-left:auto;font-size:10px;opacity:0;transition:opacity 0.3s}
+.trace-step .ms{margin-left:auto;font-size:13px;opacity:0;transition:opacity 0.3s}
 .trace-step.active .ms{opacity:1}
-.trace-step .corp-tag{font-size:9px;margin-left:4px;opacity:0;transition:opacity 0.3s}
+.trace-step .corp-tag{font-size:12px;margin-left:4px;opacity:0;transition:opacity 0.3s}
 .trace-step.active .corp-tag{opacity:0.7}
-.trace-total{margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:13px;display:flex;justify-content:space-between}
+.trace-total{margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:15px;display:flex;justify-content:space-between}
 
 /* ── DATA/COST OVERLAY LABELS ── */
-.overlay-label{position:fixed;z-index:95;font-family:'JetBrains Mono',monospace;font-size:11px;padding:4px 10px;border-radius:5px;pointer-events:none;opacity:0;transition:all 0.3s;letter-spacing:0.5px;white-space:nowrap}
+.overlay-label{position:fixed;z-index:95;font-family:'JetBrains Mono',monospace;font-size:14px;padding:4px 10px;border-radius:5px;pointer-events:none;opacity:0;transition:all 0.3s;letter-spacing:0.5px;white-space:nowrap}
 .overlay-label.vis{opacity:1}
 
 /* ── INSTRUCTIONS ── */
-.instr{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);z-index:90;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:1.5px;text-align:center;opacity:0.6;transition:opacity 2s}
+.instr{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);z-index:90;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text2);letter-spacing:1.5px;text-align:center;opacity:0.6;transition:opacity 2s}
 .instr.hide{opacity:0}
 </style>
 </head>
@@ -178,7 +178,9 @@ canvas{display:block}
   <button class="cbtn red" id="bAWS"><span>☁</span><span class="tip">AWS Region Failure</span></button>
   <div class="sep"></div>
   <button class="cbtn grn" id="bData"><span>🔒</span><span class="tip">Data Ownership</span></button>
+  <!-- Cost Stacking button - hidden for future version
   <button class="cbtn gold" id="bCost"><span>$</span><span class="tip">Cost Stacking</span></button>
+  -->
   <div class="sep"></div>
   <button class="cbtn icp" id="bICP"><span>∞</span><span class="tip">Compare: ICP</span></button>
   <button class="cbtn" id="bReset"><span>⟲</span><span class="tip">Reset All</span></button>
@@ -1091,9 +1093,11 @@ function setupUI(){
     st.dataMode=!st.dataMode;this.classList.toggle('on',st.dataMode);
   });
 
+  /* Cost Stacking handler - commented out for future version
   document.getElementById('bCost').addEventListener('click',function(){
     st.costMode=!st.costMode;this.classList.toggle('on',st.costMode);
   });
+  */
 
   document.getElementById('bICP').addEventListener('click',function(){
     st.icpMode=!st.icpMode;
