@@ -2,1686 +2,1475 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Traditional Stack vs ICP — 3D Architecture Comparison</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Hello Self-Writing Cloud — Caffeine × DFINITY</title>
+<link href="https://fonts.googleapis.com/css2?family=Anybody:ital,wght@0,100..900;1,100..900&family=IBM+Plex+Mono:wght@400;500;700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
-
-:root {
-  --bg: #08081a;
-  --surface: #0e0e18;
-  --accent: #00d4ff;
-  --red: #ff2d55;
-  --orange: #ff9500;
-  --purple: #7c3aed;
-  --pink: #ff3366;
-  --blue: #3b82f6;
-  --indigo: #6366f1;
-  --slate: #64748b;
-  --icp: #29abe2;
-  --icp-orange: #F15A24;
-  --icp-yellow: #FBB03B;
-  --icp-purple: #522785;
-  --green: #00e676;
-  --gold: #ffd700;
-  --text: #ffffff;
-  --text2: #c8c8e0;
-  --dim: #8888a8;
-  --glass: rgba(14,14,24,0.88);
-  --glass2: rgba(14,14,24,0.7);
-}
-
+:root{--bg:#050508;--sf:#0d0d14;--s2:#14141e;--blue:#29ABE2;--or:#F15A24;--ye:#FBB03B;--pu:#522785;--gr:#00e676;--re:#ff2d55;--cy:#00d4ff;--text:#fff;--t2:#b0b0cc;--dim:#606080;--gl:rgba(13,13,20,.9)}
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;overflow:hidden;width:100vw;height:100vh}
-#cv{width:100%;height:100%;position:absolute;top:0;left:0}
-canvas{display:block}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif}
 
-/* ── TOP BAR ── */
-.topbar{position:fixed;top:0;left:0;right:0;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;z-index:100;background:linear-gradient(to bottom,rgba(8,8,26,0.95) 0%,transparent 100%)}
-.topbar h1{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:500;letter-spacing:4px;text-transform:uppercase;color:var(--accent);text-shadow:0 0 30px rgba(0,212,255,0.35)}
-.topbar .sub{font-size:12px;color:var(--dim);margin-top:3px;font-family:'JetBrains Mono',monospace;letter-spacing:1.5px}
-.badge{font-family:'JetBrains Mono',monospace;font-size:12px;padding:6px 14px;border-radius:16px;letter-spacing:1.5px;text-transform:uppercase;transition:all 0.4s}
-.badge.web2{background:rgba(255,51,102,0.15);border:1px solid rgba(255,51,102,0.3);color:var(--pink)}
-.badge.compare{background:rgba(41,171,226,0.15);border:1px solid rgba(41,171,226,0.3);color:var(--icp)}
-.badge.fail{background:rgba(255,45,85,0.15);border:1px solid rgba(255,45,85,0.3);color:var(--red);animation:pulseBadge 1.5s infinite}
-@keyframes pulseBadge{0%,100%{box-shadow:0 0 0 rgba(255,45,85,0.3)}50%{box-shadow:0 0 15px 3px rgba(255,45,85,0.15)}}
+/* ── DECK ENGINE ── */
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;display:flex;opacity:0;pointer-events:none;transition:opacity .35s;overflow:hidden;flex-direction:column}
+.slide.active{opacity:1;pointer-events:auto}
+.nav-dots{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:1000}
+.ndot{width:7px;height:7px;border-radius:50%;background:var(--dim);cursor:pointer;border:none;transition:all .3s;padding:0}
+.ndot.on{background:var(--cy);box-shadow:0 0 8px var(--cy);transform:scale(1.3)}
+.slabel{position:fixed;top:14px;right:18px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:2px;z-index:1000;text-transform:uppercase}
+.narr{position:fixed;top:50%;transform:translateY(-50%);z-index:999;background:none;border:none;color:var(--dim);font-size:26px;cursor:pointer;padding:14px;opacity:.25;transition:opacity .2s;line-height:1}
+.narr:hover{opacity:.75;color:var(--cy)}
+.narr.prev{left:2px}
+.narr.next{right:2px}
 
-/* ── SIDE-BY-SIDE STATS ── */
-.stats-bar{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:100;display:none;gap:2px;align-items:stretch}
-.stats-bar.visible{display:flex}
-.stat-side{padding:12px 20px;backdrop-filter:blur(12px);display:flex;gap:18px;align-items:center}
-.stat-side.web2-side{background:rgba(255,51,102,0.1);border:1px solid rgba(255,51,102,0.2);border-radius:10px 0 0 10px;border-right:none}
-.stat-side.icp-side{background:rgba(41,171,226,0.1);border:1px solid rgba(41,171,226,0.2);border-radius:0 10px 10px 0;border-left:none}
-.stat-side .side-label{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:2px;text-transform:uppercase;writing-mode:vertical-rl;text-orientation:mixed;opacity:0.8}
-.stat-side.web2-side .side-label{color:var(--pink)}
-.stat-side.icp-side .side-label{color:var(--icp)}
-.stat-item{text-align:center}
-.stat-item .num{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;line-height:1}
-.stat-item .label{font-size:13px;color:var(--text2);margin-top:3px;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px;text-transform:uppercase}
-.web2-side .num{color:var(--pink)}
-.icp-side .num{color:var(--icp)}
-.stat-vs{display:flex;align-items:center;justify-content:center;width:36px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);background:var(--glass);border-top:1px solid rgba(255,255,255,0.08);border-bottom:1px solid rgba(255,255,255,0.08)}
+/* ══════════════════════════════════════
+   SLIDE 1 — ATTACK SIMULATOR
+══════════════════════════════════════ */
+#slide-atk{background:var(--bg)}
+.atk-hdr{padding:18px 26px 8px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.atk-htitle{font-family:'Anybody',sans-serif;font-size:17px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:var(--re)}
+.atk-controls{display:flex;gap:6px;flex-wrap:wrap}
+.abtn{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:6px 12px;border-radius:5px;border:1px solid rgba(255,45,85,.35);background:rgba(255,45,85,.07);color:var(--re);cursor:pointer;letter-spacing:1.5px;text-transform:uppercase;transition:all .2s}
+.abtn:hover{background:rgba(255,45,85,.18)}
+.abtn.reset{border-color:rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:var(--dim)}
+.abtn.reset:hover{color:var(--text);background:rgba(255,255,255,.07)}
+.atk-arena{flex:1;display:grid;grid-template-columns:1fr 1fr;min-height:0}
+.atk-side{display:flex;flex-direction:column;padding:10px 22px 14px;border-top:1px solid rgba(255,255,255,.05)}
+.atk-trad{border-right:1px solid rgba(255,255,255,.05)}
+.side-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;flex-shrink:0}
+.atk-trad .side-lbl{color:var(--re)}
+.atk-icp .side-lbl{color:var(--blue)}
+.node-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:10px;flex-shrink:0}
+.snode{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .35s}
+.snode.tn{background:rgba(255,45,85,.12);border:1px solid rgba(255,45,85,.3)}
+.snode.in{background:rgba(41,171,226,.12);border:1px solid rgba(41,171,226,.3)}
+.snode.dead{background:rgba(255,45,85,.02);border-color:rgba(255,45,85,.07);opacity:.2;font-size:8px}
+.snode.hit{animation:abounce .4s ease}
+@keyframes abounce{0%,100%{transform:scale(1)}50%{transform:scale(1.3);box-shadow:0 0 16px #29ABE2;border-color:#29ABE2}}
+.atk-stats{display:flex;gap:14px;margin-bottom:8px;flex-shrink:0}
+.astat-lbl{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--dim);text-transform:uppercase}
+.astat-val{font-family:'Anybody',sans-serif;font-size:20px;font-weight:700;line-height:1.15;transition:color .4s}
+.astat-val.danger{color:var(--re)}
+.astat-val.safe{color:var(--gr)}
+.alog{flex:1;overflow-y:auto;font-family:'IBM Plex Mono',monospace;font-size:9px;line-height:1.8;min-height:40px}
+.alog::-webkit-scrollbar{width:2px}
+.alog::-webkit-scrollbar-thumb{background:var(--dim)}
+.logbad{color:rgba(255,45,85,.8)}
+.logok{color:rgba(41,171,226,.8)}
+.loggood{color:rgba(0,230,118,.8)}
 
-/* ── RIGHT CONTROLS ── */
-.controls{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:6px}
-.cbtn{width:46px;height:46px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:var(--glass);backdrop-filter:blur(12px);color:var(--dim);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.25s;font-size:16px;position:relative}
-.cbtn:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,0.08);transform:scale(1.06)}
-.cbtn.on{border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,0.12);box-shadow:0 0 16px rgba(0,212,255,0.15)}
-.cbtn.red:hover,.cbtn.red.on{border-color:var(--red);color:var(--red);background:rgba(255,45,85,0.12);box-shadow:0 0 16px rgba(255,45,85,0.15)}
-.cbtn.icp:hover,.cbtn.icp.on{border-color:var(--icp);color:var(--icp);background:rgba(41,171,226,0.12);box-shadow:0 0 16px rgba(41,171,226,0.15)}
-.cbtn.grn:hover,.cbtn.grn.on{border-color:var(--green);color:var(--green);background:rgba(0,230,118,0.12);box-shadow:0 0 16px rgba(0,230,118,0.15)}
-.cbtn.gold:hover,.cbtn.gold.on{border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,0.12);box-shadow:0 0 16px rgba(255,215,0,0.15)}
-.cbtn .tip{position:absolute;right:54px;background:var(--glass);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);padding:6px 12px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;white-space:nowrap;opacity:0;transition:opacity 0.15s;pointer-events:none;color:var(--text)}
-.cbtn:hover .tip{opacity:1}
-.sep{height:8px}
+/* ══════════════════════════════════════
+   SLIDE 2 — WISH MACHINE
+══════════════════════════════════════ */
+#slide-wish{align-items:center;justify-content:center;background:var(--bg);position:relative}
+.wish-wrap{width:100%;max-width:740px;padding:24px;z-index:2;position:relative}
+.wish-title{font-family:'Anybody',sans-serif;font-size:32px;font-weight:900;text-align:center;margin-bottom:5px;background:linear-gradient(135deg,var(--cy),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.wish-sub{text-align:center;color:var(--dim);font-size:11px;font-family:'IBM Plex Mono',monospace;letter-spacing:3px;margin-bottom:22px;text-transform:uppercase}
+.wish-row{display:flex;gap:8px;margin-bottom:18px}
+.wish-inp{flex:1;background:var(--sf);border:1px solid rgba(0,212,255,.22);border-radius:7px;padding:11px 14px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text);outline:none;transition:border-color .2s}
+.wish-inp:focus{border-color:var(--cy);box-shadow:0 0 0 2px rgba(0,212,255,.07)}
+.wish-go{padding:11px 20px;border-radius:7px;border:none;background:var(--cy);color:#000;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:all .2s;text-transform:uppercase;white-space:nowrap}
+.wish-go:hover{background:#fff}
+.pipeline{display:flex;margin-bottom:14px;gap:1px}
+.pstage{flex:1;padding:7px 5px;text-align:center;border-bottom:2px solid var(--s2);transition:all .3s}
+.pstage .pname{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);display:block;transition:color .3s}
+.pstage .pico{font-size:15px;display:block;margin-bottom:3px}
+.pstage.active{border-bottom-color:var(--cy)}
+.pstage.active .pname{color:var(--cy)}
+.pstage.done{border-bottom-color:var(--gr)}
+.pstage.done .pname{color:var(--gr)}
+.wish-out{background:var(--sf);border:1px solid rgba(255,255,255,.07);border-radius:7px;padding:13px 15px;min-height:100px;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.8;color:var(--t2);position:relative;overflow:hidden}
+.wcursor{display:inline-block;width:6px;height:11px;background:var(--cy);animation:blink .8s step-end infinite;vertical-align:text-bottom}
+@keyframes blink{50%{opacity:0}}
+.wish-deploy{margin-top:10px;padding:9px 13px;background:rgba(0,230,118,.07);border:1px solid rgba(0,230,118,.2);border-radius:6px;display:none}
+.deploy-url{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gr)}
+.deploy-time{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--dim);margin-top:2px}
+.rain-canvas{position:absolute;inset:0;opacity:0;transition:opacity .5s;pointer-events:none}
 
-/* ── INFO PANEL ── */
-.info{position:fixed;left:16px;bottom:16px;z-index:100;background:var(--glass);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:0;max-width:400px;opacity:0;transform:translateY(8px);transition:opacity 0.35s,transform 0.35s;pointer-events:none;user-select:none}
-.info.vis{opacity:1;transform:translateY(0);pointer-events:auto}
-.info .drag-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 6px 16px;cursor:grab}
-.info .drag-bar:active{cursor:grabbing}
-.info .drag-bar .grip{width:28px;height:3px;border-radius:2px;background:rgba(255,255,255,0.15)}
-.info .close-btn{width:24px;height:24px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--dim);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0}
-.info .close-btn:hover{color:var(--red);border-color:rgba(255,45,85,0.3);background:rgba(255,45,85,0.1)}
-.info .body{padding:0 16px 16px 16px}
-.info .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:13px;padding:3px 9px;border-radius:4px;margin-bottom:10px;letter-spacing:1px}
-.info h3{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
-.info p{font-size:16px;line-height:1.7;color:var(--text2)}
-.info .corp{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--red);letter-spacing:0.5px}
-.info .icp-alt{margin-top:10px;padding-top:10px;border-top:1px solid rgba(41,171,226,0.2);font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--icp);letter-spacing:0.5px;white-space:pre-wrap}
+/* ══════════════════════════════════════
+   SLIDE 3 — TIMELINE SLIDER
+══════════════════════════════════════ */
+#slide-tl{background:var(--bg)}
+.tl-hdr{padding:18px 34px 6px;flex-shrink:0}
+.tl-htitle{font-family:'Anybody',sans-serif;font-size:17px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:var(--cy)}
+.tl-body{flex:1;display:grid;grid-template-columns:1fr 280px;min-height:0}
+.tl-left{display:flex;flex-direction:column;padding:6px 22px 10px 34px}
+.tl-scene{flex:1;position:relative;min-height:100px;display:flex;align-items:flex-end;gap:5px;padding-bottom:12px}
+.tl-fig{border-radius:4px 4px 0 0;transition:all .5s ease;display:flex;align-items:center;justify-content:center;font-size:10px;width:28px;flex-shrink:0}
+.tl-appbox{position:absolute;top:0;left:0;right:0;height:52%;border-radius:7px;border:1px solid rgba(255,255,255,.06);background:var(--sf);overflow:hidden;transition:all .5s;pointer-events:none}
+.tl-appbar{height:5px;margin-bottom:3px;border-radius:2px;transition:all .5s}
+.tl-appcontent{padding:4px 6px;display:flex;flex-wrap:wrap;gap:3px}
+.tl-appblock{height:3px;border-radius:2px;transition:all .5s}
+.tl-era-name{font-family:'Anybody',sans-serif;font-size:24px;font-weight:700;transition:all .3s;margin-bottom:1px;flex-shrink:0}
+.tl-era-year{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:2px;margin-bottom:10px;flex-shrink:0}
+.tl-slider-area{padding-bottom:4px;flex-shrink:0}
+.tl-track{position:relative;height:26px;display:flex;align-items:center;cursor:pointer;user-select:none}
+.tl-bg{position:absolute;left:0;right:0;height:3px;background:var(--s2);border-radius:2px}
+.tl-fill{position:absolute;left:0;height:3px;background:linear-gradient(90deg,var(--pu),var(--cy));border-radius:2px;pointer-events:none}
+.tl-thumb{position:absolute;width:16px;height:16px;border-radius:50%;background:var(--cy);border:3px solid var(--bg);box-shadow:0 0 10px var(--cy);transform:translateX(-50%);cursor:grab;z-index:2}
+.tl-thumb:active{cursor:grabbing;transform:translateX(-50%) scale(1.15)}
+.tl-marks{display:flex;justify-content:space-between;margin-top:4px}
+.tl-mark{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--dim);cursor:pointer;transition:color .2s}
+.tl-mark:hover{color:var(--cy)}
+.tl-right{border-left:1px solid rgba(255,255,255,.05);padding:14px 18px;display:flex;flex-direction:column;gap:8px;overflow-y:auto}
+.tl-slbl{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--dim);text-transform:uppercase;margin-bottom:1px}
+.tl-sval{font-family:'Anybody',sans-serif;font-size:28px;font-weight:700;line-height:1;transition:all .3s}
+.tl-sunit{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--dim)}
+.tl-desc{font-size:11px;color:var(--t2);line-height:1.7;margin-top:auto;padding-top:8px;border-top:1px solid rgba(255,255,255,.05)}
 
-/* ── LAYER NAV ── */
-.lnav{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:100;display:flex;gap:4px;background:var(--glass);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:5px}
-.lbtn{padding:7px 14px;border-radius:7px;border:none;background:transparent;color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.25s;white-space:nowrap}
-.lbtn:hover{color:var(--text);background:rgba(255,255,255,0.06)}
-.lbtn.on{color:var(--accent);background:rgba(0,212,255,0.1)}
+/* ══════════════════════════════════════
+   SLIDE 4 — SOVEREIGN WORLD MAP
+══════════════════════════════════════ */
+#slide-map{background:var(--bg)}
+.map-hdr{padding:16px 26px 5px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.map-htitle{font-family:'Anybody',sans-serif;font-size:17px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:var(--or)}
+.map-hint{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--dim);letter-spacing:2px;text-transform:uppercase}
+.map-body{flex:1;display:grid;grid-template-columns:1fr 270px;min-height:0}
+.map-area{position:relative;overflow:hidden}
+.cblock{position:absolute;border-radius:5px;cursor:pointer;padding:3px 7px;transition:all .22s;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);display:flex;flex-direction:column;justify-content:center}
+.cblock:hover{z-index:2;border-color:rgba(255,176,59,.4);background:rgba(255,176,59,.05);transform:scale(1.04)}
+.cblock.sel{border-color:rgba(251,176,59,.6)!important;background:rgba(251,176,59,.05)!important;z-index:3}
+.cblock.sovereign{background:rgba(41,171,226,.14)!important;border-color:var(--blue)!important}
+.cblock.sovereign:hover{transform:scale(1.04)}
+.cb-name{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:1px;color:var(--t2);text-transform:uppercase;white-space:nowrap;line-height:1.2}
+.cb-dep{font-family:'Anybody',sans-serif;font-size:14px;font-weight:700;line-height:1}
+.map-sb{border-left:1px solid rgba(255,255,255,.05);padding:14px;display:flex;flex-direction:column;gap:9px;overflow-y:auto}
+.sb-tlbl{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--dim);text-transform:uppercase}
+.sb-country{font-family:'Anybody',sans-serif;font-size:20px;font-weight:700}
+.dep-mlbl{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--dim);margin-bottom:4px}
+.dep-mtrack{height:6px;background:var(--s2);border-radius:4px;overflow:hidden}
+.dep-mfill{height:100%;border-radius:4px;transition:width .6s,background .6s}
+.prov-list{display:flex;flex-direction:column;gap:4px}
+.prov-row{display:flex;align-items:center;gap:6px}
+.prov-nm{font-family:'IBM Plex Mono',monospace;font-size:9px;width:48px;color:var(--t2)}
+.prov-bw{flex:1;height:3px;background:var(--s2);border-radius:2px;overflow:hidden}
+.prov-bar{height:100%;border-radius:2px;transition:width .4s}
+.prov-pct{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--dim);width:24px;text-align:right}
+.risk-txt{padding:7px 9px;background:rgba(255,45,85,.05);border:1px solid rgba(255,45,85,.17);border-radius:5px;font-size:10px;line-height:1.65;color:var(--t2)}
+.risk-txt.safe{background:rgba(0,230,118,.05);border-color:rgba(0,230,118,.2)}
+.deploy-btn{padding:9px 12px;border-radius:6px;border:1px solid rgba(41,171,226,.35);background:rgba(41,171,226,.07);color:var(--blue);font-family:'IBM Plex Mono',monospace;font-size:9px;cursor:pointer;letter-spacing:2px;text-transform:uppercase;transition:all .2s;text-align:center}
+.deploy-btn:hover{background:rgba(41,171,226,.14)}
+.deploy-btn.on{background:rgba(41,171,226,.2);border-color:var(--blue)}
+.deploy-rdout{font-family:'IBM Plex Mono',monospace;font-size:9px;line-height:2.1;color:var(--blue);display:none}
+.no-sel{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--dim);text-align:center;margin:auto 0;letter-spacing:1px;line-height:1.8}
 
-/* ── CASCADE OVERLAY ── */
-.cascade-alert{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:110;background:rgba(255,45,85,0.1);backdrop-filter:blur(12px);border:1px solid rgba(255,45,85,0.25);border-radius:10px;padding:12px 24px;text-align:center;opacity:0;transition:all 0.35s;pointer-events:none}
-.cascade-alert.vis{opacity:1;pointer-events:auto}
-.cascade-alert h4{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--red);letter-spacing:2px;text-transform:uppercase}
-.cascade-alert p{font-size:13px;color:var(--text2);margin-top:4px}
+/* ══════════════════════════════════════
+   SLIDE 5 — SUBNET BUILDER
+══════════════════════════════════════ */
+#slide-sub{background:var(--bg)}
+.sub-hdr{padding:16px 26px 7px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.sub-htitle{font-family:'Anybody',sans-serif;font-size:17px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#c084fc}
+.sub-modes{display:flex;gap:5px}
+.smode{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:5px 11px;border-radius:20px;border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--dim);cursor:pointer;letter-spacing:2px;text-transform:uppercase;transition:all .2s}
+.smode.on{border-color:#c084fc;background:rgba(192,132,252,.1);color:#c084fc}
+.sub-body{flex:1;display:grid;grid-template-columns:1fr 250px;min-height:0}
+.sub-map{position:relative;overflow:hidden}
+.sub-cvs{position:absolute;inset:0;pointer-events:none}
+.drop-zone{position:absolute;border-radius:6px;border:1px dashed rgba(255,255,255,.13);background:rgba(255,255,255,.02);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;transition:all .2s;user-select:none}
+.drop-zone.dz-over{border-color:#c084fc;background:rgba(192,132,252,.1);border-style:solid}
+.drop-zone.dz-full{border-style:solid;border-color:rgba(192,132,252,.5);background:rgba(192,132,252,.08);cursor:pointer}
+.drop-zone.dz-full:hover{background:rgba(192,132,252,.15);border-color:#c084fc}
+.dz-flag{font-size:14px;line-height:1}
+.dz-city{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:1px;color:var(--dim);text-transform:uppercase;text-align:center;line-height:1.3}
+.dz-placed{font-family:'IBM Plex Mono',monospace;font-size:8px;color:#c084fc;text-align:center;line-height:1.4}
+.node-pool-bar{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;background:rgba(13,13,20,.94);padding:6px 11px;border-radius:8px;border:1px solid rgba(255,255,255,.07);flex-wrap:wrap;max-width:90%;justify-content:center}
+.pool-lbl{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-right:2px;white-space:nowrap}
+.nchip{padding:4px 9px;border-radius:4px;background:rgba(82,39,133,.2);border:1px solid rgba(192,132,252,.3);font-family:'IBM Plex Mono',monospace;font-size:9px;color:#c084fc;cursor:grab;white-space:nowrap;transition:all .2s;user-select:none}
+.nchip:hover{background:rgba(82,39,133,.35);border-color:#c084fc}
+.nchip.dragging{opacity:.3;cursor:grabbing}
+.nchip.used{display:none}
+.sub-specs{border-left:1px solid rgba(255,255,255,.05);padding:14px;display:flex;flex-direction:column;gap:7px;overflow-y:auto}
+.spec-sec{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--dim);text-transform:uppercase;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,.05)}
+.spec-row{display:flex;flex-direction:column;gap:0px}
+.spec-lbl{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--dim);text-transform:uppercase}
+.spec-val{font-family:'Anybody',sans-serif;font-size:24px;font-weight:700;line-height:1.05;transition:all .3s;color:#c084fc}
+.spec-val.gr{color:var(--gr)}
+.spec-val.sm{font-size:14px;font-family:'IBM Plex Mono',monospace;font-weight:400}
+.spec-unit{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--dim)}
+.spin-badge{padding:6px 9px;border-radius:5px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;display:none;line-height:1.7}
+.spin-badge.connecting{display:block;background:rgba(192,132,252,.09);border:1px solid rgba(192,132,252,.28);color:#c084fc}
+.spin-badge.live{display:block;background:rgba(0,230,118,.07);border:1px solid rgba(0,230,118,.22);color:var(--gr)}
+.sub-clear{margin-top:auto;padding:8px;border-radius:5px;border:1px solid rgba(255,255,255,.08);background:transparent;color:var(--dim);font-family:'IBM Plex Mono',monospace;font-size:9px;cursor:pointer;letter-spacing:2px;text-transform:uppercase;transition:all .2s;width:100%}
+.sub-clear:hover{border-color:var(--re);color:var(--re);background:rgba(255,45,85,.04)}
 
-/* ── ICP SAFE OVERLAY (during failure) ── */
-.icp-safe{position:fixed;top:56px;right:120px;z-index:110;background:rgba(0,230,118,0.08);backdrop-filter:blur(12px);border:1px solid rgba(0,230,118,0.25);border-radius:10px;padding:12px 24px;text-align:center;opacity:0;transition:all 0.35s;pointer-events:none}
-.icp-safe.vis{opacity:1}
-.icp-safe h4{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--green);letter-spacing:2px;text-transform:uppercase}
-.icp-safe p{font-size:13px;color:var(--text2);margin-top:4px}
+/* ══════════════════════════════════════
+   SLIDE 6 — MARKET GROWTH
+══════════════════════════════════════ */
+#slide-mkt{background:var(--bg)}
+.mkt-hdr{padding:16px 26px 6px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.mkt-htitle{font-family:'Anybody',sans-serif;font-size:17px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:var(--gr)}
+.mkt-hint{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--dim);letter-spacing:2px;text-transform:uppercase}
+.mkt-body{flex:1;display:grid;grid-template-columns:1fr 270px;min-height:0}
+.mkt-left{display:flex;flex-direction:column;padding:10px 14px 12px 26px}
+.chart-frame{flex:1;position:relative;display:flex;align-items:stretch;min-height:0}
+.chart-y{display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;padding-right:8px;width:40px;padding-bottom:22px}
+.y-label{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--dim);letter-spacing:.5px;line-height:1}
+.chart-inner{flex:1;position:relative;display:flex;flex-direction:column}
+.chart-gridlines{position:absolute;inset:0;bottom:22px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
+.gridline{height:1px;background:rgba(255,255,255,.04)}
+.chart-cols{position:absolute;inset:0;bottom:22px;display:flex;align-items:flex-end;gap:8px;padding:0 4px}
+.chart-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:0}
+.bar-outer{flex:1;width:100%;display:flex;flex-direction:column;justify-content:flex-end}
+.bar-total{width:100%;border-radius:4px 4px 0 0;overflow:hidden;display:flex;flex-direction:column;transition:height .55s cubic-bezier(.4,0,.2,1)}
+.bar-sw{flex-shrink:0;transition:height .28s ease}
+.bar-saas{flex:.6}
+.bar-compute{flex:.4}
+.bar-year{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--dim);letter-spacing:.5px;margin-top:5px;height:17px}
+.chart-legend{display:flex;gap:14px;margin-top:6px;flex-shrink:0}
+.leg-item{display:flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--dim);letter-spacing:.5px}
+.leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.mkt-right{border-left:1px solid rgba(255,255,255,.05);padding:14px;display:flex;flex-direction:column;gap:8px;overflow-y:auto}
+.mkt-sec{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--dim);text-transform:uppercase;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,.05)}
+.mkt-lbl{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:1px}
+.mkt-val{font-family:'Anybody',sans-serif;font-size:26px;font-weight:700;line-height:1;transition:all .25s}
+.mkt-sub{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--dim);margin-top:2px;transition:all .25s}
+.mkt-val.lime{color:var(--lime)}
+.mkt-val.green{color:var(--gr)}
+.bd-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.bd-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.bd-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--t2);flex:1}
+.bd-num{font-family:'Anybody',sans-serif;font-size:14px;font-weight:700}
+.ms-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.ms-lbl{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--dim);text-transform:uppercase}
+.ms-pct{font-family:'Anybody',sans-serif;font-size:22px;font-weight:700;color:var(--lime)}
+.ms-track{position:relative;height:24px;display:flex;align-items:center;cursor:pointer;user-select:none;margin-bottom:3px}
+.ms-bg{position:absolute;left:0;right:0;height:3px;background:var(--s2);border-radius:2px}
+.ms-fill{position:absolute;left:0;height:3px;background:linear-gradient(90deg,var(--gr),var(--lime));border-radius:2px;pointer-events:none}
+.ms-thumb{position:absolute;width:16px;height:16px;border-radius:50%;background:var(--lime);border:3px solid var(--bg);box-shadow:0 0 10px var(--lime);transform:translateX(-50%);cursor:grab;z-index:2}
+.ms-thumb:active{cursor:grabbing;transform:translateX(-50%) scale(1.15)}
+.ms-range{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--dim)}
 
-/* ── REQUEST TRACE PANEL ── */
-.trace-panel{position:fixed;top:100px;left:16px;z-index:105;background:var(--glass);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:0;width:560px;opacity:0;transition:opacity 0.35s,transform 0.35s;pointer-events:none;user-select:none}
-.trace-panel.vis{opacity:1;pointer-events:auto}
-.trace-panel .drag-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 6px 16px;cursor:grab}
-.trace-panel .drag-bar:active{cursor:grabbing}
-.trace-panel .drag-bar .grip{width:28px;height:3px;border-radius:2px;background:rgba(255,255,255,0.15)}
-.trace-panel .close-btn{width:24px;height:24px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--dim);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0}
-.trace-panel .close-btn:hover{color:var(--red);border-color:rgba(255,45,85,0.3);background:rgba(255,45,85,0.1)}
-.trace-cols{display:flex;gap:16px;padding:0 16px 16px 16px}
-.trace-col{flex:1;min-width:0}
-.trace-col h4{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
-.trace-step{display:flex;align-items:center;gap:8px;padding:5px 0;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);transition:all 0.3s;position:relative}
-.trace-step.active{color:var(--text)}
-.trace-step .dot{width:8px;height:8px;border-radius:50%;background:var(--dim);transition:all 0.3s;flex-shrink:0}
-.trace-step.active .dot{box-shadow:0 0 10px currentColor}
-.trace-step .line{position:absolute;left:3.5px;top:17px;width:1px;height:10px;background:rgba(255,255,255,0.08)}
-.trace-step .ms{margin-left:auto;font-size:13px;opacity:0;transition:opacity 0.3s}
-.trace-step.active .ms{opacity:1}
-.trace-step .corp-tag{font-size:12px;margin-left:4px;opacity:0;transition:opacity 0.3s}
-.trace-step.active .corp-tag{opacity:0.7}
-.trace-total{margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:15px;display:flex;justify-content:space-between}
-
-/* ── DATA/COST OVERLAY LABELS ── */
-.overlay-label{position:fixed;z-index:95;font-family:'JetBrains Mono',monospace;font-size:14px;padding:4px 10px;border-radius:5px;pointer-events:none;opacity:0;transition:all 0.3s;letter-spacing:0.5px;white-space:nowrap}
-.overlay-label.vis{opacity:1}
-
-/* ── INSTRUCTIONS ── */
-.instr{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);z-index:90;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text2);letter-spacing:1.5px;text-align:center;opacity:0.6;transition:opacity 2s}
-.instr.hide{opacity:0}
-
-/* ── STATS CLICKABLE ── */
-.stat-side.web2-side{cursor:pointer;transition:all 0.3s}
-.stat-side.web2-side:hover{background:rgba(255,51,102,0.2);border-color:rgba(255,51,102,0.5)}
-.stat-side.icp-side{cursor:pointer;transition:all 0.3s}
-.stat-side.icp-side:hover{background:rgba(41,171,226,0.2);border-color:rgba(41,171,226,0.5)}
-
-/* ── TRAD MODAL ── */
-.trad-modal-overlay{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s}
-.trad-modal-overlay.vis{display:flex;opacity:1}
-.trad-modal{background:var(--surface);border:1px solid rgba(255,51,102,0.3);border-radius:16px;padding:32px 36px;max-width:560px;width:90%;max-height:85vh;overflow-y:auto;position:relative;box-shadow:0 0 60px rgba(255,51,102,0.15)}
-.trad-modal .modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;padding:4px 8px;transition:color 0.2s}
-.trad-modal .modal-close:hover{color:var(--text)}
-.trad-modal h2{font-family:'JetBrains Mono',monospace;font-size:16px;letter-spacing:3px;text-transform:uppercase;color:var(--pink);margin-bottom:20px}
-.trad-modal .modal-section{margin-bottom:20px}
-.trad-modal .modal-section h3{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
-.trad-modal .modal-section h3 .num-badge{display:inline-block;background:rgba(255,51,102,0.2);border:1px solid rgba(255,51,102,0.35);color:var(--pink);padding:2px 10px;border-radius:10px;font-size:14px;margin-right:8px;letter-spacing:0}
-.trad-modal .modal-list{list-style:none;padding:0;margin:0}
-.trad-modal .modal-list li{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text2);padding:5px 0 5px 16px;position:relative;line-height:1.5}
-.trad-modal .modal-list li::before{content:'›';position:absolute;left:0;color:var(--pink);font-weight:bold}
-.trad-modal .modal-divider{height:1px;background:rgba(255,255,255,0.06);margin:16px 0}
-.trad-modal .modal-footer{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:1px;text-align:center;margin-top:8px}
-
-/* ── ICP MODAL ── */
-.icp-modal-overlay{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s}
-.icp-modal-overlay.vis{display:flex;opacity:1}
-.icp-modal{background:var(--surface);border:1px solid rgba(41,171,226,0.3);border-radius:16px;padding:32px 36px;max-width:560px;width:90%;max-height:85vh;overflow-y:auto;position:relative;box-shadow:0 0 60px rgba(41,171,226,0.15)}
-.icp-modal .modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;padding:4px 8px;transition:color 0.2s}
-.icp-modal .modal-close:hover{color:var(--text)}
-.icp-modal h2{font-family:'JetBrains Mono',monospace;font-size:16px;letter-spacing:3px;text-transform:uppercase;color:var(--icp);margin-bottom:20px}
-.icp-modal .modal-section{margin-bottom:20px}
-.icp-modal .modal-section h3{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
-.icp-modal .modal-section h3 .num-badge{display:inline-block;background:rgba(41,171,226,0.2);border:1px solid rgba(41,171,226,0.35);color:var(--icp);padding:2px 10px;border-radius:10px;font-size:14px;margin-right:8px;letter-spacing:0}
-.icp-modal .modal-list{list-style:none;padding:0;margin:0}
-.icp-modal .modal-list li{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text2);padding:5px 0 5px 16px;position:relative;line-height:1.5}
-.icp-modal .modal-list li::before{content:'›';position:absolute;left:0;color:var(--icp);font-weight:bold}
-.icp-modal .modal-divider{height:1px;background:rgba(255,255,255,0.06);margin:16px 0}
-.icp-modal .modal-note{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);line-height:1.6;padding:8px 12px;background:rgba(41,171,226,0.05);border-radius:8px;border:1px solid rgba(41,171,226,0.1)}
-.icp-modal .modal-footer{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:1px;text-align:center;margin-top:8px}
-
-/* ── COST CALCULATOR ── */
-.cost-calc-overlay{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s}
-.cost-calc-overlay.vis{display:flex;opacity:1}
-.cost-calc{background:var(--surface);border:1px solid rgba(255,215,0,0.3);border-radius:16px;padding:32px 36px;max-width:520px;width:90%;max-height:85vh;overflow-y:auto;position:relative;box-shadow:0 0 60px rgba(255,215,0,0.1)}
-.cost-calc .modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;padding:4px 8px;transition:color 0.2s}
-.cost-calc .modal-close:hover{color:var(--text)}
-.cost-calc h2{font-family:'JetBrains Mono',monospace;font-size:16px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:20px}
-.cost-input-group{margin-bottom:20px}
-.cost-input-group label{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:8px}
-.cost-input-row{display:flex;align-items:center;gap:10px}
-.cost-input-row span.dollar{font-family:'JetBrains Mono',monospace;font-size:24px;color:var(--gold)}
-.cost-input{font-family:'JetBrains Mono',monospace;font-size:22px;color:var(--text);background:rgba(255,255,255,0.04);border:1px solid rgba(255,215,0,0.2);border-radius:10px;padding:10px 16px;width:100%;outline:none;transition:border-color 0.2s}
-.cost-input:focus{border-color:rgba(255,215,0,0.5)}
-.cost-presets{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
-.cost-preset{font-family:'JetBrains Mono',monospace;font-size:11px;padding:5px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:var(--glass2);color:var(--dim);cursor:pointer;transition:all 0.2s}
-.cost-preset:hover,.cost-preset.active{border-color:rgba(255,215,0,0.3);color:var(--gold);background:rgba(255,215,0,0.08)}
-.cost-result{margin-top:20px;border-top:1px solid rgba(255,255,255,0.06);padding-top:20px}
-.cost-breakdown{display:flex;flex-direction:column;gap:10px}
-.cost-row{display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:13px}
-.cost-row .cost-label{color:var(--text2)}
-.cost-row .cost-aws{color:var(--pink)}
-.cost-row .cost-icp{color:var(--green)}
-.cost-total{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700}
-.cost-total .cost-label{color:var(--text)}
-.cost-total .cost-aws{color:var(--pink)}
-.cost-total .cost-icp{color:var(--green)}
-.cost-savings{margin-top:14px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--green);padding:10px;background:rgba(0,230,118,0.06);border:1px solid rgba(0,230,118,0.15);border-radius:8px}
-.cost-disclaimer{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);text-align:center;margin-top:14px;line-height:1.5}
-
-/* ── MOBILE BREAKPOINTS ── */
-@media (max-width:768px){
-  .topbar{padding:10px 14px}
-  .topbar h1{font-size:12px;letter-spacing:2px}
-  .topbar .sub{display:none}
-  .badge{font-size:10px;padding:4px 10px}
-  .stats-bar{flex-direction:column;width:90vw;top:44px;gap:0}
-  .stat-side{border-radius:8px 8px 0 0;flex-wrap:wrap;gap:10px;padding:8px 12px;border:1px solid rgba(255,255,255,0.1)}
-  .stat-side.web2-side{border-radius:8px 8px 0 0;border-right:1px solid rgba(255,51,102,0.2);border-bottom:none}
-  .stat-side.icp-side{border-radius:0 0 8px 8px;border-left:1px solid rgba(41,171,226,0.2);border-top:none}
-  .stat-side .side-label{writing-mode:horizontal-tb;text-orientation:mixed;font-size:11px}
-  .stat-vs{width:auto;height:20px;border:none;font-size:10px}
-  .stat-item .num{font-size:18px}
-  .stat-item .label{font-size:11px}
-  .controls{right:6px;gap:3px}
-  .cbtn{width:36px;height:36px;font-size:13px}
-  .cbtn .tip{display:none}
-  .info{max-width:90vw;left:5vw!important;right:auto!important}
-  .trace-panel{width:95vw!important;left:2.5vw!important;right:auto!important}
-  .trace-cols{flex-direction:column}
-  .lnav{flex-wrap:wrap;max-width:95vw;gap:4px}
-  .lbtn{font-size:9px;padding:5px 8px}
-  .trad-modal,.icp-modal,.cost-calc{padding:20px;max-width:95vw}
-  .trad-modal .modal-list li,.icp-modal .modal-list li{font-size:11px}
-  .cascade-alert{width:90vw;left:5vw;right:auto}
-  .icp-safe{right:auto;left:50%;transform:translateX(-50%);top:auto;bottom:80px}
-  .instr{font-size:10px;letter-spacing:1px}
-}
-@media (max-width:480px){
-  .topbar h1{font-size:10px;letter-spacing:1px}
-  .stat-item .num{font-size:16px}
-  .stat-item .label{font-size:9px}
-  .controls{top:auto;bottom:60px;right:4px;transform:none}
-  .lnav{bottom:6px}
-  .lbtn{font-size:8px;padding:4px 6px}
-  .instr{display:none}
-  .trad-modal h2,.icp-modal h2{font-size:13px}
-  .trad-modal .modal-section h3,.icp-modal .modal-section h3{font-size:11px}
-  .tour-narration{max-width:90vw;padding:16px 20px}
-  .tour-narration .tour-text{font-size:13px}
-}
-
-/* ── GUIDED TOUR ── */
-.tour-narration{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:200;background:var(--glass);backdrop-filter:blur(16px);border:1px solid rgba(0,212,255,0.25);border-radius:14px;padding:20px 28px;max-width:600px;width:90%;display:none;box-shadow:0 0 40px rgba(0,212,255,0.1)}
-.tour-narration.vis{display:block}
-.tour-step-indicator{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
-.tour-narration .tour-text{font-family:'Outfit',sans-serif;font-size:15px;color:var(--text);line-height:1.6;margin-bottom:16px}
-.tour-controls{display:flex;gap:8px;justify-content:flex-end;align-items:center}
-.tour-btn{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:7px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:var(--glass2);color:var(--text2);cursor:pointer;transition:all 0.2s}
-.tour-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,0.08)}
-.tour-btn.primary{background:rgba(0,212,255,0.15);border-color:rgba(0,212,255,0.3);color:var(--accent)}
-.tour-btn.primary:hover{background:rgba(0,212,255,0.25)}
-.tour-btn.skip{color:var(--dim);border-color:transparent;background:transparent}
-.tour-btn.skip:hover{color:var(--text2)}
-.tour-progress{flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
-.tour-progress-bar{height:100%;background:var(--accent);border-radius:2px;transition:width 0.4s ease}
+/* ══════════════════════════════════════
+   SLIDE 7 — 3D MODEL EMBED
+══════════════════════════════════════ */
+#slide-3d{background:#08081a;overflow:hidden}
+.model-frame{position:absolute;inset:0;width:100%;height:100%;border:none}
+.model-instr{position:absolute;bottom:46px;left:50%;transform:translateX(-50%);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.78);background:rgba(5,5,8,.82);border:1px solid rgba(255,255,255,.14);padding:8px 20px;border-radius:5px;pointer-events:none;text-transform:uppercase;z-index:10;white-space:nowrap;transition:opacity 1.4s ease}
+.model-instr.hide{opacity:0}
 </style>
 </head>
 <body>
 
-<div id="cv"></div>
+<div class="deck">
 
-<!-- Top Bar -->
-<div class="topbar">
-  <div><h1>Traditional Stack vs ICP</h1><div class="sub">Interactive 3D Architecture Comparison</div></div>
-  <div class="badge compare" id="badge">ICP COMPARISON</div>
-</div>
-
-<!-- Side-by-side Stats -->
-<div class="stats-bar visible" id="statsBar">
-  <div class="stat-side web2-side">
-    <span class="side-label">TRAD</span>
-    <div class="stat-item"><div class="num">7</div><div class="label">Layers</div></div>
-    <div class="stat-item"><div class="num">12+</div><div class="label">Corp Deps</div></div>
-    <div class="stat-item"><div class="num">47</div><div class="label">Failure Pts</div></div>
-    <div class="stat-item"><div class="num">0</div><div class="label">Crypto Proof</div></div>
+<!-- ════════════════════════════════════
+     SLIDE 1 — ATTACK SIMULATOR
+════════════════════════════════════ -->
+<div class="slide active" id="slide-atk">
+  <div class="atk-hdr">
+    <div class="atk-htitle">⚔ Attack Simulator</div>
+    <div class="atk-controls">
+      <button class="abtn" id="atk-ransomware">🔒 Ransomware</button>
+      <button class="abtn" id="atk-ddos">💥 DDoS Flood</button>
+      <button class="abtn" id="atk-insider">🕵 Insider Attack</button>
+      <button class="abtn reset" id="atk-reset">↺ Reset</button>
+    </div>
   </div>
-  <div class="stat-vs">vs</div>
-  <div class="stat-side icp-side">
-    <span class="side-label">ICP</span>
-    <div class="stat-item"><div class="num">5</div><div class="label">Layers</div></div>
-    <div class="stat-item"><div class="num">~3</div><div class="label">Corp Deps</div></div>
-    <div class="stat-item"><div class="num">5</div><div class="label">Failure Pts</div></div>
-    <div class="stat-item"><div class="num">∞</div><div class="label">Crypto Proof</div></div>
-  </div>
-</div>
-
-<!-- Trad Stack Modal -->
-<div class="trad-modal-overlay" id="tradModal">
-  <div class="trad-modal">
-    <button class="modal-close" id="tradModalClose">✕</button>
-    <h2>Traditional Stack Complexity</h2>
-
-    <div class="modal-section">
-      <h3><span class="num-badge">7</span> Layers</h3>
-      <ul class="modal-list">
-        <li>User Interface — Browser (Chrome, Safari, Edge)</li>
-        <li>CDN / Edge Network — Cloudflare, Akamai, Fastly</li>
-        <li>Load Balancers & DNS — AWS ELB, Route53</li>
-        <li>Application Servers — EC2, Lambda, Kubernetes</li>
-        <li>Databases & Storage — RDS, DynamoDB, S3</li>
-        <li>Cloud Platform — AWS / GCP / Azure</li>
-        <li>Physical Infrastructure — Data Centers, Cables, Power</li>
-      </ul>
-    </div>
-
-    <div class="modal-divider"></div>
-
-    <div class="modal-section">
-      <h3><span class="num-badge">12+</span> Corporate Dependencies</h3>
-      <ul class="modal-list">
-        <li>Google Chrome (67% browser share)</li>
-        <li>Cloudflare (80%+ CDN market)</li>
-        <li>Akamai, Fastly, AWS CloudFront</li>
-        <li>AWS Elastic Load Balancer</li>
-        <li>AWS EC2 / Lambda (33% cloud compute)</li>
-        <li>Microsoft Azure (22% cloud compute)</li>
-        <li>Google Cloud Platform (11% cloud compute)</li>
-        <li>AWS RDS / DynamoDB</li>
-        <li>MongoDB Atlas</li>
-        <li>Equinix & Digital Realty (data centers)</li>
-        <li>Cloudflare DNS / Route53</li>
-        <li>Kubernetes / Docker (orchestration)</li>
-      </ul>
-    </div>
-
-    <div class="modal-divider"></div>
-
-    <div class="modal-section">
-      <h3><span class="num-badge">47</span> Failure Points by Category</h3>
-      <ul class="modal-list">
-        <li><strong>DNS (3):</strong> Resolver failure, registrar outage, TLD server failure</li>
-        <li><strong>CDN (6):</strong> Edge PoP outage, origin shield failure, cache purge error, WAF rule misconfig, DDoS mitigation failure, CDN certificate error</li>
-        <li><strong>SSL/TLS (4):</strong> CA failure, certificate expiry, OCSP responder down, cipher negotiation failure</li>
-        <li><strong>Load Balancer (3):</strong> Health check failure, session affinity loss, connection drain timeout</li>
-        <li><strong>Application (8):</strong> Server crash, memory leak, thread pool exhaustion, bad deployment, dependency injection failure, config drift, secrets rotation failure, logging pipeline break</li>
-        <li><strong>Database (6):</strong> Connection pool exhaustion, replication lag, deadlock, backup corruption, schema migration failure, index corruption</li>
-        <li><strong>Cloud Platform (7):</strong> Region outage, AZ failure, IAM policy error, quota limit hit, API throttling, billing suspension, service deprecation</li>
-        <li><strong>Physical (5):</strong> Power failure, cooling failure, network switch failure, fiber cut, natural disaster</li>
-        <li><strong>Third-party (5):</strong> API rate limit, SDK breaking change, vendor outage, webhook failure, OAuth token expiry</li>
-      </ul>
-    </div>
-
-    <div class="modal-divider"></div>
-    <div class="modal-footer">CLICK OUTSIDE OR ✕ TO CLOSE</div>
-  </div>
-</div>
-
-<!-- ICP Stack Modal -->
-<div class="icp-modal-overlay" id="icpModal">
-  <div class="icp-modal">
-    <button class="modal-close" id="icpModalClose">✕</button>
-    <h2>ICP Stack — Honest Assessment</h2>
-
-    <div class="modal-section">
-      <h3><span class="num-badge">5</span> Layers</h3>
-      <ul class="modal-list">
-        <li>User — Direct browser connection, client-side verification</li>
-        <li>Boundary Nodes — Decentralized entry points, route requests to subnets</li>
-        <li>NNS Governance — On-chain DAO via liquid democracy</li>
-        <li>Subnet &amp; Canisters — Compute + storage unified, BFT consensus replicated</li>
-        <li>Node Machines — Independent operators, AMD SEV-SNP hardware security</li>
-      </ul>
-    </div>
-
-    <div class="modal-divider"></div>
-
-    <div class="modal-section">
-      <h3><span class="num-badge">~3</span> Structural Dependencies</h3>
-      <ul class="modal-list">
-        <li>DFINITY Foundation — Maintains core protocol and tooling. NNS governs upgrades, but DFINITY remains the primary contributor</li>
-        <li>AMD SEV-SNP — Hardware-level confidential computing requires specific AMD processors. No alternative vendor currently supported</li>
-        <li>Node Hardware Specs — Standardized requirements limit the pool of eligible node providers and hardware vendors</li>
-      </ul>
-      <div class="modal-note">These are structural dependencies, not corporate control points — no single entity can halt the network or access user data. But they are real constraints worth acknowledging.</div>
-    </div>
-
-    <div class="modal-divider"></div>
-
-    <div class="modal-section">
-      <h3><span class="num-badge">5</span> Known Failure Modes</h3>
-      <ul class="modal-list">
-        <li>Boundary Node Outages — Mitigated by redundancy, but regional disruptions have occurred</li>
-        <li>Subnet Halts — Have happened (e.g., fiduciary subnet 2023). Consensus stalls until nodes recover</li>
-        <li>NNS Proposal Bugs — Governance risk: a bad proposal could pass and affect the network</li>
-        <li>Canister Cycle Exhaustion — Developer responsibility. If cycles run out, canister stops responding</li>
-        <li>Replica Software Bugs — Mitigated by subnet replication, but bugs in consensus code affect all replicas</li>
-      </ul>
-    </div>
-
-    <div class="modal-divider"></div>
-
-    <div class="modal-section">
-      <h3><span class="num-badge">∞</span> Cryptographic Guarantees</h3>
-      <ul class="modal-list">
-        <li>Chain-Key Cryptography — Single public key verifies all responses from any subnet</li>
-        <li>Certified Variables — Responses include cryptographic proof of correctness</li>
-        <li>Threshold Signatures — No single node holds a complete signing key</li>
-        <li>BFT Consensus — Tolerates up to 1/3 malicious nodes per subnet</li>
-      </ul>
-    </div>
-
-    <div class="modal-divider"></div>
-    <div class="modal-footer">CLICK OUTSIDE OR ✕ TO CLOSE</div>
-  </div>
-</div>
-
-<!-- Right Controls -->
-<div class="controls">
-  <button class="cbtn" id="bExplode"><span>⊞</span><span class="tip">Explode Layers</span></button>
-  <button class="cbtn on" id="bRotate"><span>↻</span><span class="tip">Auto Rotate</span></button>
-  <button class="cbtn" id="bTrace"><span>⚡</span><span class="tip">Request Trace</span></button>
-  <div class="sep"></div>
-  <button class="cbtn red" id="bCF"><span>⚠</span><span class="tip">Cloudflare Failure</span></button>
-  <button class="cbtn red" id="bAWS"><span>☁</span><span class="tip">AWS Region Failure</span></button>
-  <div class="sep"></div>
-  <button class="cbtn grn" id="bData"><span>🔒</span><span class="tip">Data Ownership</span></button>
-  <button class="cbtn gold" id="bCost"><span>$</span><span class="tip">Cost Stacking (dbl-click: calculator)</span></button>
-  <div class="sep"></div>
-  <button class="cbtn icp on" id="bICP"><span>∞</span><span class="tip">Compare: ICP</span></button>
-  <button class="cbtn" id="bReset"><span>⟲</span><span class="tip">Reset All</span></button>
-  <div class="sep"></div>
-  <button class="cbtn" id="bTour"><span>▶</span><span class="tip">Guided Tour</span></button>
-</div>
-
-<!-- Layer Nav -->
-<div class="lnav">
-  <button class="lbtn on" data-l="all">All</button>
-  <button class="lbtn" data-l="user">User</button>
-  <button class="lbtn" data-l="cdn">CDN</button>
-  <button class="lbtn" data-l="lb">LB/DNS</button>
-  <button class="lbtn" data-l="app">App</button>
-  <button class="lbtn" data-l="db">Database</button>
-  <button class="lbtn" data-l="cloud">Cloud</button>
-  <button class="lbtn" data-l="phys">Physical</button>
-</div>
-
-<!-- Info Panel -->
-<div class="info" id="info">
-  <div class="drag-bar" id="infoDrag"><div class="grip"></div><button class="close-btn" id="infoClose">✕</button></div>
-  <div class="body">
-    <div class="tag" id="iTag">LAYER</div>
-    <h3 id="iTitle">Title</h3>
-    <p id="iDesc">Description</p>
-    <div class="corp" id="iCorp" style="display:none"></div>
-    <div class="icp-alt" id="iAlt" style="display:none"></div>
-    <div class="icp-alt" id="iExample" style="display:none"></div>
-  </div>
-</div>
-
-<!-- Cascade Alert -->
-<div class="cascade-alert" id="cascAlert">
-  <h4 id="cascTitle">⚠ FAILURE</h4>
-  <p id="cascDesc">Cascade in progress...</p>
-</div>
-
-<!-- ICP Safe Banner -->
-<div class="icp-safe" id="icpSafe">
-  <h4>✓ ICP UNAFFECTED</h4>
-  <p>No single point of failure. Consensus continues.</p>
-</div>
-
-<!-- Request Trace -->
-<div class="trace-panel" id="tracePanel">
-  <div class="drag-bar" id="traceDrag"><div class="grip"></div><button class="close-btn" id="traceClose">✕</button></div>
-  <div class="trace-cols" id="traceCols"></div>
-</div>
-
-<!-- Cost Calculator Modal -->
-<div class="cost-calc-overlay" id="costCalcModal">
-  <div class="cost-calc">
-    <button class="modal-close" id="costCalcClose">✕</button>
-    <h2>Cost Calculator</h2>
-    <div class="cost-input-group">
-      <label>Monthly AWS Spend</label>
-      <div class="cost-input-row">
-        <span class="dollar">$</span>
-        <input type="number" class="cost-input" id="costInput" placeholder="2000" value="2000">
+  <div class="atk-arena">
+    <div class="atk-side atk-trad">
+      <div class="side-lbl">Traditional Stack</div>
+      <div class="node-grid" id="trad-grid"></div>
+      <div class="atk-stats">
+        <div><div class="astat-lbl">Uptime</div><div class="astat-val safe" id="t-uptime">100%</div></div>
+        <div><div class="astat-lbl">Services</div><div class="astat-val safe" id="t-svcs">12</div></div>
+        <div><div class="astat-lbl">Data</div><div class="astat-val safe" id="t-data">SECURE</div></div>
+        <div><div class="astat-lbl">Status</div><div class="astat-val safe" id="t-status">NORMAL</div></div>
       </div>
-      <div class="cost-presets">
-        <button class="cost-preset" data-val="100">$100</button>
-        <button class="cost-preset" data-val="500">$500</button>
-        <button class="cost-preset active" data-val="2000">$2K</button>
-        <button class="cost-preset" data-val="5000">$5K</button>
-        <button class="cost-preset" data-val="10000">$10K</button>
+      <div class="alog" id="trad-log"></div>
+    </div>
+    <div class="atk-side atk-icp">
+      <div class="side-lbl">ICP / Caffeine Engine</div>
+      <div class="node-grid" id="icp-grid"></div>
+      <div class="atk-stats">
+        <div><div class="astat-lbl">Uptime</div><div class="astat-val safe" id="i-uptime">100%</div></div>
+        <div><div class="astat-lbl">Canisters</div><div class="astat-val safe" id="i-cans">12 ACTIVE</div></div>
+        <div><div class="astat-lbl">Consensus</div><div class="astat-val safe" id="i-cons">ACTIVE</div></div>
+        <div><div class="astat-lbl">Security</div><div class="astat-val safe" id="i-sec">IMMUNE</div></div>
+      </div>
+      <div class="alog" id="icp-log"></div>
+    </div>
+  </div>
+</div><!-- /slide-atk -->
+
+<!-- ════════════════════════════════════
+     SLIDE 2 — WISH MACHINE
+════════════════════════════════════ -->
+<div class="slide" id="slide-wish">
+  <canvas class="rain-canvas" id="rain-canvas"></canvas>
+  <div class="wish-wrap">
+    <div class="wish-title">Wish Machine</div>
+    <div class="wish-sub">Describe an app. Watch it build.</div>
+    <div class="wish-row">
+      <input class="wish-inp" id="wish-inp" type="text" placeholder="e.g. A coffee ordering app for my café...">
+      <button class="wish-go" id="wish-go">BUILD →</button>
+    </div>
+    <div class="pipeline" id="pipeline">
+      <div class="pstage" data-stage="0"><span class="pico">🔍</span><span class="pname">Analyze</span></div>
+      <div class="pstage" data-stage="1"><span class="pico">🎨</span><span class="pname">Design</span></div>
+      <div class="pstage" data-stage="2"><span class="pico">⚙</span><span class="pname">Generate</span></div>
+      <div class="pstage" data-stage="3"><span class="pico">✓</span><span class="pname">Verify</span></div>
+      <div class="pstage" data-stage="4"><span class="pico">🚀</span><span class="pname">Deploy</span></div>
+    </div>
+    <div class="wish-out" id="wish-out"><span class="wcursor"></span></div>
+    <div class="wish-deploy" id="wish-deploy">
+      <div class="deploy-url" id="deploy-url"></div>
+      <div class="deploy-time" id="deploy-time"></div>
+    </div>
+  </div>
+</div><!-- /slide-wish -->
+
+<!-- ════════════════════════════════════
+     SLIDE 3 — TIMELINE SLIDER
+════════════════════════════════════ -->
+<div class="slide" id="slide-tl">
+  <div class="tl-hdr"><div class="tl-htitle">⟳ Evolution of Software Teams</div></div>
+  <div class="tl-body">
+    <div class="tl-left">
+      <div class="tl-era-name" id="tl-era-name">Mainframe Era</div>
+      <div class="tl-era-year" id="tl-era-year">1950s – 70s</div>
+      <div class="tl-scene" id="tl-scene">
+        <div class="tl-appbox" id="tl-appbox">
+          <div class="tl-appbar" id="tl-appbar"></div>
+          <div class="tl-appcontent" id="tl-appcontent"></div>
+        </div>
+      </div>
+      <div class="tl-slider-area">
+        <div class="tl-track" id="tl-track">
+          <div class="tl-bg"></div>
+          <div class="tl-fill" id="tl-fill"></div>
+          <div class="tl-thumb" id="tl-thumb"></div>
+        </div>
+        <div class="tl-marks">
+          <span class="tl-mark" data-pos="0">1950s</span>
+          <span class="tl-mark" data-pos="0.16">1980s</span>
+          <span class="tl-mark" data-pos="0.33">2000s</span>
+          <span class="tl-mark" data-pos="0.5">2015</span>
+          <span class="tl-mark" data-pos="0.65">2021</span>
+          <span class="tl-mark" data-pos="0.82">2024</span>
+          <span class="tl-mark" data-pos="1">2026+</span>
+        </div>
       </div>
     </div>
-    <div class="cost-result">
-      <div class="cost-breakdown" id="costBreakdown">
-        <div class="cost-row"><span class="cost-label">Compute (40%)</span><span class="cost-aws" id="ccCompAws">$800</span><span class="cost-icp" id="ccCompIcp">$120</span></div>
-        <div class="cost-row"><span class="cost-label">Storage (20%)</span><span class="cost-aws" id="ccStoreAws">$400</span><span class="cost-icp" id="ccStoreIcp">$20</span></div>
-        <div class="cost-row"><span class="cost-label">Bandwidth (25%)</span><span class="cost-aws" id="ccBwAws">$500</span><span class="cost-icp" id="ccBwIcp">$0</span></div>
-        <div class="cost-row"><span class="cost-label">Other (15%)</span><span class="cost-aws" id="ccOtherAws">$300</span><span class="cost-icp" id="ccOtherIcp">$45</span></div>
-      </div>
-      <div class="cost-total">
-        <span class="cost-label">TOTAL / MO</span>
-        <span class="cost-aws" id="ccTotalAws">$2,000</span>
-        <span class="cost-icp" id="ccTotalIcp">$185</span>
-      </div>
-      <div class="cost-savings" id="ccSavings">Estimated savings: ~91% ($1,815/mo)</div>
+    <div class="tl-right">
+      <div class="tl-stat"><div class="tl-slbl">Team Size</div><div class="tl-sval" id="tl-team">8 <span class="tl-sunit">people</span></div></div>
+      <div class="tl-stat"><div class="tl-slbl">Build Time</div><div class="tl-sval" id="tl-build">18 <span class="tl-sunit">months</span></div></div>
+      <div class="tl-stat"><div class="tl-slbl">Cost</div><div class="tl-sval" id="tl-cost">$10M+</div></div>
+      <div class="tl-stat"><div class="tl-slbl">Security</div><div class="tl-sval" id="tl-sec">Low</div></div>
+      <div class="tl-desc" id="tl-desc">Rooms full of hardware. Only corporations and governments could afford computing. Software shipped on punch cards.</div>
     </div>
-    <div class="cost-disclaimer">Estimates based on published ICP cycle costs vs AWS on-demand pricing. Actual costs vary by workload. ICP bandwidth has no egress fees.</div>
   </div>
-</div>
+</div><!-- /slide-tl -->
 
-<!-- Guided Tour Narration -->
-<div class="tour-narration" id="tourPanel">
-  <div class="tour-step-indicator" id="tourStep">STEP 1 / 10</div>
-  <div class="tour-text" id="tourText">Welcome to the guided tour.</div>
-  <div class="tour-progress"><div class="tour-progress-bar" id="tourProgress" style="width:0%"></div></div>
-  <div class="tour-controls">
-    <button class="tour-btn skip" id="tourSkip">Skip</button>
-    <button class="tour-btn" id="tourPrev">← Prev</button>
-    <button class="tour-btn primary" id="tourNext">Next →</button>
+<!-- ════════════════════════════════════
+     SLIDE 4 — SOVEREIGN WORLD MAP
+════════════════════════════════════ -->
+<div class="slide" id="slide-map">
+  <div class="map-hdr">
+    <div class="map-htitle">🌍 Cloud Sovereignty Index</div>
+    <div class="map-hint">Click a country · Deploy ICP to liberate</div>
   </div>
-</div>
+  <div class="map-body">
+    <div class="map-area" id="map-area"></div>
+    <div class="map-sb" id="map-sb">
+      <div class="no-sel" id="no-sel">← Click a country<br>to view data</div>
+      <div id="sb-content" style="display:none;flex-direction:column;gap:9px;">
+        <div><div class="sb-tlbl">Country</div><div class="sb-country" id="sb-cname"></div></div>
+        <div>
+          <div class="dep-mlbl"><span>Foreign Cloud Dependency</span><span id="sb-dep-pct"></span></div>
+          <div class="dep-mtrack"><div class="dep-mfill" id="sb-dep-fill"></div></div>
+        </div>
+        <div><div class="sb-tlbl" style="margin-bottom:6px">Provider Breakdown</div><div class="prov-list" id="sb-provs"></div></div>
+        <div class="risk-txt" id="sb-risk"></div>
+        <button class="deploy-btn" id="deploy-btn">⬡ Deploy ICP Sovereign Cloud</button>
+        <div class="deploy-rdout" id="deploy-rdout"></div>
+      </div>
+    </div>
+  </div>
+</div><!-- /slide-map -->
 
-<div class="instr" id="instr">DRAG TO ROTATE · SCROLL TO ZOOM · CLICK LAYERS · RIGHT PANEL FOR MODES</div>
+<!-- ════════════════════════════════════
+     SLIDE 5 — SUBNET BUILDER
+════════════════════════════════════ -->
+<div class="slide" id="slide-sub">
+  <div class="sub-hdr">
+    <div class="sub-htitle">⬡ Subnet Builder</div>
+    <div class="sub-modes">
+      <button class="smode on" data-mode="internet">🌐 Internet</button>
+      <button class="smode" data-mode="cloud">☁ Cloud-on-Cloud</button>
+      <button class="smode" data-mode="sovereign">🔒 Sovereign</button>
+    </div>
+  </div>
+  <div class="sub-body">
+    <div class="sub-map" id="sub-map">
+      <canvas class="sub-cvs" id="sub-cvs"></canvas>
+      <div id="sub-zones"></div>
+      <div class="node-pool-bar" id="node-pool">
+        <span class="pool-lbl">NODE POOL</span>
+      </div>
+    </div>
+    <div class="sub-specs">
+      <div class="spec-sec">Engine Config</div>
+      <div class="spec-row"><div class="spec-lbl">Mode</div><div class="spec-val sm" id="spec-mode">INTERNET</div></div>
+      <div class="spec-row"><div class="spec-lbl">Nodes Placed</div><div class="spec-val" id="spec-nodes">0</div></div>
+      <div class="spec-sec">Fault Tolerance</div>
+      <div class="spec-row"><div class="spec-lbl">Replication Factor</div><div class="spec-val" id="spec-rep">—</div></div>
+      <div class="spec-row"><div class="spec-lbl">Node Failures Tolerated</div><div class="spec-val" id="spec-ft">—</div></div>
+      <div class="spec-row"><div class="spec-lbl">Consensus Threshold</div><div class="spec-val sm" id="spec-cons">—</div></div>
+      <div class="spec-sec">Performance</div>
+      <div class="spec-row"><div class="spec-lbl">Avg Global Latency</div><div class="spec-val" id="spec-lat">—</div></div>
+      <div class="spec-row"><div class="spec-lbl">CLOUD Act Immune</div><div class="spec-val" id="spec-immune">—</div></div>
+      <div class="spin-badge" id="spin-badge"></div>
+      <button class="sub-clear" id="sub-clear">✕ Clear Subnet</button>
+    </div>
+  </div>
+</div><!-- /slide-sub -->
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- ════════════════════════════════════
+     SLIDE 6 — MARKET GROWTH
+════════════════════════════════════ -->
+<div class="slide" id="slide-mkt">
+  <div class="mkt-hdr">
+    <div class="mkt-htitle">📈 The $2 Trillion Opportunity</div>
+    <div class="mkt-hint">Global cloud revenue 2025–2030 · Drag slider to set self-writing penetration</div>
+  </div>
+  <div class="mkt-body">
+    <div class="mkt-left">
+      <div class="chart-frame">
+        <div class="chart-y">
+          <span class="y-label">$2T</span>
+          <span class="y-label">$1.5T</span>
+          <span class="y-label">$1T</span>
+          <span class="y-label">$500B</span>
+          <span class="y-label">$0</span>
+        </div>
+        <div class="chart-inner">
+          <div class="chart-gridlines">
+            <div class="gridline"></div>
+            <div class="gridline"></div>
+            <div class="gridline"></div>
+            <div class="gridline"></div>
+            <div class="gridline"></div>
+          </div>
+          <div class="chart-cols" id="mkt-cols"></div>
+        </div>
+      </div>
+      <div class="chart-legend">
+        <div class="leg-item"><div class="leg-dot" style="background:linear-gradient(to right,#c8ff00,#00d4ff)"></div>Self-Writing (Caffeine / ICP)</div>
+        <div class="leg-item"><div class="leg-dot" style="background:rgba(241,90,36,.55)"></div>SaaS / Software layer</div>
+        <div class="leg-item"><div class="leg-dot" style="background:rgba(41,171,226,.42)"></div>Compute / Infrastructure</div>
+      </div>
+    </div>
+    <div class="mkt-right">
+      <div class="mkt-sec">Market 2030</div>
+      <div>
+        <div class="mkt-lbl">Total Cloud Market</div>
+        <div class="mkt-val">$2.0T</div>
+        <div class="mkt-sub">compound growth from $1.0T in 2025</div>
+      </div>
+      <div>
+        <div class="mkt-lbl">Split by Layer</div>
+        <div class="bd-row"><div class="bd-dot" style="background:#F15A24"></div><span class="bd-lbl">SaaS / Software</span><span class="bd-num" style="color:#F15A24">$1.2T</span></div>
+        <div class="bd-row"><div class="bd-dot" style="background:#29ABE2"></div><span class="bd-lbl">Compute / Infra</span><span class="bd-num" style="color:#29ABE2">$0.8T</span></div>
+      </div>
+      <div class="mkt-sec">Self-Writing Penetration</div>
+      <div>
+        <div class="ms-row"><span class="ms-lbl">Market capture</span><span class="ms-pct" id="mkt-pct">5%</span></div>
+        <div class="ms-track" id="ms-track">
+          <div class="ms-bg"></div>
+          <div class="ms-fill" id="ms-fill"></div>
+          <div class="ms-thumb" id="ms-thumb"></div>
+        </div>
+        <div class="ms-range"><span>0%</span><span>50%</span></div>
+      </div>
+      <div class="mkt-sec">Revenue at Penetration</div>
+      <div>
+        <div class="mkt-lbl">Self-Writing Segment 2030</div>
+        <div class="mkt-val lime" id="mkt-sw-val">$100B</div>
+        <div class="mkt-sub" id="mkt-sw-sub">5% of $2.0T market</div>
+      </div>
+      <div>
+        <div class="mkt-lbl">ICP Addressable Market</div>
+        <div class="mkt-val green" id="mkt-icp-val">$25B</div>
+        <div class="mkt-sub">Caffeine on ICP · 25% of self-writing</div>
+      </div>
+    </div>
+  </div>
+</div><!-- /slide-mkt -->
+
+<!-- ════════════════════════════════════
+     SLIDE 7 — 3D MODEL EMBED
+════════════════════════════════════ -->
+<div class="slide" id="slide-3d">
+  <iframe class="model-frame" id="model-frame" src="web2-3d-model.html" allowfullscreen></iframe>
+  <div class="model-instr" id="model-instr">INTERACTIVE — CLICK LAYERS · TOGGLE ICP MODE · TRIGGER FAILURES</div>
+</div><!-- /slide-3d -->
+
+</div><!-- /deck -->
+
+<nav class="nav-dots" id="nav-dots"></nav>
+<div class="slabel" id="slabel">SLIDE 1 OF 7</div>
+<button class="narr prev" id="nav-prev">‹</button>
+<button class="narr next" id="nav-next">›</button>
+
 <script>
+/* ════════════════════════════════════════
+   SLIDE 1 — ATTACK SIMULATOR
+════════════════════════════════════════ */
 (function(){
-'use strict';
+  var tradNodes = 12, icpNodes = 12;
+  var deadCount = 0, attacking = false, timers = [];
+  var tLog = document.getElementById('trad-log');
+  var iLog = document.getElementById('icp-log');
 
-/* ═══════════════════════════════════════════════
-   LAYER DATA
-   ═══════════════════════════════════════════════ */
+  // Build node grids
+  var tg = document.getElementById('trad-grid');
+  var ig = document.getElementById('icp-grid');
+  for(var i=0;i<12;i++){
+    var tn = document.createElement('div');
+    tn.className = 'snode tn'; tn.id = 'tn'+i; tn.textContent = '🖥';
+    tg.appendChild(tn);
+    var inn = document.createElement('div');
+    inn.className = 'snode in'; inn.id = 'in'+i; inn.textContent = '⬡';
+    ig.appendChild(inn);
+  }
 
-var C = {
-  user:0x00d4ff, cdn:0xff9500, dns:0xffd60a, lb:0x7c3aed,
-  app:0xff3366, db:0x3b82f6, cloud:0x6366f1, phys:0x64748b,
-  icp:0x29abe2, icpOrange:0xF15A24, icpYellow:0xFBB03B, icpPurple:0x522785,
-  fail:0xff2d55, green:0x00e676, gold:0xffd700, flow:0x00d4ff
-};
+  function tLog_add(msg, cls){
+    var e = document.createElement('div');
+    e.className = cls; e.textContent = '> '+msg;
+    tLog.appendChild(e);
+    tLog.scrollTop = tLog.scrollHeight;
+  }
+  function iLog_add(msg){
+    var e = document.createElement('div');
+    e.className = 'logok'; e.textContent = '✓ '+msg;
+    iLog.appendChild(e);
+    iLog.scrollTop = iLog.scrollHeight;
+  }
 
-var INFO = {
-  user:{tag:'LAYER 1 — VISIBLE',tc:'#00d4ff',title:'User Interface',
-    desc:'The only layer users see. Your browser, your screen. Everything below is invisible — hidden behind corporate walls and geographic distance.',
-    corp:'CONTROLLED BY: Google Chrome (67% market share), Apple Safari, Microsoft Edge — browser vendors dictate web standards, collect telemetry, can block sites',
-    alt:'ICP: Browser connects directly to boundary nodes. Certified responses are cryptographically verified — no trust required.',
-    cost:'You pay nothing directly, but your data is monetized at every layer below — you ARE the product',
-    data:'Your request headers, IP, cookies, and behavior data begin their journey through 6 more corporate entities',
-    example:''},
-  cdn:{tag:'LAYER 2 — EDGE',tc:'#ff9500',title:'CDN / Edge Network',
-    desc:'Cloudflare, Akamai, Fastly — corporate gatekeepers caching content at 300+ global PoPs. They see ALL your traffic. When one goes down, millions of sites vanish.',
-    corp:'CONTROLLED BY: Cloudflare (80%+ of CDN market), Akamai, Fastly, AWS CloudFront — 4 companies see most of the internet\'s traffic',
-    alt:'ICP: No CDN needed. Boundary nodes serve certified content directly. No corporate middleman caching (and reading) your data.',
-    cost:'Paying for bandwidth and caching — per-GB charges that scale with popularity. Enterprise plans cost tens of thousands monthly.',
-    data:'CDN caches your content, logs every request, can read unencrypted data, shares analytics with customers. Your browsing patterns are a product.',
-    example:'⚠ REAL INCIDENT: Cloudflare Nov 18, 2025 — oversized config file crashed proxy servers globally for 4+ hours, taking down X, ChatGPT, Discord, Spotify. Dec 5, 2025 — a second outage impacted 28% of all HTTP traffic.'},
-  lb:{tag:'LAYER 3 — ROUTING',tc:'#7c3aed',title:'Load Balancers & DNS',
-    desc:'Traffic directors deciding which server handles your request. AWS ELB, Nginx, HAProxy. Another corporate dependency, another failure point, another entity logging everything.',
-    corp:'CONTROLLED BY: AWS ELB, Google Cloud LB, Azure LB, Cloudflare DNS — your routing is decided by corporations',
-    alt:'ICP: Consensus-based routing. The subnet protocol deterministically routes requests — no corporate traffic director.',
-    cost:'Paying for traffic routing and DNS queries — per-hour charges for load balancers plus per-million charges for DNS lookups',
-    data:'Load balancer sees every request, logs source IPs, can perform deep packet inspection. DNS providers know every domain you visit.',
-    example:'⚠ REAL INCIDENT: AWS US-EAST-1 Oct 2025 — DNS resolution failure lasted ~15 hours, cascading through DynamoDB to take down Slack, Atlassian, Barclays, and HMRC.'},
-  app:{tag:'LAYER 4 — COMPUTE',tc:'#ff3366',title:'Application Servers',
-    desc:'Where your code runs — on someone else\'s computer. Rented EC2 instances, Lambda functions, Kubernetes pods. You don\'t own the hardware. They can shut you down.',
-    corp:'CONTROLLED BY: AWS EC2 (33%), Azure (22%), GCP (11%) — three companies run 66% of all cloud compute',
-    alt:'ICP: Code runs in canisters — replicated across independent nodes with consensus. No single entity can shut you down. Code is tamperproof.',
-    cost:'Renting compute by the hour — paying for CPU time, memory, and auto-scaling that can spiral out of control',
-    data:'Cloud provider has root access to your servers. They can read your memory, your code, your environment variables. AWS Terms of Service allow inspection.',
-    example:'⚠ REAL INCIDENT: CrowdStrike Jul 2024 — faulty software update crashed 8.5 million Windows machines worldwide, grounding flights, disrupting hospitals, and causing billions in losses.'},
-  db:{tag:'LAYER 5 — DATA',tc:'#3b82f6',title:'Databases & Storage',
-    desc:'Your data lives in someone else\'s database. RDS, DynamoDB, S3. They can read it, lose it, or lock you out. No cryptographic guarantees. Just trust.',
-    corp:'CONTROLLED BY: AWS RDS/DynamoDB, Google Cloud SQL, Azure SQL, MongoDB Atlas — your data is their leverage',
-    alt:'ICP: Data lives inside canisters, replicated with consensus. Orthogonal persistence means no separate database. VetKeys enable encrypted storage only YOU can read.',
-    cost:'Paying to store your own data — per-GB monthly charges plus egress fees that punish you for accessing your own data',
-    data:'Provider can read, copy, analyze, and lose your data. No cryptographic proof they haven\'t. Backups exist in unknown locations. Deletion is a promise, not a proof.',
-    example:'⚠ REAL INCIDENT: Snowflake May 2024 — compromised credentials exposed data from 100+ enterprise customers including AT&T and Ticketmaster. 82% of all breaches in 2024 involved cloud-stored data.'},
-  cloud:{tag:'LAYER 6 — PLATFORM',tc:'#6366f1',title:'Cloud Platform (AWS/GCP/Azure)',
-    desc:'Three companies control 65%+ of all cloud infrastructure. Your entire stack depends on their availability, pricing, and policies. Deplatforming is real.',
-    corp:'CONTROLLED BY: Amazon (33%), Microsoft (22%), Google (11%) — deplatforming risk is existential. Parler, Russia, WikiLeaks all learned this.',
-    alt:'ICP: No platform owner. Network Nervous System (NNS) governs via token holder democracy. No CEO can flip a switch.',
-    cost:'Vendor lock-in is the real cost — proprietary services make switching providers 2-5x more expensive than staying',
-    data:'AWS/GCP/Azure have physical access to ALL your infrastructure. Government subpoenas go to THEM, not you. Compliance means they already scan your data.',
-    example:'⚠ REAL INCIDENT: Azure Oct 2025 — Front Door config/DNS issue caused ~50-hour disruption across Azure and Microsoft 365. Over 18,000 users reported failures. AWS, Azure, and GCP had 100+ outages between Aug 2024–Aug 2025.'},
-  phys:{tag:'LAYER 7 — PHYSICAL',tc:'#64748b',title:'Physical Infrastructure',
-    desc:'Data centers, submarine cables, power grids. Vulnerable to natural disasters, government seizure, and physical attacks. Concentrated in a few regions.',
-    corp:'CONTROLLED BY: Equinix, Digital Realty, AWS, Google — data center oligopoly. 70% of internet traffic flows through Virginia.',
-    alt:'ICP: Node machines operated by independent providers across 30+ global data centers in multiple jurisdictions. No geographic concentration.',
-    cost:'Massive capital expenditure — building and powering data centers costs millions, and those costs flow up to every layer above',
-    data:'Physical access = total access. Government raids, natural disasters, and power failures affect everything above. All 6 layers collapse.',
-    example:'⚠ REAL INCIDENT: Tonga Jan 2022 — a single submarine cable severed by volcanic eruption cut the entire country off from the internet for 5 weeks. 70% of global internet traffic flows through data centers in Virginia.'},
-  // ICP layers - using ICP brand palette
-  icp_user:{tag:'ICP — USER',tc:'#29ABE2',title:'User (Direct Connection)',
-    desc:'On ICP, the user connects directly to the network. No CDN, no corporate gateway. Certified responses are cryptographically verified by the browser — trustless by design.',
-    corp:'NO CORPORATE DEPENDENCY — the client verifies responses using chain-key cryptography, not corporate trust',
-    alt:'',
-    data:'✅ Your data is verified client-side via certified variables. No middleman ever sees raw request data.',
-    cost:'✅ Users never pay gas — the reverse gas model means developers pay for compute, not users'},
-  icp_bn:{tag:'ICP — BOUNDARY',tc:'#F15A24',title:'Boundary Nodes',
-    desc:'Decentralized entry points to the network. They route requests to the correct subnet but CANNOT tamper with responses — cryptographic certification guarantees integrity.',
-    corp:'DECENTRALIZED — run by independent node providers, not a single corporation. No Cloudflare equivalent.',
-    alt:'',
-    data:'✅ Boundary nodes route but CANNOT read or modify data. Responses are cryptographically certified end-to-end.',
-    cost:'✅ Replaces CDN + DNS + Load Balancer — three entire paid traditional layers eliminated'},
-  icp_sub:{tag:'ICP — SUBNET',tc:'#00e676',title:'Subnet & Canisters',
-    desc:'The key innovation. Canisters bundle compute + storage + governance together. No separate DB, no separate app server. This single layer replaces traditional stack layers 3-6. Replicated across independent nodes with BFT consensus.',
-    corp:'REPLACES 4 TRADITIONAL LAYERS — no AWS, no database vendor, no load balancer. Code + data + logic unified in tamperproof canisters.',
-    alt:'',
-    data:'✅ Data lives inside canisters with orthogonal persistence. VetKeys enable encrypted storage only YOU can decrypt. No provider can read your data.',
-    cost:'✅ Developers pay cycles for compute and storage — reverse gas model means the end user pays nothing'},
-  icp_nns:{tag:'ICP — GOVERNANCE',tc:'#FBB03B',title:'Network Nervous System (NNS)',
-    desc:'Autonomous on-chain governance via liquid democracy. No CEO, no board, no corporate decisions. Token holders propose and vote on everything from upgrades to node additions.',
-    corp:'DAO GOVERNED — no single entity controls the network. Proposals require community consensus to execute.',
-    alt:'',
-    data:'✅ All governance is on-chain and publicly verifiable. No backroom decisions. No hidden policy changes.',
-    cost:'✅ Governance is a public good — participate by staking ICP neurons, no fees to propose or vote'},
-  icp_nodes:{tag:'ICP — NODES',tc:'#522785',title:'Independent Node Machines',
-    desc:'Standardized hardware run by independent operators across 30+ data centers globally. AMD SEV-SNP technology provides hardware-level confidential computing, ensuring even node operators cannot access data in memory. VetKeys add a cryptographic layer enabling on-chain secret management and encrypted storage.',
-    corp:'INDEPENDENT OPERATORS — no Amazon, no Google, no Microsoft. Truly decentralized physical infrastructure.',
-    alt:'',
-    data:'✅ AMD SEV-SNP hardware security ensures node operators cannot inspect data in memory. VetKeys enable decentralised key management and encrypted storage on-chain.',
-    cost:'✅ Node providers earn ICP rewards for running infrastructure — competitive market drives costs down, no rent-seeking cloud oligopoly'},
-};
-
-var WEB2_LAYERS = ['phys','cloud','db','app','lb','cdn','user'];
-var WEB2_Y = {phys:-6, cloud:-4, db:-2, app:0, lb:2, cdn:4, user:6};
-
-/* ═══════════════════════════════════════════════
-   REQUEST TRACE DATA
-   ═══════════════════════════════════════════════ */
-
-var WEB2_TRACE = [
-  {name:'DNS Lookup', ms:50, corp:'Cloudflare DNS', layer:'cdn'},
-  {name:'CDN Edge Hit?', ms:15, corp:'Cloudflare', layer:'cdn'},
-  {name:'CDN Miss → Origin', ms:80, corp:'Cloudflare → AWS', layer:'cdn'},
-  {name:'Load Balancer', ms:5, corp:'AWS ELB', layer:'lb'},
-  {name:'App Server', ms:120, corp:'AWS EC2', layer:'app'},
-  {name:'Database Query', ms:45, corp:'AWS RDS', layer:'db'},
-  {name:'Response Assembly', ms:30, corp:'AWS EC2', layer:'app'},
-  {name:'Back Through CDN', ms:10, corp:'Cloudflare', layer:'cdn'},
-  {name:'Render in Browser', ms:200, corp:'Chrome', layer:'user'},
-];
-
-var ICP_TRACE = [
-  {name:'DNS → Boundary Node', ms:50, corp:'Decentralized', layer:'icp_bn'},
-  {name:'Route to Subnet', ms:20, corp:'Consensus Protocol', layer:'icp_sub'},
-  {name:'Canister Query Execution', ms:200, corp:'Chain-Key Crypto', layer:'icp_sub'},
-  {name:'Certified Response', ms:50, corp:'Threshold Signature', layer:'icp_sub'},
-  {name:'Render in Browser', ms:200, corp:'Client Verified', layer:'icp_user'},
-];
-
-/* ═══════════════════════════════════════════════
-   THREE.JS STATE
-   ═══════════════════════════════════════════════ */
-
-var scene, cam, ren, clk;
-var layers = {}, icpG = null;
-var flowParts = [];
-
-var st = {
-  exploded:false, rotating:true, traceMode:false, cascadeMode:null,
-  icpMode:true, dataMode:false, costMode:false,
-  dragging:false, pmx:0, pmy:0,
-  camAX:0.3, camAY:0.5, camDist:26, targetDist:26,
-  expProg:0, expTarget:0, t:0,
-  traceStep:-1, traceTimer:null, traceStepICP:-1, traceTimerICP:null,
-};
-
-/* ═══════════════════════════════════════════════
-   MATERIAL FACTORY
-   ═══════════════════════════════════════════════ */
-
-function mg(hex,op){
-  op=op||0.3;
-  var c=new THREE.Color(hex);
-  var m=new THREE.MeshPhongMaterial({color:c,transparent:true,opacity:op,emissive:c.clone(),emissiveIntensity:0.8,side:THREE.DoubleSide});
-  m._oh=hex;m._oo=op;return m;
-}
-function me(hex){
-  var m=new THREE.LineBasicMaterial({color:new THREE.Color(hex),transparent:true,opacity:0.65});
-  m._oh=hex;m._oo=0.65;return m;
-}
-function mb(hex,op){
-  var m=new THREE.MeshBasicMaterial({color:new THREE.Color(hex),transparent:true,opacity:op,side:THREE.DoubleSide});
-  m._oh=hex;m._oo=op;return m;
-}
-function ml(hex,op){
-  var m=new THREE.LineBasicMaterial({color:new THREE.Color(hex),transparent:true,opacity:op});
-  m._oh=hex;m._oo=op;return m;
-}
-function resetMat(m){
-  if(m._oh===undefined)return;
-  m.color.set(m._oh);m.opacity=m._oo;
-  if(m.emissive){m.emissive.set(m._oh);m.emissiveIntensity=0.8;}
-}
-
-/* ═══════════════════════════════════════════════
-   INIT
-   ═══════════════════════════════════════════════ */
-
-function init(){
-  scene=new THREE.Scene();
-  scene.fog=new THREE.FogExp2(0x08081a,0.003);
-  cam=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,0.1,100);
-  ren=new THREE.WebGLRenderer({antialias:true,alpha:true});
-  ren.setSize(innerWidth,innerHeight);
-  ren.setPixelRatio(Math.min(devicePixelRatio,2));
-  ren.toneMapping=THREE.ACESFilmicToneMapping;
-  ren.toneMappingExposure=2.2;
-  document.getElementById('cv').appendChild(ren.domElement);
-  clk=new THREE.Clock();
-
-  scene.add(new THREE.AmbientLight(0x667799,1.0));
-  var d1=new THREE.DirectionalLight(0xffffff,1.2);d1.position.set(10,20,10);scene.add(d1);
-  var d2=new THREE.DirectionalLight(0x6699ff,0.6);d2.position.set(-10,5,-10);scene.add(d2);
-  var pl=new THREE.PointLight(0xff3366,0.6,50);pl.position.set(0,-5,8);scene.add(pl);
-  var pl2=new THREE.PointLight(0x00d4ff,0.5,50);pl2.position.set(5,10,-5);scene.add(pl2);
-  var pl3=new THREE.PointLight(0xffffff,0.4,40);pl3.position.set(-8,3,6);scene.add(pl3);
-
-  buildWeb2();
-  buildICP();
-  buildStars();
-  setupUI();
-  loop();
-  setTimeout(function(){document.getElementById('instr').classList.add('hide')},5000);
-}
-
-/* ═══════════════════════════════════════════════
-   BUILD TRADITIONAL STACK
-   ═══════════════════════════════════════════════ */
-
-function edges(g,hex){
-  var add=[];
-  g.children.forEach(function(c){
-    if(c.isMesh&&c.geometry){
-      var e=new THREE.LineSegments(new THREE.EdgesGeometry(c.geometry),me(hex));
-      e.position.copy(c.position);e.rotation.copy(c.rotation);e.scale.copy(c.scale);
-      add.push(e);
-    }
-  });
-  add.forEach(function(a){g.add(a)});
-}
-
-function mkLayer(name,y,hex,fn){
-  var g=new THREE.Group();
-  fn(g);
-  edges(g,hex);
-  g.position.y=y;
-  g.userData={name:name,baseY:y,color:hex,fail:false};
-  scene.add(g);
-  layers[name]=g;
-}
-
-function buildWeb2(){
-  mkLayer('phys',-6,C.phys,function(g){
-    for(var i=0;i<6;i++){
-      var a=(i/6)*Math.PI*2;
-      var bx=new THREE.Mesh(new THREE.BoxGeometry(1,0.5,1),mg(C.phys,0.35));bx.position.set(Math.cos(a)*4,0,Math.sin(a)*4);g.add(bx);
-      var at=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,0.5),mg(C.phys,0.55));at.position.set(Math.cos(a)*4,0.5,Math.sin(a)*4);g.add(at);
-    }
-    var c=new THREE.Mesh(new THREE.TorusGeometry(5,0.025,8,64),mg(C.phys,0.35));c.rotation.x=Math.PI/2;g.add(c);
-    var c2=new THREE.Mesh(new THREE.TorusGeometry(3.5,0.015,8,48),mg(C.phys,0.25));c2.rotation.x=Math.PI/2;g.add(c2);
-  });
-
-  mkLayer('cloud',-4,C.cloud,function(g){
-    for(var i=0;i<3;i++){
-      var a=(i/3)*Math.PI*2+0.3,r=3;
-      var m=new THREE.Mesh(new THREE.BoxGeometry(2.5,0.25,1.5),mg(C.cloud,0.35));
-      m.position.set(Math.cos(a)*r,0,Math.sin(a)*r);m.rotation.y=a;g.add(m);
-      for(var j=0;j<4;j++){
-        var rk=new THREE.Mesh(new THREE.BoxGeometry(0.25,0.12,0.7),mg(C.cloud,0.4));
-        rk.position.set(Math.cos(a)*r+Math.cos(a+Math.PI/2)*(j-1.5)*0.4,0.2,Math.sin(a)*r+Math.sin(a+Math.PI/2)*(j-1.5)*0.4);
-        rk.rotation.y=a;g.add(rk);
-      }
-    }
-  });
-
-  mkLayer('db',-2,C.db,function(g){
-    g.add(new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,0.5,16),mg(C.db,0.4)));
-    for(var i=0;i<3;i++){var d=new THREE.Mesh(new THREE.CylinderGeometry(1,1,0.03,16),mg(C.db,0.25));d.position.y=-0.12+i*0.12;g.add(d);}
-    for(var i=0;i<2;i++){var a=(i/2)*Math.PI*2+Math.PI/4;var r=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,0.35,12),mg(C.db,0.25));r.position.set(Math.cos(a)*3,0,Math.sin(a)*3);g.add(r);}
-  });
-
-  mkLayer('app',0,C.app,function(g){
-    for(var i=0;i<6;i++){var a=(i/6)*Math.PI*2;var m=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.7,0.7),mg(C.app,0.35));m.position.set(Math.cos(a)*2.5,0,Math.sin(a)*2.5);m.rotation.y=a;g.add(m);}
-    g.add(new THREE.Mesh(new THREE.OctahedronGeometry(0.45),mg(C.app,0.45)));
-  });
-
-  mkLayer('lb',2,C.lb,function(g){
-    var r=new THREE.Mesh(new THREE.TorusGeometry(2,0.12,8,32),mg(C.lb,0.4));r.rotation.x=Math.PI/2;g.add(r);
-    for(var i=0;i<4;i++){var a=(i/4)*Math.PI*2;var dn=new THREE.Mesh(new THREE.SphereGeometry(0.22,12,12),mg(C.dns,0.5));dn.position.set(Math.cos(a)*2,0,Math.sin(a)*2);g.add(dn);}
-  });
-
-  mkLayer('cdn',4,C.cdn,function(g){
-    for(var i=0;i<8;i++){var a=(i/8)*Math.PI*2;var cd=new THREE.Mesh(new THREE.DodecahedronGeometry(0.3),mg(C.cdn,0.45));cd.position.set(Math.cos(a)*3.5,0,Math.sin(a)*3.5);g.add(cd);}
-    g.add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.55),mg(C.cdn,0.5)));
-  });
-
-  mkLayer('user',6,C.user,function(g){
-    g.add(new THREE.Mesh(new THREE.BoxGeometry(3,0.06,2),mg(C.user,0.45)));
-    var s=new THREE.Mesh(new THREE.PlaneGeometry(2.8,1.8),mb(0x00d4ff,0.06));s.position.y=0.04;s.rotation.x=-Math.PI/2;g.add(s);
-    var hd=new THREE.Mesh(new THREE.SphereGeometry(0.3,12,12),mg(C.user,0.5));hd.position.set(0,0.8,-1.5);g.add(hd);
-  });
-
-  // Connections
-  var cg=new THREE.Group();cg.userData={name:'conn'};
-  var ys=[-6,-4,-2,0,2,4,6];
-  for(var i=0;i<ys.length-1;i++){
-    for(var j=0;j<3;j++){
-      var a=(j/3)*Math.PI*2,s=1.5;
-      var pts=new THREE.CatmullRomCurve3([
-        new THREE.Vector3(Math.cos(a)*s*0.5,ys[i]+0.3,Math.sin(a)*s*0.5),
-        new THREE.Vector3(Math.cos(a+0.2)*s,(ys[i]+ys[i+1])/2,Math.sin(a+0.2)*s),
-        new THREE.Vector3(Math.cos(a+0.1)*s*0.5,ys[i+1]-0.3,Math.sin(a+0.1)*s*0.5)
-      ]).getPoints(20);
-      cg.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),ml(0x445577,0.25)));
+  function killNode(i){
+    var n = document.getElementById('tn'+i);
+    if(!n || n.classList.contains('dead')) return;
+    n.classList.add('dead'); n.textContent = '✗';
+    deadCount++;
+    var alive = 12 - deadCount;
+    var pct = Math.round((alive/12)*100);
+    document.getElementById('t-uptime').textContent = pct+'%';
+    document.getElementById('t-svcs').textContent = alive;
+    document.getElementById('t-uptime').className = 'astat-val '+(pct<50?'danger':'safe');
+    document.getElementById('t-svcs').className = 'astat-val '+(alive<6?'danger':'safe');
+    if(deadCount >= 6){
+      document.getElementById('t-data').textContent = 'COMPROMISED';
+      document.getElementById('t-data').className = 'astat-val danger';
+      document.getElementById('t-status').textContent = 'UNDER ATTACK';
+      document.getElementById('t-status').className = 'astat-val danger';
     }
   }
-  scene.add(cg);layers.conn=cg;
-}
 
-/* ═══════════════════════════════════════════════
-   BUILD ICP
-   ═══════════════════════════════════════════════ */
-
-function buildICP(){
-  icpG=new THREE.Group();
-  icpG.visible=true;
-  icpG.position.x=14;
-
-  function a(geo,mat,pos,tag){
-    var m=new THREE.Mesh(geo,mat);m.position.copy(pos);m.userData={icpLayer:tag};icpG.add(m);return m;
+  function bounceNode(i){
+    var n = document.getElementById('in'+i);
+    if(!n) return;
+    n.classList.remove('hit');
+    void n.offsetWidth;
+    n.classList.add('hit');
+    setTimeout(function(){ n.classList.remove('hit'); }, 450);
   }
 
-  // User (y=5) — ICP Blue
-  a(new THREE.BoxGeometry(3,0.06,2),mg(C.icp,0.4),new THREE.Vector3(0,5,0),'icp_user');
-  a(new THREE.SphereGeometry(0.3,12,12),mg(C.icp,0.5),new THREE.Vector3(0,5.8,-1.5),'icp_user');
-
-  // Boundary nodes (y=3) — ICP Orange
-  var bnr=a(new THREE.TorusGeometry(2.5,0.1,8,32),mg(C.icpOrange,0.35),new THREE.Vector3(0,3,0),'icp_bn');
-  bnr.rotation.x=Math.PI/2;
-  for(var i=0;i<6;i++){var ang=(i/6)*Math.PI*2;a(new THREE.SphereGeometry(0.18,12,12),mg(C.icpOrange,0.55),new THREE.Vector3(Math.cos(ang)*2.5,3,Math.sin(ang)*2.5),'icp_bn');}
-
-  // NNS governance (y=1.2) — ICP Yellow
-  a(new THREE.OctahedronGeometry(0.5),mg(C.icpYellow,0.55),new THREE.Vector3(0,1.2,0),'icp_nns');
-
-  // Subnet & Canisters (y=-0.5) — Green
-  var sr=a(new THREE.TorusGeometry(2,0.2,8,28),mg(C.green,0.35),new THREE.Vector3(0,-0.5,0),'icp_sub');
-  sr.rotation.x=Math.PI/2;
-  for(var i=0;i<5;i++){var ang=(i/5)*Math.PI*2;a(new THREE.CylinderGeometry(0.3,0.3,0.6,8),mg(C.green,0.45),new THREE.Vector3(Math.cos(ang)*2,-0.5,Math.sin(ang)*2),'icp_sub');}
-
-  // NNS → Canister governance lines (ICP Yellow)
-  for(var i=0;i<5;i++){
-    var ang=(i/5)*Math.PI*2;
-    var nnsLine=new THREE.CatmullRomCurve3([
-      new THREE.Vector3(0,1.2,0),
-      new THREE.Vector3(Math.cos(ang)*1,0.35,Math.sin(ang)*1),
-      new THREE.Vector3(Math.cos(ang)*2,-0.5,Math.sin(ang)*2)
-    ]).getPoints(16);
-    icpG.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(nnsLine),ml(C.icpYellow,0.35)));
-  }
-
-  // Node machines (y=-3) — ICP Purple
-  for(var i=0;i<10;i++){var ang=(i/10)*Math.PI*2;a(new THREE.BoxGeometry(0.5,0.35,0.5),mg(C.icpPurple,0.35),new THREE.Vector3(Math.cos(ang)*3.5,-3,Math.sin(ang)*3.5),'icp_nodes');}
-  var nr=a(new THREE.TorusGeometry(3.5,0.04,8,40),mg(C.icpPurple,0.25),new THREE.Vector3(0,-3,0),'icp_nodes');
-  nr.rotation.x=Math.PI/2;
-
-  // Connection lines
-  var c1=new THREE.CatmullRomCurve3([new THREE.Vector3(0,5,0),new THREE.Vector3(0,3,0),new THREE.Vector3(0,1.2,0),new THREE.Vector3(0,-0.5,0)]).getPoints(40);
-  icpG.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(c1),ml(C.icp,0.5)));
-
-  var c2=new THREE.CatmullRomCurve3([new THREE.Vector3(0,-0.5,0),new THREE.Vector3(0,-1.7,0),new THREE.Vector3(0,-3,0)]).getPoints(20);
-  icpG.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(c2),ml(C.icp,0.35)));
-
-  for(var i=0;i<10;i++){
-    var ang=(i/10)*Math.PI*2;
-    var c3=new THREE.CatmullRomCurve3([
-      new THREE.Vector3(Math.cos(ang)*2,-0.5,Math.sin(ang)*2),
-      new THREE.Vector3(Math.cos(ang)*2.7,-1.7,Math.sin(ang)*2.7),
-      new THREE.Vector3(Math.cos(ang)*3.5,-3,Math.sin(ang)*3.5)
-    ]).getPoints(12);
-    icpG.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(c3),ml(C.icp,0.2)));
-  }
-
-  // Edges
-  var add=[];
-  icpG.children.forEach(function(c){
-    if(c.isMesh&&c.geometry){
-      var e=new THREE.LineSegments(new THREE.EdgesGeometry(c.geometry),me(C.icp));
-      e.position.copy(c.position);e.rotation.copy(c.rotation);e.scale.copy(c.scale);add.push(e);
+  var ATTACKS = {
+    ransomware: {
+      tradLogs: ['Encrypting /var/db/users.sql...','Propagating to backup volumes...','Ransom note: 50 BTC to unlock','All services unreachable','Recovery estimate: 72 hours'],
+      icpLogs: ['Immutable canister state — encryption impossible','Certified variables cannot be tampered','NNS governance unaffected','All canisters operational'],
+      killOrder: [0,3,6,9,1,4,7,10,2,5,8,11],
+      killDelay: 600
+    },
+    ddos: {
+      tradLogs: ['250K rps incoming — capacity: 10K','Memory exhausted on all nodes','TCP connections maxed out','502 Bad Gateway — load balancer failed','Datacenter uplink saturated'],
+      icpLogs: ['Rate limiting via threshold protocol','Subnet consensus unaffected by traffic volume','Boundary nodes absorbing DDoS','No single point of failure — attack distributed harmlessly'],
+      killOrder: [0,1,2,3,4,5,6,7,8,9,10,11],
+      killDelay: 350
+    },
+    insider: {
+      tradLogs: ['Admin credentials stolen via phishing','Root access granted to attacker','50GB customer data exfiltrated','Audit logs cleared','GDPR breach — 72h notification required'],
+      icpLogs: ['Chain-key cryptography: no root access exists','VetKeys: data encrypted — only owner can decrypt','All actions on-chain and publicly auditable','Insider threat surface: zero'],
+      killOrder: [5,2,8,0,10,3,7,1,9,4,6,11],
+      killDelay: 700
     }
-  });
-  add.forEach(function(e){icpG.add(e)});
-  scene.add(icpG);
-}
-
-/* ═══════════════════════════════════════════════
-   STARFIELD
-   ═══════════════════════════════════════════════ */
-
-function buildStars(){
-  var n=600,p=new Float32Array(n*3),c=new Float32Array(n*3);
-  for(var i=0;i<n;i++){
-    p[i*3]=(Math.random()-0.5)*50;p[i*3+1]=(Math.random()-0.5)*35;p[i*3+2]=(Math.random()-0.5)*50;
-    var cl=new THREE.Color().setHSL(0.55+Math.random()*0.15,0.5,0.35+Math.random()*0.25);
-    c[i*3]=cl.r;c[i*3+1]=cl.g;c[i*3+2]=cl.b;
-  }
-  var g=new THREE.BufferGeometry();
-  g.setAttribute('position',new THREE.BufferAttribute(p,3));
-  g.setAttribute('color',new THREE.BufferAttribute(c,3));
-  scene.add(new THREE.Points(g,new THREE.PointsMaterial({size:0.04,vertexColors:true,transparent:true,opacity:0.7,sizeAttenuation:true})));
-}
-
-/* ═══════════════════════════════════════════════
-   DATA FLOW
-   ═══════════════════════════════════════════════ */
-
-function spawnFlow(){
-  var m=new THREE.Mesh(new THREE.SphereGeometry(0.05,6,6),mb(C.flow,0.8));
-  m.userData={p:0,spd:0.004+Math.random()*0.008,ox:(Math.random()-0.5)*2,oz:(Math.random()-0.5)*2};
-  scene.add(m);flowParts.push(m);
-}
-
-function updateFlow(t){
-  if(!st.traceMode)return;
-  if(Math.random()<0.12)spawnFlow();
-  for(var i=flowParts.length-1;i>=0;i--){
-    var p=flowParts[i],d=p.userData;
-    d.p+=d.spd;
-    if(d.p>1){scene.remove(p);flowParts.splice(i,1);}
-    else{
-      var y=6-d.p*12;
-      p.position.set(Math.sin(d.p*Math.PI*3+t)*(1+d.ox),y+(st.exploded?st.expProg*2*(1-d.p*2):0),Math.cos(d.p*Math.PI*2+t)*(1+d.oz));
-      p.material.opacity=0.7*(1-d.p*0.5);
-      if(st.cascadeMode){var mx=Math.sin(t*5)*0.5+0.5;p.material.color.setRGB(mx,0.18*(1-mx)+0.83*mx*0,(1-mx));}
-      else p.material.color.set(C.flow);
-    }
-  }
-}
-
-/* ═══════════════════════════════════════════════
-   CASCADE FAILURE
-   ═══════════════════════════════════════════════ */
-
-function setFail(name){
-  var l=layers[name];if(!l)return;l.userData.fail=true;
-  l.traverse(function(c){if(!c.material)return;
-    if(c.isMesh){c.material.color.set(C.fail);c.material.opacity=0.35;if(c.material.emissive){c.material.emissive.set(C.fail);c.material.emissiveIntensity=0.8;}}
-    else if(c.isLineSegments){c.material.color.set(C.fail);c.material.opacity=0.6;}
-  });
-}
-
-function triggerCascade(type){
-  if(st.cascadeMode===type){resetCascade();return;}
-  st.cascadeMode=type;
-  var b=document.getElementById('badge');b.className='badge fail';b.textContent='⚠ CASCADE FAILURE';
-
-  if(type==='cf'){
-    document.getElementById('cascTitle').textContent='⚠ CLOUDFLARE DOWN';
-    document.getElementById('cascDesc').textContent='CDN failure → Load balancers unreachable → 502/503 errors → Users see blank pages';
-    setFail('cdn');
-    setTimeout(function(){setFail('lb')},700);
-    setTimeout(function(){setFail('app')},1400);
-    setTimeout(function(){setFail('user')},2100);
-    document.getElementById('bCF').classList.add('on');
-  } else {
-    document.getElementById('cascTitle').textContent='⚠ AWS us-east-1 DOWN';
-    document.getElementById('cascDesc').textContent='Cloud platform fail → All services down → Databases unreachable → Complete outage';
-    setFail('cloud');
-    setTimeout(function(){setFail('db')},500);
-    setTimeout(function(){setFail('app')},1000);
-    setTimeout(function(){setFail('lb')},1400);
-    setTimeout(function(){setFail('cdn')},1800);
-    setTimeout(function(){setFail('user')},2200);
-    document.getElementById('bAWS').classList.add('on');
-  }
-  document.getElementById('cascAlert').classList.add('vis');
-  // Show ICP safe banner if ICP visible
-  if(st.icpMode) document.getElementById('icpSafe').classList.add('vis');
-}
-
-function resetCascade(){
-  st.cascadeMode=null;
-  document.getElementById('cascAlert').classList.remove('vis');
-  document.getElementById('icpSafe').classList.remove('vis');
-  document.getElementById('bCF').classList.remove('on');
-  document.getElementById('bAWS').classList.remove('on');
-  var b=document.getElementById('badge');
-  b.className=st.icpMode?'badge compare':'badge web2';
-  b.textContent=st.icpMode?'ICP COMPARISON':'TRADITIONAL STACK';
-  Object.keys(layers).forEach(function(k){
-    if(k==='conn')return;var l=layers[k];if(!l||!l.userData)return;
-    l.userData.fail=false;l.position.x=0;l.position.z=0;
-    l.traverse(function(c){if(c.material)resetMat(c.material);});
-  });
-}
-
-/* ═══════════════════════════════════════════════
-   REQUEST TRACE
-   ═══════════════════════════════════════════════ */
-
-function startTrace(){
-  st.traceMode=true;
-  document.getElementById('bTrace').classList.add('on');
-  document.getElementById('tracePanel').classList.add('vis');
-  buildTraceUI();
-  runTrace();
-}
-
-function stopTrace(){
-  st.traceMode=false;
-  if(st.traceTimer)clearTimeout(st.traceTimer);
-  if(st.traceTimerICP)clearTimeout(st.traceTimerICP);
-  st.traceStep=-1;st.traceStepICP=-1;
-  document.getElementById('bTrace').classList.remove('on');
-  document.getElementById('tracePanel').classList.remove('vis');
-  flowParts.forEach(function(p){scene.remove(p)});flowParts=[];
-}
-
-function buildTraceCol(data,prefix,title,titleColor,totalColor){
-  var html='<div class="trace-col"><h4 style="color:'+titleColor+'">'+title+'</h4>';
-  data.forEach(function(s,i){
-    var corpColor=prefix==='w'?'color:var(--red)':'color:var(--green)';
-    html+='<div class="trace-step" id="'+prefix+'s'+i+'"><div class="dot" style="color:'+titleColor+'"></div><div>'+s.name+'<span class="corp-tag" style="'+corpColor+'">'+s.corp+'</span></div><span class="ms" style="color:'+totalColor+'">+'+s.ms+'ms</span>';
-    if(i<data.length-1)html+='<div class="line"></div>';
-    html+='</div>';
-  });
-  var total=data.reduce(function(a,b){return a+b.ms},0);
-  html+='<div class="trace-total"><span style="color:var(--text2)">Total</span><span style="color:'+totalColor+'">'+total+'ms</span></div></div>';
-  return html;
-}
-
-function buildTraceUI(){
-  var cols=document.getElementById('traceCols');
-  var html=buildTraceCol(WEB2_TRACE,'w','📡 TRADITIONAL TRACE','var(--pink)','var(--orange)');
-  if(st.icpMode){
-    html+=buildTraceCol(ICP_TRACE,'i','📡 ICP TRACE','var(--icp)','var(--icp)');
-    document.getElementById('tracePanel').style.width='560px';
-  } else {
-    document.getElementById('tracePanel').style.width='300px';
-  }
-  cols.innerHTML=html;
-}
-
-function runTrace(){
-  st.traceStep=-1;
-  st.traceStepICP=-1;
-  function nextW(){
-    st.traceStep++;
-    if(st.traceStep>=WEB2_TRACE.length){
-      setTimeout(function(){
-        for(var i=0;i<WEB2_TRACE.length;i++){var e=document.getElementById('ws'+i);if(e)e.classList.remove('active');}
-        if(st.traceMode)runTraceW();
-      },2000);
-      return;
-    }
-    var e=document.getElementById('ws'+st.traceStep);if(e)e.classList.add('active');
-    if(st.traceMode)st.traceTimer=setTimeout(nextW, WEB2_TRACE[st.traceStep].ms*3+100);
-  }
-  function nextI(){
-    st.traceStepICP++;
-    if(st.traceStepICP>=ICP_TRACE.length){
-      setTimeout(function(){
-        for(var i=0;i<ICP_TRACE.length;i++){var e=document.getElementById('is'+i);if(e)e.classList.remove('active');}
-        if(st.traceMode)runTraceI();
-      },2000);
-      return;
-    }
-    var e=document.getElementById('is'+st.traceStepICP);if(e)e.classList.add('active');
-    if(st.traceMode)st.traceTimerICP=setTimeout(nextI, ICP_TRACE[st.traceStepICP].ms*2+100);
-  }
-  function runTraceW(){st.traceStep=-1;nextW();}
-  function runTraceI(){st.traceStepICP=-1;nextI();}
-  nextW();
-  if(st.icpMode)nextI();
-}
-
-/* ═══════════════════════════════════════════════
-   INFO PANEL
-   ═══════════════════════════════════════════════ */
-
-function showInfo(key){
-  var d=INFO[key];if(!d)return;
-  var p=document.getElementById('info');
-  var t=document.getElementById('iTag');
-  t.textContent=d.tag;t.style.background=d.tc+'22';t.style.color=d.tc;t.style.border='1px solid '+d.tc+'44';
-  document.getElementById('iTitle').textContent=d.title;
-  document.getElementById('iTitle').style.color=d.tc;
-  document.getElementById('iDesc').textContent=d.desc;
-
-  var corpEl=document.getElementById('iCorp');
-  var altEl=document.getElementById('iAlt');
-
-  // Always show corp dependency info
-  if(d.corp){corpEl.textContent=d.corp;corpEl.style.display='block';
-    if(key.indexOf('icp')===0){corpEl.style.color='var(--green)';corpEl.style.borderColor='rgba(0,230,118,0.15)';}
-    else{corpEl.style.color='var(--red)';corpEl.style.borderColor='rgba(255,45,85,0.15)';}
-  } else corpEl.style.display='none';
-
-  // Build alt content from multiple sources
-  var altParts=[];
-  if(d.alt&&st.icpMode) altParts.push('→ '+d.alt);
-  if(st.dataMode&&d.data) altParts.push('🔒 '+d.data);
-  if(st.costMode&&d.cost) altParts.push('💰 '+d.cost);
-
-  if(altParts.length>0){
-    altEl.textContent=altParts.join('\n\n');
-    altEl.style.display='block';
-    // Color based on content priority
-    if(st.dataMode&&d.data&&key.indexOf('icp')===0){altEl.style.color='var(--green)';altEl.style.borderColor='rgba(0,230,118,0.15)';}
-    else if(st.costMode&&d.cost&&key.indexOf('icp')===0){altEl.style.color='var(--icp)';altEl.style.borderColor='rgba(41,171,226,0.15)';}
-    else if(st.dataMode){altEl.style.color='var(--green)';altEl.style.borderColor='rgba(0,230,118,0.15)';}
-    else if(st.costMode){altEl.style.color='var(--gold)';altEl.style.borderColor='rgba(255,215,0,0.15)';}
-    else{altEl.style.color='var(--icp)';altEl.style.borderColor='rgba(41,171,226,0.15)';}
-  } else altEl.style.display='none';
-
-  var exEl=document.getElementById('iExample');
-  if(d.example){
-    exEl.textContent=d.example;exEl.style.display='block';
-    exEl.style.color='var(--orange)';exEl.style.borderColor='rgba(255,149,0,0.2)';exEl.style.background='rgba(255,149,0,0.05)';
-  } else exEl.style.display='none';
-
-  p.classList.add('vis');
-}
-
-/* ═══════════════════════════════════════════════
-   DATA OWNERSHIP OVERLAY
-   ═══════════════════════════════════════════════ */
-
-// We'll create HTML labels that float near each layer (positioned via JS in the loop)
-var dataLabels=[], costLabels=[];
-
-var ICP_LAYER_NAMES = ['icp_user','icp_bn','icp_sub','icp_nns','icp_nodes'];
-var ICP_Y_MAP = {icp_user:5, icp_bn:3, icp_nns:1.2, icp_sub:-0.5, icp_nodes:-3};
-
-function createOverlayLabels(){
-  var dataTexts={
-    user:'📋 IP, cookies, headers collected',
-    cdn:'📋 All traffic cached & logged',
-    lb:'📋 Request routing logged',
-    app:'📋 Full server access by provider',
-    db:'📋 Data readable by host',
-    cloud:'📋 Government subpoena target',
-    phys:'📋 Physical access = total access',
-  };
-  var costTexts={
-    user:'💰 You ARE the product — data monetized below',
-    cdn:'💰 CloudFront ~$85/TB · Cloudflare Enterprise ~$5K/mo',
-    lb:'💰 AWS ELB ~$22/mo + $0.008/GB data',
-    app:'💰 EC2 m5.large ~$70/mo · Lambda per-invocation',
-    db:'💰 RDS ~$150/mo · DynamoDB per-read/write',
-    cloud:'💰 S3 ~$23/TB/mo + egress ~$90/TB',
-    phys:'💰 Data center build: $10M+ · Power: $1M+/yr',
-  };
-  var icpDataTexts={
-    icp_user:'✅ Client-verified responses',
-    icp_bn:'✅ Cannot read or modify data',
-    icp_sub:'✅ VetKeys encrypted storage',
-    icp_nns:'✅ On-chain & publicly verifiable',
-    icp_nodes:'✅ SEV-SNP hardware security',
-  };
-  var icpCostTexts={
-    icp_user:'✅ Users pay nothing — reverse gas model',
-    icp_bn:'✅ Replaces CDN + DNS + LB — no per-GB fees',
-    icp_sub:'✅ ~$5/GB/yr storage · ~0.4T cycles/sec compute',
-    icp_nns:'✅ Free governance — stake neurons to vote',
-    icp_nodes:'✅ Providers earn ICP rewards — no rent-seeking',
   };
 
-  // Traditional stack labels
-  WEB2_LAYERS.forEach(function(name){
-    var dl=document.createElement('div');dl.className='overlay-label';
-    dl.style.background='rgba(255,45,85,0.08)';dl.style.border='1px solid rgba(255,45,85,0.2)';dl.style.color='#ff5577';
-    dl.textContent=dataTexts[name]||'';
-    document.body.appendChild(dl);
-    dataLabels.push({el:dl,layer:name,type:'web2'});
+  function launchAttack(type){
+    if(attacking) return;
+    attacking = true;
+    var cfg = ATTACKS[type];
+    tLog.innerHTML = ''; iLog.innerHTML = '';
 
-    var cl=document.createElement('div');cl.className='overlay-label';
-    cl.style.background='rgba(255,215,0,0.08)';cl.style.border='1px solid rgba(255,215,0,0.2)';cl.style.color='#ffd700';
-    cl.textContent=costTexts[name]||'';
-    document.body.appendChild(cl);
-    costLabels.push({el:cl,layer:name,type:'web2'});
-  });
-
-  // ICP labels
-  ICP_LAYER_NAMES.forEach(function(name){
-    var dl=document.createElement('div');dl.className='overlay-label';
-    dl.style.background='rgba(0,230,118,0.08)';dl.style.border='1px solid rgba(0,230,118,0.2)';dl.style.color='#00e676';
-    dl.textContent=icpDataTexts[name]||'';
-    document.body.appendChild(dl);
-    dataLabels.push({el:dl,layer:name,type:'icp'});
-
-    var cl=document.createElement('div');cl.className='overlay-label';
-    cl.style.background='rgba(41,171,226,0.08)';cl.style.border='1px solid rgba(41,171,226,0.2)';cl.style.color='#29abe2';
-    cl.textContent=icpCostTexts[name]||'';
-    document.body.appendChild(cl);
-    costLabels.push({el:cl,layer:name,type:'icp'});
-  });
-}
-
-function updateOverlayPositions(){
-  var v=new THREE.Vector3();
-  dataLabels.forEach(function(d){
-    if(d.type==='web2'){
-      var l=layers[d.layer];if(!l)return;
-      v.set(5,l.position.y,0);
-      v.project(cam);
-      var x=(v.x*0.5+0.5)*innerWidth;
-      var y=(-v.y*0.5+0.5)*innerHeight;
-      d.el.style.left=x+'px';d.el.style.top=y+'px';
-      d.el.classList.toggle('vis',st.dataMode&&v.z<1);
-    } else {
-      // ICP labels - offset by icpG.position.x
-      var iy=ICP_Y_MAP[d.layer];if(iy===undefined)return;
-      v.set(icpG.position.x+5,iy,0);
-      v.project(cam);
-      var x=(v.x*0.5+0.5)*innerWidth;
-      var y=(-v.y*0.5+0.5)*innerHeight;
-      d.el.style.left=x+'px';d.el.style.top=y+'px';
-      d.el.classList.toggle('vis',st.dataMode&&st.icpMode&&v.z<1);
-    }
-  });
-  costLabels.forEach(function(d){
-    if(d.type==='web2'){
-      var l=layers[d.layer];if(!l)return;
-      v.set(-5.5,l.position.y,0);
-      v.project(cam);
-      var x=(v.x*0.5+0.5)*innerWidth;
-      var y=(-v.y*0.5+0.5)*innerHeight;
-      d.el.style.left=x+'px';d.el.style.top=y+'px';
-      d.el.classList.toggle('vis',st.costMode&&v.z<1);
-    } else {
-      var iy=ICP_Y_MAP[d.layer];if(iy===undefined)return;
-      v.set(icpG.position.x-5,iy,0);
-      v.project(cam);
-      var x=(v.x*0.5+0.5)*innerWidth;
-      var y=(-v.y*0.5+0.5)*innerHeight;
-      d.el.style.left=x+'px';d.el.style.top=y+'px';
-      d.el.classList.toggle('vis',st.costMode&&st.icpMode&&v.z<1);
-    }
-  });
-}
-
-/* ═══════════════════════════════════════════════
-   EVENT SETUP
-   ═══════════════════════════════════════════════ */
-
-function setupUI(){
-  var cv=ren.domElement;
-
-  // ── Info panel drag & close ──
-  var infoEl=document.getElementById('info');
-  var dragBar=document.getElementById('infoDrag');
-  var infoDragging=false, infoOX=0, infoOY=0, infoStartX=0, infoStartY=0;
-
-  dragBar.addEventListener('mousedown',function(e){
-    if(e.target.classList.contains('close-btn'))return;
-    infoDragging=true;
-    var rect=infoEl.getBoundingClientRect();
-    infoOX=e.clientX-rect.left;
-    infoOY=e.clientY-rect.top;
-    e.preventDefault();e.stopPropagation();
-  });
-  window.addEventListener('mousemove',function(e){
-    if(!infoDragging)return;
-    var nx=e.clientX-infoOX;
-    var ny=e.clientY-infoOY;
-    nx=Math.max(0,Math.min(innerWidth-infoEl.offsetWidth,nx));
-    ny=Math.max(0,Math.min(innerHeight-infoEl.offsetHeight,ny));
-    infoEl.style.left=nx+'px';
-    infoEl.style.top=ny+'px';
-    infoEl.style.bottom='auto';
-    infoEl.style.transform='none';
-  });
-  window.addEventListener('mouseup',function(){infoDragging=false});
-
-  // Touch drag
-  dragBar.addEventListener('touchstart',function(e){
-    if(e.target.classList.contains('close-btn'))return;
-    infoDragging=true;
-    var rect=infoEl.getBoundingClientRect();
-    infoOX=e.touches[0].clientX-rect.left;
-    infoOY=e.touches[0].clientY-rect.top;
-    e.stopPropagation();
-  });
-  window.addEventListener('touchmove',function(e){
-    if(!infoDragging)return;
-    var nx=e.touches[0].clientX-infoOX;
-    var ny=e.touches[0].clientY-infoOY;
-    nx=Math.max(0,Math.min(innerWidth-infoEl.offsetWidth,nx));
-    ny=Math.max(0,Math.min(innerHeight-infoEl.offsetHeight,ny));
-    infoEl.style.left=nx+'px';
-    infoEl.style.top=ny+'px';
-    infoEl.style.bottom='auto';
-    infoEl.style.transform='none';
-  });
-  window.addEventListener('touchend',function(){infoDragging=false});
-
-  document.getElementById('infoClose').addEventListener('click',function(e){
-    infoEl.classList.remove('vis');
-    e.stopPropagation();
-  });
-
-  // ── Trace panel drag & close ──
-  var traceEl=document.getElementById('tracePanel');
-  var traceDragBar=document.getElementById('traceDrag');
-  var traceDragging=false, traceOX=0, traceOY=0;
-
-  traceDragBar.addEventListener('mousedown',function(e){
-    if(e.target.classList.contains('close-btn'))return;
-    traceDragging=true;
-    var rect=traceEl.getBoundingClientRect();
-    traceOX=e.clientX-rect.left;traceOY=e.clientY-rect.top;
-    e.preventDefault();e.stopPropagation();
-  });
-  window.addEventListener('mousemove',function(e){
-    if(!traceDragging)return;
-    var nx=Math.max(0,Math.min(innerWidth-traceEl.offsetWidth,e.clientX-traceOX));
-    var ny=Math.max(0,Math.min(innerHeight-traceEl.offsetHeight,e.clientY-traceOY));
-    traceEl.style.left=nx+'px';traceEl.style.top=ny+'px';traceEl.style.transform='none';
-  });
-  window.addEventListener('mouseup',function(){traceDragging=false});
-
-  traceDragBar.addEventListener('touchstart',function(e){
-    if(e.target.classList.contains('close-btn'))return;
-    traceDragging=true;
-    var rect=traceEl.getBoundingClientRect();
-    traceOX=e.touches[0].clientX-rect.left;traceOY=e.touches[0].clientY-rect.top;
-    e.stopPropagation();
-  });
-  window.addEventListener('touchmove',function(e){
-    if(!traceDragging)return;
-    var nx=Math.max(0,Math.min(innerWidth-traceEl.offsetWidth,e.touches[0].clientX-traceOX));
-    var ny=Math.max(0,Math.min(innerHeight-traceEl.offsetHeight,e.touches[0].clientY-traceOY));
-    traceEl.style.left=nx+'px';traceEl.style.top=ny+'px';traceEl.style.transform='none';
-  });
-  window.addEventListener('touchend',function(){traceDragging=false});
-
-  document.getElementById('traceClose').addEventListener('click',function(e){
-    stopTrace();e.stopPropagation();
-  });
-
-  cv.addEventListener('mousedown',function(e){st.dragging=true;st.pmx=e.clientX;st.pmy=e.clientY;st.rotating=false;document.getElementById('bRotate').classList.remove('on')});
-  window.addEventListener('mousemove',function(e){if(st.dragging){st.camAY+=(e.clientX-st.pmx)*0.005;st.camAX=Math.max(-1,Math.min(1.2,st.camAX-(e.clientY-st.pmy)*0.005));st.pmx=e.clientX;st.pmy=e.clientY;}});
-  window.addEventListener('mouseup',function(){st.dragging=false});
-
-  cv.addEventListener('touchstart',function(e){st.dragging=true;st.pmx=e.touches[0].clientX;st.pmy=e.touches[0].clientY;st.rotating=false});
-  cv.addEventListener('touchmove',function(e){if(st.dragging&&e.touches.length===1){st.camAY+=(e.touches[0].clientX-st.pmx)*0.005;st.camAX=Math.max(-1,Math.min(1.2,st.camAX-(e.touches[0].clientY-st.pmy)*0.005));st.pmx=e.touches[0].clientX;st.pmy=e.touches[0].clientY;}e.preventDefault()},{passive:false});
-  cv.addEventListener('touchend',function(){st.dragging=false});
-
-  cv.addEventListener('wheel',function(e){st.targetDist=Math.max(8,Math.min(35,st.targetDist+e.deltaY*0.01));e.preventDefault()},{passive:false});
-
-  // CLICK RAYCAST
-  var rc=new THREE.Raycaster();
-  cv.addEventListener('click',function(e){
-    var m=new THREE.Vector2((e.clientX/innerWidth)*2-1,-(e.clientY/innerHeight)*2+1);
-    rc.setFromCamera(m,cam);
-    scene.updateMatrixWorld(true);
-    var hitK=null,hitD=Infinity;
-
-    Object.keys(layers).forEach(function(k){
-      if(k==='conn')return;
-      var hits=rc.intersectObjects(layers[k].children,true);
-      if(hits.length>0&&hits[0].distance<hitD){hitD=hits[0].distance;hitK=k;}
+    // Stream trad logs
+    cfg.tradLogs.forEach(function(msg, idx){
+      timers.push(setTimeout(function(){ tLog_add(msg, 'logbad'); }, 400*idx));
     });
-
-    if(st.icpMode&&icpG&&icpG.visible){
-      var meshes=[];
-      icpG.traverse(function(c){if(c.isMesh)meshes.push(c)});
-      var hits=rc.intersectObjects(meshes,false);
-      if(hits.length>0&&hits[0].distance<hitD){
-        hitD=hits[0].distance;
-        var obj=hits[0].object;
-        if(obj.userData&&obj.userData.icpLayer)hitK=obj.userData.icpLayer;
-      }
-    }
-
-    if(hitK&&INFO[hitK])showInfo(hitK);
-  });
-
-  // BUTTONS
-  document.getElementById('bExplode').addEventListener('click',function(){
-    st.exploded=!st.exploded;st.expTarget=st.exploded?1:0;
-    this.classList.toggle('on',st.exploded);
-  });
-
-  document.getElementById('bRotate').addEventListener('click',function(){
-    st.rotating=!st.rotating;this.classList.toggle('on',st.rotating);
-  });
-
-  document.getElementById('bTrace').addEventListener('click',function(){
-    if(st.traceMode)stopTrace();else startTrace();
-  });
-
-  document.getElementById('bCF').addEventListener('click',function(){triggerCascade('cf')});
-  document.getElementById('bAWS').addEventListener('click',function(){triggerCascade('aws')});
-
-  document.getElementById('bData').addEventListener('click',function(){
-    st.dataMode=!st.dataMode;this.classList.toggle('on',st.dataMode);
-  });
-
-  document.getElementById('bCost').addEventListener('click',function(){
-    st.costMode=!st.costMode;this.classList.toggle('on',st.costMode);
-  });
-
-  document.getElementById('bICP').addEventListener('click',function(){
-    st.icpMode=!st.icpMode;
-    this.classList.toggle('on',st.icpMode);
-    icpG.visible=st.icpMode;
-    var b=document.getElementById('badge');
-    var sb=document.getElementById('statsBar');
-    if(st.icpMode){
-      b.className='badge compare';b.textContent='ICP COMPARISON';
-      st.targetDist=26;sb.classList.add('visible');
-    } else {
-      b.className=st.cascadeMode?'badge fail':'badge web2';
-      b.textContent=st.cascadeMode?'⚠ CASCADE FAILURE':'TRADITIONAL STACK';
-      st.targetDist=18;sb.classList.remove('visible');
-      document.getElementById('icpSafe').classList.remove('vis');
-    }
-    // Rebuild trace if active
-    if(st.traceMode){buildTraceUI();runTrace();}
-  });
-
-  document.getElementById('bReset').addEventListener('click',function(){
-    resetCascade();stopTrace();
-    st.exploded=false;st.expTarget=0;st.icpMode=true;st.dataMode=false;st.costMode=false;st.rotating=true;
-    st.camAX=0.3;st.camAY=0.5;st.targetDist=26;
-    document.querySelectorAll('.cbtn').forEach(function(b){b.classList.remove('on')});
-    document.getElementById('bRotate').classList.add('on');
-    document.getElementById('bICP').classList.add('on');
-    document.getElementById('info').classList.remove('vis');
-    document.getElementById('statsBar').classList.add('visible');
-    document.getElementById('icpSafe').classList.remove('vis');
-    icpG.visible=true;
-    var b=document.getElementById('badge');b.className='badge compare';b.textContent='ICP COMPARISON';
-    document.querySelectorAll('.lbtn').forEach(function(b){b.classList.remove('on')});
-    document.querySelector('.lbtn[data-l="all"]').classList.add('on');
-    Object.keys(layers).forEach(function(k){
-      if(k==='conn')return;layers[k].visible=true;
-      layers[k].traverse(function(c){if(c.material)resetMat(c.material)});
+    // Kill nodes
+    cfg.killOrder.forEach(function(nodeIdx, step){
+      timers.push(setTimeout(function(){ killNode(nodeIdx); }, 800 + step * cfg.killDelay));
     });
-  });
+    // Stream ICP logs & bounce nodes
+    cfg.icpLogs.forEach(function(msg, idx){
+      timers.push(setTimeout(function(){ iLog_add(msg); }, 600*idx));
+    });
+    var bounceSeq = [0,3,7,1,5,9,2,6,10,4,8,11];
+    bounceSeq.forEach(function(nodeIdx, step){
+      timers.push(setTimeout(function(){ bounceNode(nodeIdx); }, 500 + step * 300));
+    });
+  }
 
-  // Layer nav
-  document.querySelectorAll('.lbtn').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var l=btn.dataset.l;
-      document.querySelectorAll('.lbtn').forEach(function(b){b.classList.remove('on')});
-      btn.classList.add('on');
-      Object.keys(layers).forEach(function(k){
-        if(k==='conn')return;
-        var ly=layers[k];
-        if(l==='all'){ly.visible=true;ly.traverse(function(c){if(c.material)resetMat(c.material)});}
-        else if(k===l){ly.visible=true;ly.traverse(function(c){if(c.material)c.material.opacity=0.5});showInfo(k);}
-        else{ly.visible=true;ly.traverse(function(c){if(c.material)c.material.opacity=0.03});}
+  function resetAll(){
+    timers.forEach(clearTimeout); timers = [];
+    attacking = false; deadCount = 0;
+    for(var i=0;i<12;i++){
+      var n=document.getElementById('tn'+i);
+      if(n){ n.classList.remove('dead','hit'); n.textContent='🖥'; }
+      var inn=document.getElementById('in'+i);
+      if(inn){ inn.classList.remove('dead','hit'); inn.textContent='⬡'; }
+    }
+    document.getElementById('t-uptime').textContent='100%'; document.getElementById('t-uptime').className='astat-val safe';
+    document.getElementById('t-svcs').textContent='12'; document.getElementById('t-svcs').className='astat-val safe';
+    document.getElementById('t-data').textContent='SECURE'; document.getElementById('t-data').className='astat-val safe';
+    document.getElementById('t-status').textContent='NORMAL'; document.getElementById('t-status').className='astat-val safe';
+    tLog.innerHTML=''; iLog.innerHTML='';
+  }
+
+  document.getElementById('atk-ransomware').addEventListener('click', function(){ resetAll(); setTimeout(function(){ launchAttack('ransomware'); },100); });
+  document.getElementById('atk-ddos').addEventListener('click', function(){ resetAll(); setTimeout(function(){ launchAttack('ddos'); },100); });
+  document.getElementById('atk-insider').addEventListener('click', function(){ resetAll(); setTimeout(function(){ launchAttack('insider'); },100); });
+  document.getElementById('atk-reset').addEventListener('click', resetAll);
+})();
+
+/* ════════════════════════════════════════
+   SLIDE 2 — WISH MACHINE
+════════════════════════════════════════ */
+(function(){
+  var inp = document.getElementById('wish-inp');
+  var goBtn = document.getElementById('wish-go');
+  var out = document.getElementById('wish-out');
+  var deploy = document.getElementById('wish-deploy');
+  var rainCanvas = document.getElementById('rain-canvas');
+  var ctx = rainCanvas.getContext('2d');
+  var running = false, rainActive = false, rainDrops = [], rainRaf = null;
+
+  var CONFIGS = {
+    coffee: {
+      name: 'Coffee Ordering App',
+      steps: [
+        'Parsing: café ordering system with menu, cart, payment...\nDetected: real-time order tracking, loyalty points, POS integration',
+        'UI: warm brand palette, mobile-first layout\nComponents: menu grid, cart drawer, order tracker, barista dashboard',
+        'Generating 847 lines of Motoko...\nCanister: CoffeeOrders | Methods: placeOrder, trackStatus, redeemPoints\nFrontend: React 18 + TailwindCSS compiled to WebAssembly',
+        'Running 42 unit tests... ✓ PASS\nSecurity audit... ✓ No vulnerabilities\nLoad test: 10,000 concurrent orders... ✓ 0ms canister response',
+        'Deploying to ICP mainnet...\nSubnet: pzp6e-ekpqk\nCanister ID: rrkah-fqaaa-aaaaa-aaaaq-cai'
+      ],
+      url: 'https://rrkah-fqaaa-aaaaa-aaaaq-cai.icp0.io',
+      time: '4 min 12 sec'
+    },
+    crm: {
+      name: 'Customer CRM',
+      steps: [
+        'Parsing: customer relationship management system...\nDetected: contacts, deals pipeline, email sync, analytics dashboard',
+        'UI: SaaS dashboard layout, data tables, kanban board\nComponents: contact cards, deal stages, activity feed, reports',
+        'Generating 1,204 lines of Motoko...\nCanisters: Contacts | Deals | EmailSync\nData: orthogonal persistence — no database needed',
+        'Running 78 unit tests... ✓ PASS\nGDPR compliance check... ✓ Data on-chain, user-controlled\nIntegration tests: email sync, webhooks... ✓',
+        'Deploying to ICP mainnet...\nSubnet: io67a-2jmkw\nCanister ID: qoctq-giaaa-aaaaa-aaaea-cai'
+      ],
+      url: 'https://qoctq-giaaa-aaaaa-aaaea-cai.icp0.io',
+      time: '6 min 38 sec'
+    },
+    inventory: {
+      name: 'Inventory Manager',
+      steps: [
+        'Parsing: inventory management with stock tracking...\nDetected: SKU catalogue, low-stock alerts, supplier integration, barcode scan',
+        'UI: warehouse dashboard, stock heatmap, reorder flows\nComponents: product table, alert badges, supplier panel, PO generator',
+        'Generating 932 lines of Motoko...\nCanisters: Inventory | Suppliers | Alerts\nMethods: updateStock, reorderTrigger, scanBarcode',
+        'Running 55 unit tests... ✓ PASS\nEdge cases: negative stock, concurrent updates... ✓\nReal-time alerts: WebSocket via HTTP outcalls... ✓',
+        'Deploying to ICP mainnet...\nSubnet: 3hhby-wmtmw\nCanister ID: aanaa-xaaaa-aaaah-aaeiq-cai'
+      ],
+      url: 'https://aanaa-xaaaa-aaaah-aaeiq-cai.icp0.io',
+      time: '5 min 04 sec'
+    },
+    booking: {
+      name: 'Booking System',
+      steps: [
+        'Parsing: scheduling and booking system...\nDetected: calendar UI, availability engine, payment, reminders, staff management',
+        'UI: calendar grid, time slot picker, booking confirmation flow\nComponents: weekly calendar, booking modal, staff roster, customer portal',
+        'Generating 1,089 lines of Motoko...\nCanisters: Bookings | Availability | Payments\nMethods: checkSlot, createBooking, sendReminder',
+        'Running 61 unit tests... ✓ PASS\nConcurrency test: double-booking prevention... ✓\nPayment integration: ICP ledger... ✓',
+        'Deploying to ICP mainnet...\nSubnet: w4rem-dv5e3\nCanister ID: bkyz2-fmaaa-aaaaa-qaaaq-cai'
+      ],
+      url: 'https://bkyz2-fmaaa-aaaaa-qaaaq-cai.icp0.io',
+      time: '5 min 51 sec'
+    },
+    default: {
+      name: 'SaaS Application',
+      steps: [
+        'Parsing requirements and extracting feature graph...\nDetected: authentication, data layer, API surface, frontend UI',
+        'Designing system architecture...\nPattern: canister-per-feature, shared auth\nComponents: dashboard, settings, user management, API',
+        'Generating 756 lines of Motoko...\nCanister: App | Auth | Storage\nMethods: create, read, update, delete, authenticate',
+        'Running 34 unit tests... ✓ PASS\nSecurity: chain-key auth verified... ✓\nPerformance: sub-2ms canister response... ✓',
+        'Deploying to ICP mainnet...\nSubnet: pjljw-kztyl\nCanister ID: mxzaz-hqaaa-aaaar-qaada-cai'
+      ],
+      url: 'https://mxzaz-hqaaa-aaaar-qaada-cai.icp0.io',
+      time: '3 min 28 sec'
+    }
+  };
+
+  function getConfig(text){
+    var t = text.toLowerCase();
+    if(/coffee|café|cafe|barista/.test(t)) return CONFIGS.coffee;
+    if(/crm|customer|relation|sales/.test(t)) return CONFIGS.crm;
+    if(/inventor|stock|warehouse|sku/.test(t)) return CONFIGS.inventory;
+    if(/book|schedul|appoint|calendar/.test(t)) return CONFIGS.booking;
+    return CONFIGS.default;
+  }
+
+  function streamText(target, text, cb, delay){
+    var i = 0;
+    var cursor = target.querySelector('.wcursor');
+    function tick(){
+      if(i < text.length){
+        if(cursor) cursor.before(document.createTextNode(text[i++]));
+        else target.textContent += text[i++];
+        setTimeout(tick, delay||18);
+      } else if(cb) cb();
+    }
+    tick();
+  }
+
+  function runRain(){
+    rainCanvas.width = rainCanvas.offsetWidth;
+    rainCanvas.height = rainCanvas.offsetHeight;
+    var cols = Math.floor(rainCanvas.width / 14);
+    rainDrops = new Array(cols).fill(1);
+    rainActive = true;
+    rainCanvas.style.opacity = '0.35';
+    function frame(){
+      if(!rainActive){ ctx.clearRect(0,0,rainCanvas.width,rainCanvas.height); return; }
+      ctx.fillStyle = 'rgba(5,5,8,0.06)';
+      ctx.fillRect(0,0,rainCanvas.width,rainCanvas.height);
+      ctx.fillStyle = '#00d4ff';
+      ctx.font = '12px IBM Plex Mono, monospace';
+      rainDrops.forEach(function(y,i){
+        var char = String.fromCharCode(0x30A0+Math.random()*96);
+        ctx.fillText(char, i*14, y*14);
+        if(y*14 > rainCanvas.height && Math.random() > 0.975) rainDrops[i] = 0;
+        rainDrops[i]++;
       });
-      if(l==='all')document.getElementById('info').classList.remove('vis');
-    });
-  });
-
-  window.addEventListener('resize',function(){cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)});
-
-  // ── Trad modal ──
-  var tradOverlay=document.getElementById('tradModal');
-  var tradClose=document.getElementById('tradModalClose');
-  document.querySelector('.stat-side.web2-side').addEventListener('click',function(){
-    tradOverlay.classList.add('vis');
-  });
-  tradClose.addEventListener('click',function(){
-    tradOverlay.classList.remove('vis');
-  });
-  tradOverlay.addEventListener('click',function(e){
-    if(e.target===tradOverlay) tradOverlay.classList.remove('vis');
-  });
-
-  // ── ICP modal ──
-  var icpOverlay=document.getElementById('icpModal');
-  var icpClose=document.getElementById('icpModalClose');
-  document.querySelector('.stat-side.icp-side').addEventListener('click',function(){
-    icpOverlay.classList.add('vis');
-  });
-  icpClose.addEventListener('click',function(){
-    icpOverlay.classList.remove('vis');
-  });
-  icpOverlay.addEventListener('click',function(e){
-    if(e.target===icpOverlay) icpOverlay.classList.remove('vis');
-  });
-
-  // ── Cost Calculator ──
-  var costCalcOverlay=document.getElementById('costCalcModal');
-  var costInput=document.getElementById('costInput');
-
-  function calcCosts(){
-    var aws=parseFloat(costInput.value)||0;
-    var compute=aws*0.4, storage=aws*0.2, bandwidth=aws*0.25, other=aws*0.15;
-    // ICP estimates: compute ~15%, storage ~5%, bandwidth ~0% (no egress), other ~30%
-    var icpCompute=compute*0.15, icpStorage=storage*0.05, icpBw=0, icpOther=other*0.30;
-    var icpTotal=icpCompute+icpStorage+icpBw+icpOther;
-    var savings=aws>0?((1-icpTotal/aws)*100):0;
-
-    function fmt(n){return n>=1000?'$'+Math.round(n).toLocaleString():'$'+Math.round(n);}
-    document.getElementById('ccCompAws').textContent=fmt(compute);
-    document.getElementById('ccCompIcp').textContent=fmt(icpCompute);
-    document.getElementById('ccStoreAws').textContent=fmt(storage);
-    document.getElementById('ccStoreIcp').textContent=fmt(icpStorage);
-    document.getElementById('ccBwAws').textContent=fmt(bandwidth);
-    document.getElementById('ccBwIcp').textContent=fmt(icpBw);
-    document.getElementById('ccOtherAws').textContent=fmt(other);
-    document.getElementById('ccOtherIcp').textContent=fmt(icpOther);
-    document.getElementById('ccTotalAws').textContent=fmt(aws);
-    document.getElementById('ccTotalIcp').textContent=fmt(icpTotal);
-    document.getElementById('ccSavings').textContent=aws>0?'Estimated savings: ~'+Math.round(savings)+'% ('+fmt(aws-icpTotal)+'/mo)':'Enter your monthly AWS spend above';
-
-    document.querySelectorAll('.cost-preset').forEach(function(b){b.classList.toggle('active',parseFloat(b.dataset.val)===aws);});
+      rainRaf = requestAnimationFrame(frame);
+    }
+    frame();
+  }
+  function stopRain(){
+    rainActive = false;
+    rainCanvas.style.opacity = '0';
+    if(rainRaf) cancelAnimationFrame(rainRaf);
   }
 
-  document.getElementById('bCost').addEventListener('dblclick',function(){
-    costCalcOverlay.classList.add('vis');calcCosts();
-  });
-  document.getElementById('costCalcClose').addEventListener('click',function(){
-    costCalcOverlay.classList.remove('vis');
-  });
-  costCalcOverlay.addEventListener('click',function(e){
-    if(e.target===costCalcOverlay) costCalcOverlay.classList.remove('vis');
-  });
-  costInput.addEventListener('input',calcCosts);
-  document.querySelectorAll('.cost-preset').forEach(function(btn){
-    btn.addEventListener('click',function(){costInput.value=btn.dataset.val;calcCosts();});
-  });
+  var STAGE_DELAYS = [1200, 1400, 2000, 1600, 1200];
 
-  // ── Guided Tour ──
-  var TOUR_STEPS=[
-    {text:'Welcome to the Traditional Stack vs ICP comparison. This visualization shows the 7 layers your data passes through in a traditional web app — and how ICP replaces them.',
-     action:function(){st.rotating=true;st.targetDist=26;st.camAX=0.3;st.camAY=0.5;}},
-    {text:'Layer 7 — Physical Infrastructure. Data centers, submarine cables, power grids. Concentrated in a few regions. When Tonga lost one cable in 2022, the entire country went offline for 5 weeks.',
-     action:function(){st.rotating=false;st.camAX=0.1;st.camAY=0;st.targetDist=20;showInfo('phys');}},
-    {text:'Layer 6 — Cloud Platform. Three companies (AWS, Azure, GCP) control 65%+ of all cloud infrastructure. Your entire stack depends on their availability and policies.',
-     action:function(){showInfo('cloud');}},
-    {text:'Layer 5 — Databases & Storage. Your data lives on someone else\'s servers. They can read it, lose it, or lock you out. No cryptographic guarantees.',
-     action:function(){showInfo('db');}},
-    {text:'Layer 4 — Application Servers. Your code runs on rented hardware. CrowdStrike\'s 2024 faulty update crashed 8.5 million machines — showing how one vendor can bring everything down.',
-     action:function(){showInfo('app');}},
-    {text:'Layer 3 — Load Balancers & DNS. Traffic directors deciding where your request goes. AWS\'s Oct 2025 DNS failure lasted 15 hours, cascading across Slack, Atlassian, and major banks.',
-     action:function(){showInfo('lb');}},
-    {text:'Layer 2 — CDN / Edge Network. Cloudflare sees most of the internet\'s traffic. In Nov 2025, a single config file crashed their proxies globally for 4+ hours, taking down X, ChatGPT, Discord, and Spotify.',
-     action:function(){showInfo('cdn');}},
-    {text:'Watch what happens when one of these layers fails. A Cloudflare outage cascades through the entire stack — every layer above it breaks.',
-     action:function(){document.getElementById('info').classList.remove('vis');triggerCascade('cf');}},
-    {text:'Now look at ICP. No CDN, no corporate cloud, no separate database. Canisters bundle compute + storage with BFT consensus. The cascade failure on the left? ICP is completely unaffected.',
-     action:function(){
-       resetCascade();
-       if(!st.icpMode){st.icpMode=true;icpG.visible=true;document.getElementById('bICP').classList.add('on');document.getElementById('badge').className='badge compare';document.getElementById('badge').textContent='ICP COMPARISON';document.getElementById('statsBar').classList.add('visible');}
-       st.targetDist=26;st.camAX=0.3;st.camAY=1.2;
-     }},
-    {text:'ICP isn\'t perfect — it has ~3 structural dependencies and 5 known failure modes. But it eliminates 7 layers, 12+ corporate gatekeepers, and 47 failure points. Click the stat bars above to explore the details. Enjoy exploring!',
-     action:function(){st.rotating=true;st.camAY=0.5;st.camAX=0.3;st.targetDist=26;document.getElementById('info').classList.remove('vis');}}
+  function runBuild(cfg){
+    if(running) return;
+    running = true;
+    out.innerHTML = '<span class="wcursor"></span>';
+    deploy.style.display = 'none';
+    stopRain();
+    var stages = document.querySelectorAll('.pstage');
+    stages.forEach(function(s){ s.className='pstage'; });
+
+    var step = 0;
+    function doStep(){
+      if(step >= 5){ done(); return; }
+      stages[step].classList.add('active');
+      if(step === 2) runRain();
+      else if(step !== 2) stopRain();
+      var text = cfg.steps[step]+'\n\n';
+      streamText(out, text, function(){
+        stages[step].classList.remove('active');
+        stages[step].classList.add('done');
+        step++;
+        setTimeout(doStep, 200);
+      }, 12);
+    }
+    doStep();
+
+    function done(){
+      running = false;
+      stopRain();
+      document.getElementById('deploy-url').textContent = cfg.url;
+      document.getElementById('deploy-time').textContent = 'Built & deployed in '+cfg.time+' · Cost: $0.003 cycles';
+      deploy.style.display = 'block';
+    }
+  }
+
+  function go(){
+    var text = inp.value.trim();
+    if(!text) return;
+    runBuild(getConfig(text));
+  }
+  goBtn.addEventListener('click', go);
+  inp.addEventListener('keydown', function(e){ if(e.key==='Enter') go(); });
+})();
+
+/* ════════════════════════════════════════
+   SLIDE 3 — TIMELINE SLIDER
+════════════════════════════════════════ */
+(function(){
+  var ERAS = [
+    {pos:0,   name:'Mainframe Era',          year:'1950s – 70s',  team:8,  build:'18 months', cost:'$10M+',  sec:'Low',  figs:[['#ff2d55',90],['#ff2d55',85],['#ff2d55',80],['#ff2d55',75],['#ff2d55',70],['#ff2d55',65],['#606080',55],['#606080',50]], appColor:'#333',  desc:'Rooms full of hardware. Only corporations and governments could afford computing. Software shipped on punch cards. Teams of 8 spend years on a single system.'},
+    {pos:0.16, name:'Client-Server',         year:'1980s – 90s',  team:6,  build:'12 months', cost:'$1M+',   sec:'Low',  figs:[['#ff9500',85],['#ff9500',80],['#ff9500',75],['#ff9500',70],['#606080',60],['#606080',55]], appColor:'#2a3a5a', desc:'PCs network with servers. Microsoft, Oracle, SAP dominate. Developers write code, ops deploy it. Siloed teams, long release cycles.'},
+    {pos:0.33, name:'Cloud / DevOps',        year:'2000s – 2010s',team:4,  build:'6 months',  cost:'$500K',  sec:'Med',  figs:[['#FBB03B',80],['#FBB03B',75],['#FBB03B',70],['#606080',60]], appColor:'#1a3a4a',  desc:'AWS launches 2006. DevOps merges dev and ops. CI/CD pipelines replace manual deploys. Teams shrink. Cloud is the new normal.'},
+    {pos:0.5,  name:'Serverless / PaaS',     year:'2015 – 2020',  team:2,  build:'3 months',  cost:'$100K',  sec:'Med',  figs:[['#29ABE2',75],['#606080',55]], appColor:'#0d2a3a',  desc:'Lambda, Vercel, Firebase. No server management. Functions scale automatically. Two people can ship what five once built. Ops nearly obsolete.'},
+    {pos:0.65, name:'Vibe Coding',           year:'2021 – 2023',  team:2,  build:'2 weeks',   cost:'$10K',   sec:'Med',  figs:[['#00e676',70],['#c084fc',65]], appColor:'#0a1a2a',  desc:'AI coding assistants emerge. One dev + one AI can build what teams of five once built. GitHub Copilot. Speed triples. Humans still review every line.'},
+    {pos:0.82, name:'AI + Traditional Cloud',year:'2024 – 2025',  team:1,  build:'3 days',    cost:'$1K',    sec:'High', figs:[['#c084fc',65]], appColor:'#070f1a',  desc:'AI agents write entire codebases. Human touches only requirements and review. But infrastructure is still traditional — AWS bills still arrive.'},
+    {pos:1,    name:'Self-Writing on ICP',   year:'2026+',         team:1,  build:'2 hours',   cost:'$10',    sec:'∞',    figs:[['#00d4ff',60]], appColor:'#00d4ff22', desc:'Caffeine Engine on ICP. One AI agent writes, deploys, and maintains the entire stack. No AWS. No ops. No vendor lock-in. Sovereign, on-chain compute.'}
   ];
 
-  var tourActive=false,tourIdx=0;
-  var tourPanel=document.getElementById('tourPanel');
-  var tourText=document.getElementById('tourText');
-  var tourStepEl=document.getElementById('tourStep');
-  var tourProgress=document.getElementById('tourProgress');
-  var preTourState=null;
+  var track = document.getElementById('tl-track');
+  var thumb = document.getElementById('tl-thumb');
+  var fill  = document.getElementById('tl-fill');
+  var scene = document.getElementById('tl-scene');
+  var appbox = document.getElementById('tl-appbox');
+  var appbar = document.getElementById('tl-appbar');
+  var appcontent = document.getElementById('tl-appcontent');
+  var pos = 0, dragging = false;
 
-  function saveTourState(){
-    preTourState={icpMode:st.icpMode,rotating:st.rotating,camAX:st.camAX,camAY:st.camAY,targetDist:st.targetDist,exploded:st.exploded,expTarget:st.expTarget,cascadeMode:st.cascadeMode,dataMode:st.dataMode,costMode:st.costMode};
-  }
-  function restoreTourState(){
-    if(!preTourState)return;
-    resetCascade();stopTrace();
-    st.icpMode=preTourState.icpMode;st.rotating=preTourState.rotating;
-    st.camAX=preTourState.camAX;st.camAY=preTourState.camAY;st.targetDist=preTourState.targetDist;
-    st.exploded=preTourState.exploded;st.expTarget=preTourState.expTarget;
-    st.dataMode=preTourState.dataMode;st.costMode=preTourState.costMode;
-    icpG.visible=st.icpMode;
-    document.getElementById('bICP').classList.toggle('on',st.icpMode);
-    document.getElementById('bRotate').classList.toggle('on',st.rotating);
-    document.getElementById('info').classList.remove('vis');
-    var b=document.getElementById('badge');
-    if(st.icpMode){b.className='badge compare';b.textContent='ICP COMPARISON';document.getElementById('statsBar').classList.add('visible');}
-    else{b.className='badge web2';b.textContent='TRADITIONAL STACK';document.getElementById('statsBar').classList.remove('visible');}
-    preTourState=null;
+  function getEra(p){
+    var best = ERAS[0];
+    ERAS.forEach(function(e){ if(p >= e.pos) best = e; });
+    return best;
   }
 
-  function showTourStep(){
-    var s=TOUR_STEPS[tourIdx];
-    tourText.textContent=s.text;
-    tourStepEl.textContent='STEP '+(tourIdx+1)+' / '+TOUR_STEPS.length;
-    tourProgress.style.width=((tourIdx+1)/TOUR_STEPS.length*100)+'%';
-    document.getElementById('tourPrev').style.visibility=tourIdx>0?'visible':'hidden';
-    document.getElementById('tourNext').textContent=tourIdx<TOUR_STEPS.length-1?'Next →':'Finish';
-    s.action();
-  }
+  function renderEra(era){
+    document.getElementById('tl-era-name').textContent = era.name;
+    document.getElementById('tl-era-year').textContent = era.year;
+    document.getElementById('tl-team').innerHTML = era.team+' <span class="tl-sunit">people</span>';
+    document.getElementById('tl-build').innerHTML = era.build;
+    document.getElementById('tl-cost').textContent = era.cost;
+    document.getElementById('tl-sec').textContent = era.sec;
+    document.getElementById('tl-desc').textContent = era.desc;
 
-  function startTour(){
-    tourActive=true;tourIdx=0;
-    saveTourState();
-    document.getElementById('bTour').classList.add('on');
-    tourPanel.classList.add('vis');
-    showTourStep();
-  }
-  function stopTour(){
-    tourActive=false;
-    document.getElementById('bTour').classList.remove('on');
-    tourPanel.classList.remove('vis');
-    restoreTourState();
-  }
-
-  document.getElementById('bTour').addEventListener('click',function(){
-    if(tourActive) stopTour(); else startTour();
-  });
-  document.getElementById('tourNext').addEventListener('click',function(){
-    if(tourIdx<TOUR_STEPS.length-1){tourIdx++;showTourStep();}
-    else stopTour();
-  });
-  document.getElementById('tourPrev').addEventListener('click',function(){
-    if(tourIdx>0){tourIdx--;showTourStep();}
-  });
-  document.getElementById('tourSkip').addEventListener('click',function(){stopTour();});
-
-  createOverlayLabels();
-}
-
-/* ═══════════════════════════════════════════════
-   ANIMATION LOOP
-   ═══════════════════════════════════════════════ */
-
-function loop(){
-  requestAnimationFrame(loop);
-  var dt=clk.getDelta();
-  st.t+=dt;
-
-  if(st.rotating)st.camAY+=dt*0.12;
-  st.camDist+=(st.targetDist-st.camDist)*0.05;
-  st.expProg+=(st.expTarget-st.expProg)*0.04;
-
-  var lx=st.icpMode?7:0;
-  cam.position.set(
-    Math.sin(st.camAY)*Math.cos(st.camAX)*st.camDist+lx,
-    Math.sin(st.camAX)*st.camDist,
-    Math.cos(st.camAY)*Math.cos(st.camAX)*st.camDist
-  );
-  cam.lookAt(lx,0,0);
-
-  // Animate layers
-  Object.keys(layers).forEach(function(k){
-    if(k==='conn')return;
-    var l=layers[k];if(!l.userData)return;
-    var by=l.userData.baseY;
-    l.position.y=by+by*st.expProg*0.6+Math.sin(st.t*0.8+by)*0.04;
-    if(l.userData.fail){
-      l.position.x=Math.sin(st.t*20)*0.04;
-      l.position.z=Math.cos(st.t*15)*0.02;
-      l.traverse(function(c){if(c.isMesh&&c.material)c.material.opacity=0.18+Math.sin(st.t*10)*0.14;});
-    }
-  });
-
-  // ICP animations
-  if(st.icpMode&&icpG.visible){
-    icpG.children.forEach(function(c){
-      if(c.isMesh&&c.geometry&&c.geometry.type==='OctahedronGeometry'){
-        c.rotation.y=st.t*0.5;c.rotation.x=st.t*0.3;
-      }
+    // Figures
+    var figs = scene.querySelectorAll('.tl-fig');
+    figs.forEach(function(f){ f.remove(); });
+    era.figs.forEach(function(f){
+      var el = document.createElement('div');
+      el.className = 'tl-fig';
+      el.style.height = f[1]+'px';
+      el.style.background = f[0]+'33';
+      el.style.border = '1px solid '+f[0]+'66';
+      scene.appendChild(el);
     });
-    // Pulse the ICP green during cascade to show it's unaffected
-    if(st.cascadeMode){
-      icpG.traverse(function(c){
-        if(c.isMesh&&c.material&&c.material.emissive){
-          c.material.emissiveIntensity=0.8+Math.sin(st.t*2)*0.3;
+
+    // App preview
+    appbar.style.background = era.appColor;
+    appcontent.innerHTML = '';
+    var blockCount = Math.round(3 + (pos * 14));
+    for(var i=0;i<blockCount;i++){
+      var b = document.createElement('div');
+      b.className = 'tl-appblock';
+      b.style.width = (20 + Math.random()*30)+'px';
+      b.style.background = era.appColor;
+      appcontent.appendChild(b);
+    }
+    appbox.style.borderColor = era.appColor+'44';
+  }
+
+  function setPos(p){
+    pos = Math.max(0, Math.min(1, p));
+    var tw = track.offsetWidth;
+    thumb.style.left = (pos * tw)+'px';
+    fill.style.width = (pos * 100)+'%';
+    renderEra(getEra(pos));
+  }
+
+  function posFromEvent(e){
+    var rect = track.getBoundingClientRect();
+    return (e.clientX - rect.left) / rect.width;
+  }
+
+  thumb.addEventListener('mousedown', function(e){ dragging=true; e.preventDefault(); });
+  track.addEventListener('mousedown', function(e){ dragging=true; setPos(posFromEvent(e)); });
+  window.addEventListener('mousemove', function(e){ if(dragging) setPos(posFromEvent(e)); });
+  window.addEventListener('mouseup', function(){ dragging=false; });
+
+  thumb.addEventListener('touchstart', function(e){ dragging=true; e.preventDefault(); },{passive:false});
+  track.addEventListener('touchmove', function(e){ if(dragging) setPos(posFromEvent(e.touches[0])); e.preventDefault(); },{passive:false});
+  window.addEventListener('touchend', function(){ dragging=false; });
+
+  document.querySelectorAll('.tl-mark').forEach(function(m){
+    m.addEventListener('click', function(){ setPos(parseFloat(m.dataset.pos)); });
+  });
+
+  setPos(0);
+})();
+
+/* ════════════════════════════════════════
+   SLIDE 4 — SOVEREIGN WORLD MAP
+════════════════════════════════════════ */
+(function(){
+  var COUNTRIES = [
+    {id:'us',name:'USA',        dep:0,  x:8,  y:28, w:88, h:42, providers:{AWS:40,Azure:35,GCP:20,Other:5},  risk:'Home to AWS, Azure, and GCP. Zero foreign dependency — but CLOUD Act means government can access any data stored here.'},
+    {id:'ca',name:'Canada',     dep:72, x:11, y:14, w:80, h:36, providers:{AWS:45,Azure:35,GCP:18,Other:2},  risk:'High US cloud dependency. CLOUD Act reach via Five Eyes agreement. Seeking sovereignty through Gaia-X alternatives.'},
+    {id:'br',name:'Brazil',     dep:71, x:22, y:58, w:78, h:40, providers:{AWS:38,Azure:30,GCP:22,Alibaba:10}, risk:'LGPD data law enacted. Growing digital sovereignty movement. Still 71% dependent on foreign hyperscalers.'},
+    {id:'gb',name:'UK',         dep:65, x:40, y:18, w:64, h:34, providers:{AWS:42,Azure:34,GCP:20,Other:4},  risk:'Post-Brexit seeking digital independence. Five Eyes CLOUD Act exposure. UK Cyber Strategy targets sovereign cloud by 2030.'},
+    {id:'de',name:'Germany',    dep:58, x:45, y:19, w:70, h:34, providers:{AWS:35,Azure:32,GCP:22,Huawei:11}, risk:'Strongest EU data sovereignty stance. GDPR pioneer. Gaia-X initiative leader. Still 58% reliant on US hyperscalers.'},
+    {id:'fr',name:'France',     dep:62, x:42, y:26, w:68, h:34, providers:{AWS:38,Azure:30,GCP:22,Huawei:10}, risk:'ANSSI pushing for trusted cloud. French sovereignty initiative active. 62% dependency on US hyperscalers remains.'},
+    {id:'nl',name:'Netherlands',dep:74, x:43, y:16, w:66, h:28, providers:{AWS:50,Azure:28,GCP:18,Other:4},  risk:'AMS-IX is European internet hub. Heavy AWS concentration. Data transit chokepoint risk.'},
+    {id:'se',name:'Sweden',     dep:55, x:48, y:10, w:66, h:28, providers:{AWS:36,Azure:38,GCP:22,Other:4},  risk:'Best EU cloud position. Nordic digital governance model. Azure strong due to Stockholm region.'},
+    {id:'ru',name:'Russia',     dep:20, x:58, y:12, w:84, h:36, providers:{Yandex:48,VK:22,Rostelecom:18,Other:12}, risk:'RuNet sovereign internet operational. Sanctions reduced foreign access. Near-sovereign — but government-controlled infra.'},
+    {id:'tr',name:'Turkey',     dep:68, x:52, y:30, w:70, h:34, providers:{AWS:35,Azure:30,GCP:20,Alibaba:15}, risk:'Strategic position between East and West. Presidential decree pushes local cloud. 68% foreign dependency persists.'},
+    {id:'ae',name:'UAE',        dep:76, x:59, y:38, w:58, h:30, providers:{AWS:40,Azure:35,GCP:20,Alibaba:5},  risk:'Smart Dubai initiative aspires to sovereignty. UAE Cloud First strategy. Still 76% on foreign rails.'},
+    {id:'in',name:'India',      dep:74, x:64, y:36, w:68, h:38, providers:{AWS:38,Azure:30,GCP:22,Alibaba:10}, risk:'Data localisation laws passed. Digital India pushing local cloud. MeitY cloud policy. Still 74% foreign dependency.'},
+    {id:'pk',name:'Pakistan',   dep:85, x:61, y:29, w:64, h:34, providers:{AWS:42,Azure:30,GCP:18,Alibaba:10}, risk:'Highest regional dependency. No domestic hyperscaler. Full exposure to foreign government data access. Critical vulnerability.'},
+    {id:'cn',name:'China',      dep:8,  x:70, y:22, w:78, h:40, providers:{Alibaba:52,Huawei:28,Tencent:18,AWS:2}, risk:'Near-sovereign digital infrastructure. Own hyperscalers dominant. Great Firewall. 8% foreign — largely internal B2B.'},
+    {id:'jp',name:'Japan',      dep:69, x:82, y:22, w:64, h:34, providers:{AWS:45,Azure:30,GCP:20,Alibaba:5},  risk:'Strong tech sector but 69% US cloud. Data residency laws strengthening post-2020. NTT and SoftBank building alternatives.'},
+    {id:'kr',name:'S. Korea',   dep:61, x:80, y:27, w:62, h:30, providers:{AWS:40,Azure:25,GCP:20,Alibaba:15}, risk:'NAVER Cloud and Kakao growing domestic alternatives. US cloud still dominant. Government cloud policy tightening.'},
+    {id:'au',name:'Australia',  dep:70, x:77, y:62, w:74, h:38, providers:{AWS:44,Azure:32,GCP:20,Alibaba:4},  risk:'Five Eyes member. CLOUD Act adjacent. Sovereign Cloud Framework enacted 2023. Progress slow — 70% still foreign.'},
+    {id:'sg',name:'Singapore',  dep:82, x:73, y:50, w:64, h:28, providers:{AWS:45,Azure:30,GCP:20,Alibaba:5},  risk:'APAC data hub. Massive concentration risk. Smart Nation built entirely on foreign cloud rails. Critical single-point exposure.'},
+    {id:'ng',name:'Nigeria',    dep:90, x:44, y:48, w:66, h:34, providers:{AWS:40,Azure:30,GCP:20,Alibaba:10}, risk:'Africa\'s largest economy — 90% cloud-dependent on foreign providers. Zero domestic hyperscaler. Full sovereignty risk.'},
+    {id:'za',name:'S. Africa',  dep:78, x:48, y:64, w:70, h:34, providers:{AWS:38,Azure:32,GCP:20,Alibaba:10}, risk:'African cloud hub with 78% foreign dependency. Data sovereignty legislation emerging under POPIA framework.'}
+  ];
+
+  var PROVIDER_COLORS = {AWS:'#FF9900',Azure:'#0078D4',GCP:'#4285F4',Alibaba:'#FF6A00',Huawei:'#CF0A2C',Yandex:'#CC0000',VK:'#4A76A8',Rostelecom:'#E6007E',Tencent:'#00B0FF',NTT:'#005BAC',Other:'#606080'};
+
+  var mapArea = document.getElementById('map-area');
+  var sbContent = document.getElementById('sb-content');
+  var noSel = document.getElementById('no-sel');
+  var deployBtn = document.getElementById('deploy-btn');
+  var deployRdout = document.getElementById('deploy-rdout');
+  var selected = null;
+  var sovereigns = {};
+
+  function depColor(d){
+    if(d===0) return '#29ABE2';
+    if(d<30) return '#00e676';
+    if(d<50) return '#c8ff00';
+    if(d<70) return '#FBB03B';
+    if(d<80) return '#F15A24';
+    return '#ff2d55';
+  }
+
+  function buildMap(){
+    COUNTRIES.forEach(function(c){
+      var el = document.createElement('div');
+      el.className = 'cblock';
+      el.id = 'cb-'+c.id;
+      el.style.left = c.x+'%'; el.style.top = c.y+'%';
+      el.style.width = c.w+'px'; el.style.height = c.h+'px';
+      var d = sovereigns[c.id] ? 0 : c.dep;
+      el.style.borderColor = depColor(d)+'55';
+      el.innerHTML = '<div class="cb-name">'+c.name+'</div><div class="cb-dep" style="color:'+depColor(d)+'">'+(d===0&&sovereigns[c.id]?'ICP':d+'%')+'</div>';
+      el.addEventListener('click', function(){ selectCountry(c.id); });
+      mapArea.appendChild(el);
+    });
+  }
+
+  function applyDepColor(id){
+    var c = COUNTRIES.find(function(x){ return x.id===id; });
+    if(!c) return;
+    var el = document.getElementById('cb-'+id);
+    if(!el) return;
+    var d = sovereigns[id] ? 0 : c.dep;
+    el.style.borderColor = depColor(d)+'55';
+    el.querySelector('.cb-dep').style.color = depColor(d);
+    el.querySelector('.cb-dep').textContent = (d===0&&sovereigns[id]) ? 'ICP' : d+'%';
+  }
+
+  function selectCountry(id){
+    var c = COUNTRIES.find(function(x){ return x.id===id; });
+    if(!c) return;
+    document.querySelectorAll('.cblock').forEach(function(b){ b.classList.remove('sel'); });
+    var el = document.getElementById('cb-'+id);
+    if(el) el.classList.add('sel');
+    selected = id;
+
+    noSel.style.display = 'none';
+    sbContent.style.display = 'flex';
+
+    document.getElementById('sb-cname').textContent = c.name;
+
+    var isSov = sovereigns[id];
+    var dep = isSov ? 0 : c.dep;
+    document.getElementById('sb-dep-pct').textContent = dep+'%';
+    var fill = document.getElementById('sb-dep-fill');
+    fill.style.width = dep+'%';
+    fill.style.background = depColor(dep);
+
+    var provs = isSov ? {ICP:100} : c.providers;
+    var provList = document.getElementById('sb-provs');
+    provList.innerHTML = '';
+    Object.keys(provs).forEach(function(k){
+      var row = document.createElement('div'); row.className='prov-row';
+      var col = PROVIDER_COLORS[k]||'#606080';
+      row.innerHTML = '<div class="prov-nm">'+k+'</div><div class="prov-bw"><div class="prov-bar" style="width:'+provs[k]+'%;background:'+col+'"></div></div><div class="prov-pct">'+provs[k]+'%</div>';
+      provList.appendChild(row);
+    });
+
+    var riskEl = document.getElementById('sb-risk');
+    riskEl.textContent = isSov ? '✓ Sovereign cloud deployed on ICP. Zero foreign dependency. CLOUD Act immune. Data on-chain — no government can compel access.' : c.risk;
+    riskEl.className = 'risk-txt'+(isSov?' safe':'');
+
+    deployBtn.className = 'deploy-btn'+(isSov?' on':'');
+    deployBtn.textContent = isSov ? '✓ ICP Sovereign Active' : '⬡ Deploy ICP Sovereign Cloud';
+    deployRdout.style.display = isSov ? 'block' : 'none';
+  }
+
+  deployBtn.addEventListener('click', function(){
+    if(!selected) return;
+    var c = COUNTRIES.find(function(x){ return x.id===selected; });
+    if(!c) return;
+    sovereigns[selected] = true;
+    var el = document.getElementById('cb-'+selected);
+    if(el) el.classList.add('sovereign');
+    applyDepColor(selected);
+
+    var nodes = Math.ceil(c.dep * 0.2 + 7);
+    deployRdout.innerHTML = '→ Provisioning '+nodes+' ICP nodes in '+c.name+'<br>→ Creating sovereign subnet...<br>→ CLOUD Act immunity: ACTIVE<br>→ Foreign dependency: 0%<br>→ Status: LIVE';
+    deployRdout.style.display = 'block';
+    deployBtn.textContent = '✓ ICP Sovereign Active';
+    deployBtn.className = 'deploy-btn on';
+    selectCountry(selected);
+  });
+
+  buildMap();
+})();
+
+/* ════════════════════════════════════════
+   SLIDE 5 — SUBNET BUILDER
+════════════════════════════════════════ */
+(function(){
+  var ZONES = [
+    {id:'fra',city:'Frankfurt',flag:'🇩🇪',x:44,y:30,lat:10},
+    {id:'lon',city:'London',   flag:'🇬🇧',x:40,y:22,lat:15},
+    {id:'nyc',city:'New York', flag:'🇺🇸',x:14,y:30,lat:80},
+    {id:'sao',city:'São Paulo',flag:'🇧🇷',x:22,y:60,lat:130},
+    {id:'tok',city:'Tokyo',    flag:'🇯🇵',x:78,y:24,lat:155},
+    {id:'sin',city:'Singapore',flag:'🇸🇬',x:72,y:52,lat:145},
+    {id:'mum',city:'Mumbai',   flag:'🇮🇳',x:63,y:42,lat:115},
+    {id:'syd',city:'Sydney',   flag:'🇦🇺',x:80,y:65,lat:200},
+    {id:'chi',city:'Chicago',  flag:'🇺🇸',x:11,y:25,lat:85},
+    {id:'jnb',city:'Johannesburg',flag:'🇿🇦',x:51,y:67,lat:170}
+  ];
+
+  var CHIPS = [
+    {id:'c-fra',label:'🇩🇪 Frankfurt',zoneId:'fra'},
+    {id:'c-lon',label:'🇬🇧 London',zoneId:'lon'},
+    {id:'c-nyc',label:'🇺🇸 New York',zoneId:'nyc'},
+    {id:'c-sao',label:'🇧🇷 São Paulo',zoneId:'sao'},
+    {id:'c-tok',label:'🇯🇵 Tokyo',zoneId:'tok'},
+    {id:'c-sin',label:'🇸🇬 Singapore',zoneId:'sin'},
+    {id:'c-mum',label:'🇮🇳 Mumbai',zoneId:'mum'},
+    {id:'c-chi',label:'🇺🇸 Chicago',zoneId:'chi'},
+    {id:'c-syd',label:'🇦🇺 Sydney',zoneId:'syd'},
+    {id:'c-jnb',label:'🇿🇦 Johannesburg',zoneId:'jnb'}
+  ];
+
+  var placed = {};
+  var mode = 'internet';
+  var spinPhase = 'idle';
+  var spinTimer = null;
+  var canvas = document.getElementById('sub-cvs');
+  var ctx = canvas.getContext('2d');
+  var raf = null;
+  var dashOff = 0;
+
+  // Build drop zones
+  var zonesEl = document.getElementById('sub-zones');
+  ZONES.forEach(function(z){
+    var el = document.createElement('div');
+    el.className = 'drop-zone';
+    el.id = 'dz-'+z.id;
+    el.style.left = z.x+'%';
+    el.style.top = z.y+'%';
+    el.style.width = '78px';
+    el.style.height = '48px';
+    el.innerHTML = '<span class="dz-flag">'+z.flag+'</span><span class="dz-city">'+z.city+'</span>';
+    el.addEventListener('dragover', function(e){ e.preventDefault(); el.classList.add('dz-over'); });
+    el.addEventListener('dragleave', function(){ el.classList.remove('dz-over'); });
+    el.addEventListener('drop', function(e){
+      e.preventDefault();
+      el.classList.remove('dz-over');
+      var chipId = e.dataTransfer.getData('chipId');
+      if(!chipId) return;
+      var chip = CHIPS.find(function(c){ return c.id===chipId; });
+      if(!chip) return;
+      // Remove any previous node in this zone
+      if(placed[z.id]) returnChip(placed[z.id]);
+      placeNode(chipId, z.id);
+    });
+    el.addEventListener('click', function(){
+      if(placed[z.id]) returnChip(placed[z.id]);
+    });
+    zonesEl.appendChild(el);
+  });
+
+  // Build chip pool
+  var pool = document.getElementById('node-pool');
+  CHIPS.forEach(function(c){
+    var el = document.createElement('div');
+    el.className = 'nchip';
+    el.id = c.id;
+    el.textContent = c.label;
+    el.draggable = true;
+    el.addEventListener('dragstart', function(e){
+      e.dataTransfer.setData('chipId', c.id);
+      el.classList.add('dragging');
+    });
+    el.addEventListener('dragend', function(){ el.classList.remove('dragging'); });
+    pool.appendChild(el);
+  });
+
+  function placeNode(chipId, zoneId){
+    var chip = CHIPS.find(function(c){ return c.id===chipId; });
+    var zone = ZONES.find(function(z){ return z.id===zoneId; });
+    if(!chip||!zone) return;
+    placed[zoneId] = chipId;
+    document.getElementById(chipId).classList.add('used');
+    var dzEl = document.getElementById('dz-'+zoneId);
+    dzEl.classList.add('dz-full');
+    dzEl.innerHTML = '<span class="dz-placed">'+chip.label+'</span><span class="dz-city">click to remove</span>';
+    dzEl.title = 'Click to remove node';
+    updateSpecs();
+    checkSpinUp();
+  }
+
+  function returnChip(chipId){
+    var zone = Object.keys(placed).find(function(k){ return placed[k]===chipId; });
+    if(!zone) return;
+    delete placed[zone];
+    var dzEl = document.getElementById('dz-'+zone);
+    var z = ZONES.find(function(z){ return z.id===zone; });
+    dzEl.classList.remove('dz-full');
+    dzEl.innerHTML = '<span class="dz-flag">'+z.flag+'</span><span class="dz-city">'+z.city+'</span>';
+    document.getElementById(chipId).classList.remove('used');
+    updateSpecs();
+    checkSpinUp();
+  }
+
+  function checkSpinUp(){
+    var n = Object.keys(placed).length;
+    var badge = document.getElementById('spin-badge');
+    if(n >= 3 && spinPhase === 'idle'){
+      spinPhase = 'connecting';
+      badge.className = 'spin-badge connecting';
+      badge.textContent = '⟳ Connecting nodes…';
+      spinTimer = setTimeout(function(){
+        spinPhase = 'consensus';
+        badge.textContent = '⟳ Running BFT consensus…';
+        spinTimer = setTimeout(function(){
+          spinPhase = 'live';
+          badge.className = 'spin-badge live';
+          badge.textContent = '✓ Subnet LIVE — Engine active';
+          updateSpecs();
+        }, 1200);
+      }, 1500);
+    } else if(n < 3){
+      spinPhase = 'idle';
+      if(spinTimer) clearTimeout(spinTimer);
+      badge.className = 'spin-badge';
+      badge.style.display = 'none';
+    }
+  }
+
+  function getAvgLatency(){
+    var zones = Object.keys(placed);
+    if(zones.length < 1) return 0;
+    var lats = zones.map(function(id){ var z=ZONES.find(function(z){return z.id===id;}); return z?z.lat:100; });
+    var sum = 0, count = 0;
+    for(var i=0;i<lats.length;i++) for(var j=i+1;j<lats.length;j++){ sum += (lats[i]+lats[j])/2; count++; }
+    return count ? Math.round(sum/count) : lats[0];
+  }
+
+  function updateSpecs(){
+    var n = Object.keys(placed).length;
+    var ft = n >= 1 ? Math.floor((n-1)/3) : 0;
+    var cons = n >= 1 ? Math.ceil(2*n/3)+1 : 0;
+    var lat = getAvgLatency();
+    var isLive = spinPhase === 'live';
+
+    document.getElementById('spec-mode').textContent = mode.toUpperCase();
+    document.getElementById('spec-nodes').textContent = n || '0';
+    document.getElementById('spec-nodes').className = 'spec-val'+(isLive?' gr':'');
+    document.getElementById('spec-rep').textContent = n>=1 ? n : '—';
+    document.getElementById('spec-ft').textContent = n>=1 ? ft : '—';
+    document.getElementById('spec-cons').textContent = n>=1 ? cons+' of '+n : '—';
+    document.getElementById('spec-lat').textContent = n>=1 ? '~'+lat+'ms' : '—';
+    document.getElementById('spec-lat').className = 'spec-val'+(isLive?' gr':'');
+    document.getElementById('spec-immune').textContent = n>=1 ? (mode==='sovereign'?'YES':'NO') : '—';
+    document.getElementById('spec-immune').className = 'spec-val'+(mode==='sovereign'&&n>=1?' gr':'');
+  }
+
+  function resizeCanvas(){
+    var mapEl = document.getElementById('sub-map');
+    canvas.width = mapEl.offsetWidth;
+    canvas.height = mapEl.offsetHeight;
+  }
+
+  function drawLoop(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    var zones = Object.keys(placed);
+    if(zones.length >= 2){
+      var positions = zones.map(function(id){
+        var el = document.getElementById('dz-'+id);
+        if(!el) return null;
+        var r = el.getBoundingClientRect();
+        var cr = canvas.getBoundingClientRect();
+        return {x: r.left+r.width/2-cr.left, y: r.top+r.height/2-cr.top};
+      }).filter(Boolean);
+
+      dashOff -= 0.6;
+      ctx.setLineDash([7,4]);
+      ctx.lineDashOffset = dashOff;
+      ctx.strokeStyle = spinPhase==='live' ? 'rgba(0,230,118,0.55)' : 'rgba(192,132,252,0.5)';
+      ctx.lineWidth = 1.5;
+
+      for(var i=0;i<positions.length;i++){
+        for(var j=i+1;j<positions.length;j++){
+          ctx.beginPath();
+          ctx.moveTo(positions[i].x, positions[i].y);
+          ctx.lineTo(positions[j].x, positions[j].y);
+          ctx.stroke();
+        }
+      }
+
+      ctx.setLineDash([]);
+      var dotColor = spinPhase==='live' ? 'rgba(0,230,118,0.9)' : 'rgba(192,132,252,0.9)';
+      positions.forEach(function(p){
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 5, 0, Math.PI*2);
+        ctx.fillStyle = dotColor;
+        ctx.fill();
+        if(spinPhase==='live'){
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 9+Math.sin(Date.now()/300)*3, 0, Math.PI*2);
+          ctx.strokeStyle = 'rgba(0,230,118,0.25)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
         }
       });
     }
+    raf = requestAnimationFrame(drawLoop);
   }
 
-  updateFlow(st.t);
-  updateOverlayPositions();
-  ren.render(scene,cam);
-}
+  // Mode buttons
+  document.querySelectorAll('.smode').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      mode = btn.dataset.mode;
+      document.querySelectorAll('.smode').forEach(function(b){ b.classList.remove('on'); });
+      btn.classList.add('on');
+      updateSpecs();
+    });
+  });
 
-init();
+  // Clear
+  document.getElementById('sub-clear').addEventListener('click', function(){
+    Object.keys(placed).forEach(function(zid){ returnChip(placed[zid]); });
+    placed = {};
+    spinPhase = 'idle';
+    if(spinTimer) clearTimeout(spinTimer);
+    var badge = document.getElementById('spin-badge');
+    badge.className = 'spin-badge';
+    updateSpecs();
+  });
+
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+  drawLoop();
+  updateSpecs();
+})();
+
+/* ════════════════════════════════════════
+   SLIDE 6 — MARKET GROWTH
+════════════════════════════════════════ */
+(function(){
+  var DATA = [
+    {year:2025,total:1.0},{year:2026,total:1.2},{year:2027,total:1.4},
+    {year:2028,total:1.6},{year:2029,total:1.8},{year:2030,total:2.0}
+  ];
+  var MAX_H = 0; // set after DOM paint
+  var penetration = 5;
+  var activated = false;
+  var slide = document.getElementById('slide-mkt');
+  var track = document.getElementById('ms-track');
+  var thumb = document.getElementById('ms-thumb');
+  var fill  = document.getElementById('ms-fill');
+  var dragging = false;
+
+  // Build bars
+  var colsEl = document.getElementById('mkt-cols');
+  DATA.forEach(function(d){
+    var col = document.createElement('div');
+    col.className = 'chart-col';
+    col.innerHTML =
+      '<div class="bar-outer"><div class="bar-total" id="bt-'+d.year+'" style="height:0">' +
+        '<div class="bar-sw" id="bsw-'+d.year+'" style="height:0;background:linear-gradient(to bottom,#c8ff00,#00d4ff)"></div>' +
+        '<div class="bar-saas" style="flex:.6;background:rgba(241,90,36,.35)"></div>' +
+        '<div class="bar-compute" style="flex:.4;background:rgba(41,171,226,.28)"></div>' +
+      '</div></div>' +
+      '<div class="bar-year">'+d.year+'</div>';
+    colsEl.appendChild(col);
+  });
+
+  function getMaxH(){
+    // Use the chart-cols container height as 100% = $2T
+    return colsEl.offsetHeight || 220;
+  }
+
+  function barHeightFor(total){
+    return Math.round(total / 2.0 * getMaxH());
+  }
+
+  function animateBars(){
+    DATA.forEach(function(d, i){
+      var h = barHeightFor(d.total);
+      setTimeout(function(){
+        var bt = document.getElementById('bt-'+d.year);
+        if(bt) bt.style.height = h+'px';
+        // Set SW portion after bar finishes growing
+        setTimeout(function(){ updateBarSW(d.year, h); }, 600);
+      }, i * 90);
+    });
+  }
+
+  function updateBarSW(year, barH){
+    var sw = document.getElementById('bsw-'+year);
+    if(!sw) return;
+    var swH = Math.round(penetration / 100 * barH);
+    sw.style.height = swH+'px';
+  }
+
+  function updateAllBars(){
+    DATA.forEach(function(d){
+      var bt = document.getElementById('bt-'+d.year);
+      var h = bt ? parseInt(bt.style.height)||0 : 0;
+      updateBarSW(d.year, h);
+    });
+  }
+
+  function fmt(trillions){
+    if(trillions >= 1) return '$'+trillions.toFixed(1)+'T';
+    var b = Math.round(trillions * 1000);
+    return '$'+b+'B';
+  }
+
+  function updateMetrics(){
+    var sw = penetration / 100 * 2.0;
+    var icp = sw * 0.25;
+    document.getElementById('mkt-pct').textContent = penetration+'%';
+    document.getElementById('mkt-sw-val').textContent = fmt(sw);
+    document.getElementById('mkt-sw-sub').textContent = penetration+'% of $2.0T total market';
+    document.getElementById('mkt-icp-val').textContent = fmt(icp);
+    var frac = penetration / 50;
+    var tw = track.offsetWidth;
+    thumb.style.left = (frac * tw)+'px';
+    fill.style.width  = (frac * 100)+'%';
+    updateAllBars();
+  }
+
+  function pctFromEvent(e){
+    var r = track.getBoundingClientRect();
+    var frac = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+    return Math.round(frac * 50);
+  }
+
+  thumb.addEventListener('mousedown', function(e){ dragging=true; e.preventDefault(); });
+  track.addEventListener('mousedown', function(e){ dragging=true; penetration=pctFromEvent(e); updateMetrics(); });
+  window.addEventListener('mousemove', function(e){ if(dragging){ penetration=pctFromEvent(e); updateMetrics(); }});
+  window.addEventListener('mouseup', function(){ dragging=false; });
+  thumb.addEventListener('touchstart', function(e){ dragging=true; e.preventDefault(); },{passive:false});
+  track.addEventListener('touchmove', function(e){ if(dragging){ penetration=pctFromEvent(e.touches[0]); updateMetrics(); } e.preventDefault(); },{passive:false});
+  window.addEventListener('touchend', function(){ dragging=false; });
+
+  // Observe slide activation
+  var obs = new MutationObserver(function(){
+    if(slide.classList.contains('active') && !activated){
+      activated = true;
+      setTimeout(function(){ animateBars(); updateMetrics(); }, 80);
+    }
+  });
+  obs.observe(slide, {attributes:true, attributeFilter:['class']});
+
+  updateMetrics();
+})();
+
+/* ════════════════════════════════════════
+   SLIDE 7 — 3D MODEL EMBED
+   Wheel/scroll events pass through to the iframe naturally — touches
+   inside an iframe are scoped to that frame and never bubble to the
+   parent document, so the deck's swipe handler is never triggered
+   while the user interacts with the 3D scene.
+════════════════════════════════════════ */
+(function(){
+  var slide = document.getElementById('slide-3d');
+  var instr = document.getElementById('model-instr');
+  var timer = null;
+  var obs = new MutationObserver(function(){
+    if(slide.classList.contains('active')){
+      instr.classList.remove('hide');
+      if(timer) clearTimeout(timer);
+      timer = setTimeout(function(){ instr.classList.add('hide'); }, 4500);
+    }
+  });
+  obs.observe(slide, {attributes:true, attributeFilter:['class']});
+})();
+
+/* ════════════════════════════════════════
+   NAV — DECK ENGINE
+════════════════════════════════════════ */
+(function(){
+  var slides = [
+    document.getElementById('slide-atk'),
+    document.getElementById('slide-wish'),
+    document.getElementById('slide-tl'),
+    document.getElementById('slide-map'),
+    document.getElementById('slide-sub'),
+    document.getElementById('slide-mkt'),
+    document.getElementById('slide-3d')
+  ];
+  var names = ['Attack Simulator','Wish Machine','Timeline','Sovereignty Map','Subnet Builder','Market Growth','3D Architecture'];
+  var cur = 0;
+  var dotsEl = document.getElementById('nav-dots');
+  var labelEl = document.getElementById('slabel');
+
+  // Create dots
+  slides.forEach(function(_,i){
+    var d = document.createElement('button');
+    d.className = 'ndot'+(i===0?' on':'');
+    d.title = names[i];
+    d.addEventListener('click', function(){ go(i); });
+    dotsEl.appendChild(d);
+  });
+  labelEl.textContent = 'SLIDE 1 OF ' + slides.length;
+
+  function go(i){
+    if(i<0||i>=slides.length) return;
+    slides[cur].classList.remove('active');
+    dotsEl.children[cur].classList.remove('on');
+    cur = i;
+    slides[cur].classList.add('active');
+    dotsEl.children[cur].classList.add('on');
+    labelEl.textContent = 'SLIDE '+(cur+1)+' OF '+slides.length;
+  }
+
+  document.getElementById('nav-prev').addEventListener('click', function(){ go(cur-1); });
+  document.getElementById('nav-next').addEventListener('click', function(){ go(cur+1); });
+
+  // Keyboard
+  window.addEventListener('keydown', function(e){
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+    if(e.key==='ArrowRight'||e.key==='ArrowDown') go(cur+1);
+    if(e.key==='ArrowLeft'||e.key==='ArrowUp') go(cur-1);
+  });
+
+  // Touch swipe
+  var tx = 0;
+  document.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; },{passive:true});
+  document.addEventListener('touchend', function(e){
+    var dx = tx - e.changedTouches[0].clientX;
+    if(Math.abs(dx)>50){ if(dx>0) go(cur+1); else go(cur-1); }
+  },{passive:true});
 })();
 </script>
 </body>

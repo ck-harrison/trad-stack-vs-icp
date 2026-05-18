@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traditional Stack vs ICP — 3D Architecture Comparison</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --bg: #08081a;
+  --surface: #0e0e18;
+  --accent: #00d4ff;
+  --red: #ff2d55;
+  --orange: #ff9500;
+  --purple: #7c3aed;
+  --pink: #ff3366;
+  --blue: #3b82f6;
+  --indigo: #6366f1;
+  --slate: #64748b;
+  --icp: #29abe2;
+  --icp-orange: #F15A24;
+  --icp-yellow: #FBB03B;
+  --icp-purple: #522785;
+  --green: #00e676;
+  --gold: #ffd700;
+  --text: #ffffff;
+  --text2: #c8c8e0;
+  --dim: #8888a8;
+  --glass: rgba(14,14,24,0.88);
+  --glass2: rgba(14,14,24,0.7);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;overflow:hidden;width:100vw;height:100vh}
+#cv{width:100%;height:100%;position:absolute;top:0;left:0}
+canvas{display:block}
+
+/* ── TOP BAR ── */
+.topbar{position:fixed;top:0;left:0;right:0;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;z-index:100;background:linear-gradient(to bottom,rgba(8,8,26,0.95) 0%,transparent 100%)}
+.topbar h1{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:500;letter-spacing:4px;text-transform:uppercase;color:var(--accent);text-shadow:0 0 30px rgba(0,212,255,0.35)}
+.topbar .sub{font-size:12px;color:var(--dim);margin-top:3px;font-family:'JetBrains Mono',monospace;letter-spacing:1.5px}
+.badge{font-family:'JetBrains Mono',monospace;font-size:12px;padding:6px 14px;border-radius:16px;letter-spacing:1.5px;text-transform:uppercase;transition:all 0.4s}
+.badge.web2{background:rgba(255,51,102,0.15);border:1px solid rgba(255,51,102,0.3);color:var(--pink)}
+.badge.compare{background:rgba(41,171,226,0.15);border:1px solid rgba(41,171,226,0.3);color:var(--icp)}
+.badge.fail{background:rgba(255,45,85,0.15);border:1px solid rgba(255,45,85,0.3);color:var(--red);animation:pulseBadge 1.5s infinite}
+@keyframes pulseBadge{0%,100%{box-shadow:0 0 0 rgba(255,45,85,0.3)}50%{box-shadow:0 0 15px 3px rgba(255,45,85,0.15)}}
+
+/* ── SIDE-BY-SIDE STATS ── */
+.stats-bar{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:100;display:none;gap:2px;align-items:stretch}
+.stats-bar.visible{display:flex}
+.stat-side{padding:12px 20px;backdrop-filter:blur(12px);display:flex;gap:18px;align-items:center}
+.stat-side.web2-side{background:rgba(255,51,102,0.1);border:1px solid rgba(255,51,102,0.2);border-radius:10px 0 0 10px;border-right:none}
+.stat-side.icp-side{background:rgba(41,171,226,0.1);border:1px solid rgba(41,171,226,0.2);border-radius:0 10px 10px 0;border-left:none}
+.stat-side .side-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;writing-mode:vertical-rl;text-orientation:mixed;opacity:0.8}
+.stat-side.web2-side .side-label{color:var(--pink)}
+.stat-side.icp-side .side-label{color:var(--icp)}
+.stat-item{text-align:center}
+.stat-item .num{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;line-height:1}
+.stat-item .label{font-size:10px;color:var(--text2);margin-top:3px;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px;text-transform:uppercase}
+.web2-side .num{color:var(--pink)}
+.icp-side .num{color:var(--icp)}
+.stat-vs{display:flex;align-items:center;justify-content:center;width:36px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);background:var(--glass);border-top:1px solid rgba(255,255,255,0.08);border-bottom:1px solid rgba(255,255,255,0.08)}
+
+/* ── RIGHT CONTROLS ── */
+.controls{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:6px}
+.cbtn{width:46px;height:46px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:var(--glass);backdrop-filter:blur(12px);color:var(--dim);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.25s;font-size:16px;position:relative}
+.cbtn:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,0.08);transform:scale(1.06)}
+.cbtn.on{border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,0.12);box-shadow:0 0 16px rgba(0,212,255,0.15)}
+.cbtn.red:hover,.cbtn.red.on{border-color:var(--red);color:var(--red);background:rgba(255,45,85,0.12);box-shadow:0 0 16px rgba(255,45,85,0.15)}
+.cbtn.icp:hover,.cbtn.icp.on{border-color:var(--icp);color:var(--icp);background:rgba(41,171,226,0.12);box-shadow:0 0 16px rgba(41,171,226,0.15)}
+.cbtn.grn:hover,.cbtn.grn.on{border-color:var(--green);color:var(--green);background:rgba(0,230,118,0.12);box-shadow:0 0 16px rgba(0,230,118,0.15)}
+.cbtn.gold:hover,.cbtn.gold.on{border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,0.12);box-shadow:0 0 16px rgba(255,215,0,0.15)}
+.cbtn .tip{position:absolute;right:54px;background:var(--glass);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);padding:6px 12px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;white-space:nowrap;opacity:0;transition:opacity 0.15s;pointer-events:none;color:var(--text)}
+.cbtn:hover .tip{opacity:1}
+.sep{height:8px}
+
+/* ── INFO PANEL ── */
+.info{position:fixed;left:16px;bottom:16px;z-index:100;background:var(--glass);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:0;max-width:400px;opacity:0;transform:translateY(8px);transition:opacity 0.35s,transform 0.35s;pointer-events:none;user-select:none}
+.info.vis{opacity:1;transform:translateY(0);pointer-events:auto}
+.info .drag-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 6px 16px;cursor:grab}
+.info .drag-bar:active{cursor:grabbing}
+.info .drag-bar .grip{width:28px;height:3px;border-radius:2px;background:rgba(255,255,255,0.15)}
+.info .close-btn{width:24px;height:24px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--dim);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0}
+.info .close-btn:hover{color:var(--red);border-color:rgba(255,45,85,0.3);background:rgba(255,45,85,0.1)}
+.info .body{padding:0 16px 16px 16px}
+.info .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 9px;border-radius:4px;margin-bottom:10px;letter-spacing:1px}
+.info h3{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.info p{font-size:14px;line-height:1.7;color:var(--text2)}
+.info .corp{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);letter-spacing:0.5px}
+.info .icp-alt{margin-top:10px;padding-top:10px;border-top:1px solid rgba(41,171,226,0.2);font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--icp);letter-spacing:0.5px;white-space:pre-wrap}
+
+/* ── LAYER NAV ── */
+.lnav{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:100;display:flex;gap:4px;background:var(--glass);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:5px}
+.lbtn{padding:7px 14px;border-radius:7px;border:none;background:transparent;color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.25s;white-space:nowrap}
+.lbtn:hover{color:var(--text);background:rgba(255,255,255,0.06)}
+.lbtn.on{color:var(--accent);background:rgba(0,212,255,0.1)}
+
+/* ── CASCADE OVERLAY ── */
+.cascade-alert{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:110;background:rgba(255,45,85,0.1);backdrop-filter:blur(12px);border:1px solid rgba(255,45,85,0.25);border-radius:10px;padding:12px 24px;text-align:center;opacity:0;transition:all 0.35s;pointer-events:none}
+.cascade-alert.vis{opacity:1;pointer-events:auto}
+.cascade-alert h4{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--red);letter-spacing:2px;text-transform:uppercase}
+.cascade-alert p{font-size:13px;color:var(--text2);margin-top:4px}
+
+/* ── ICP SAFE OVERLAY (during failure) ── */
+.icp-safe{position:fixed;top:56px;right:120px;z-index:110;background:rgba(0,230,118,0.08);backdrop-filter:blur(12px);border:1px solid rgba(0,230,118,0.25);border-radius:10px;padding:12px 24px;text-align:center;opacity:0;transition:all 0.35s;pointer-events:none}
+.icp-safe.vis{opacity:1}
+.icp-safe h4{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--green);letter-spacing:2px;text-transform:uppercase}
+.icp-safe p{font-size:13px;color:var(--text2);margin-top:4px}
+
+/* ── REQUEST TRACE PANEL ── */
+.trace-panel{position:fixed;top:100px;left:16px;z-index:105;background:var(--glass);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:0;width:560px;opacity:0;transition:opacity 0.35s,transform 0.35s;pointer-events:none;user-select:none}
+.trace-panel.vis{opacity:1;pointer-events:auto}
+.trace-panel .drag-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 6px 16px;cursor:grab}
+.trace-panel .drag-bar:active{cursor:grabbing}
+.trace-panel .drag-bar .grip{width:28px;height:3px;border-radius:2px;background:rgba(255,255,255,0.15)}
+.trace-panel .close-btn{width:24px;height:24px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--dim);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0}
+.trace-panel .close-btn:hover{color:var(--red);border-color:rgba(255,45,85,0.3);background:rgba(255,45,85,0.1)}
+.trace-cols{display:flex;gap:16px;padding:0 16px 16px 16px}
+.trace-col{flex:1;min-width:0}
+.trace-col h4{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.trace-step{display:flex;align-items:center;gap:8px;padding:5px 0;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);transition:all 0.3s;position:relative}
+.trace-step.active{color:var(--text)}
+.trace-step .dot{width:8px;height:8px;border-radius:50%;background:var(--dim);transition:all 0.3s;flex-shrink:0}
+.trace-step.active .dot{box-shadow:0 0 10px currentColor}
+.trace-step .line{position:absolute;left:3.5px;top:17px;width:1px;height:10px;background:rgba(255,255,255,0.08)}
+.trace-step .ms{margin-left:auto;font-size:10px;opacity:0;transition:opacity 0.3s}
+.trace-step.active .ms{opacity:1}
+.trace-step .corp-tag{font-size:9px;margin-left:4px;opacity:0;transition:opacity 0.3s}
+.trace-step.active .corp-tag{opacity:0.7}
+.trace-total{margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:13px;display:flex;justify-content:space-between}
+
+/* ── DATA/COST OVERLAY LABELS ── */
+.overlay-label{position:fixed;z-index:95;font-family:'JetBrains Mono',monospace;font-size:11px;padding:4px 10px;border-radius:5px;pointer-events:none;opacity:0;transition:all 0.3s;letter-spacing:0.5px;white-space:nowrap}
+.overlay-label.vis{opacity:1}
+
+/* ── INSTRUCTIONS ── */
+.instr{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);z-index:90;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:1.5px;text-align:center;opacity:0.6;transition:opacity 2s}
+.instr.hide{opacity:0}
+</style>
+</head>
+<body>
+
+<div id="cv"></div>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div><h1>Traditional Stack vs ICP</h1><div class="sub">Interactive 3D Architecture Comparison</div></div>
+  <div class="badge web2" id="badge">TRADITIONAL STACK</div>
+</div>
+
+<!-- Side-by-side Stats -->
+<div class="stats-bar" id="statsBar">
+  <div class="stat-side web2-side">
+    <span class="side-label">TRAD</span>
+    <div class="stat-item"><div class="num">7</div><div class="label">Layers</div></div>
+    <div class="stat-item"><div class="num">12+</div><div class="label">Corp Deps</div></div>
+    <div class="stat-item"><div class="num">47</div><div class="label">Failure Pts</div></div>
+    <div class="stat-item"><div class="num">0</div><div class="label">Crypto Proof</div></div>
+  </div>
+  <div class="stat-vs">vs</div>
+  <div class="stat-side icp-side">
+    <span class="side-label">ICP</span>
+    <div class="stat-item"><div class="num">4</div><div class="label">Layers</div></div>
+    <div class="stat-item"><div class="num">0</div><div class="label">Corp Deps</div></div>
+    <div class="stat-item"><div class="num">0</div><div class="label">Failure Pts</div></div>
+    <div class="stat-item"><div class="num">∞</div><div class="label">Crypto Proof</div></div>
+  </div>
+</div>
+
+<!-- Right Controls -->
+<div class="controls">
+  <button class="cbtn" id="bExplode"><span>⊞</span><span class="tip">Explode Layers</span></button>
+  <button class="cbtn on" id="bRotate"><span>↻</span><span class="tip">Auto Rotate</span></button>
+  <button class="cbtn" id="bTrace"><span>⚡</span><span class="tip">Request Trace</span></button>
+  <div class="sep"></div>
+  <button class="cbtn red" id="bCF"><span>⚠</span><span class="tip">Cloudflare Failure</span></button>
+  <button class="cbtn red" id="bAWS"><span>☁</span><span class="tip">AWS Region Failure</span></button>
+  <div class="sep"></div>
+  <button class="cbtn grn" id="bData"><span>🔒</span><span class="tip">Data Ownership</span></button>
+  <button class="cbtn gold" id="bCost"><span>$</span><span class="tip">Cost Stacking</span></button>
+  <div class="sep"></div>
+  <button class="cbtn icp" id="bICP"><span>∞</span><span class="tip">Compare: ICP</span></button>
+  <button class="cbtn" id="bReset"><span>⟲</span><span class="tip">Reset All</span></button>
+</div>
+
+<!-- Layer Nav -->
+<div class="lnav">
+  <button class="lbtn on" data-l="all">All</button>
+  <button class="lbtn" data-l="user">User</button>
+  <button class="lbtn" data-l="cdn">CDN</button>
+  <button class="lbtn" data-l="lb">LB/DNS</button>
+  <button class="lbtn" data-l="app">App</button>
+  <button class="lbtn" data-l="db">Database</button>
+  <button class="lbtn" data-l="cloud">Cloud</button>
+  <button class="lbtn" data-l="phys">Physical</button>
+</div>
+
+<!-- Info Panel -->
+<div class="info" id="info">
+  <div class="drag-bar" id="infoDrag"><div class="grip"></div><button class="close-btn" id="infoClose">✕</button></div>
+  <div class="body">
+    <div class="tag" id="iTag">LAYER</div>
+    <h3 id="iTitle">Title</h3>
+    <p id="iDesc">Description</p>
+    <div class="corp" id="iCorp" style="display:none"></div>
+    <div class="icp-alt" id="iAlt" style="display:none"></div>
+  </div>
+</div>
+
+<!-- Cascade Alert -->
+<div class="cascade-alert" id="cascAlert">
+  <h4 id="cascTitle">⚠ FAILURE</h4>
+  <p id="cascDesc">Cascade in progress...</p>
+</div>
+
+<!-- ICP Safe Banner -->
+<div class="icp-safe" id="icpSafe">
+  <h4>✓ ICP UNAFFECTED</h4>
+  <p>No single point of failure. Consensus continues.</p>
+</div>
+
+<!-- Request Trace -->
+<div class="trace-panel" id="tracePanel">
+  <div class="drag-bar" id="traceDrag"><div class="grip"></div><button class="close-btn" id="traceClose">✕</button></div>
+  <div class="trace-cols" id="traceCols"></div>
+</div>
+
+<div class="instr" id="instr">DRAG TO ROTATE · SCROLL TO ZOOM · CLICK LAYERS · RIGHT PANEL FOR MODES</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ═══════════════════════════════════════════════
+   LAYER DATA
+   ═══════════════════════════════════════════════ */
+
+var C = {
+  user:0x00d4ff, cdn:0xff9500, dns:0xffd60a, lb:0x7c3aed,
+  app:0xff3366, db:0x3b82f6, cloud:0x6366f1, phys:0x64748b,
+  icp:0x29abe2, icpOrange:0xF15A24, icpYellow:0xFBB03B, icpPurple:0x522785,
+  fail:0xff2d55, green:0x00e676, gold:0xffd700, flow:0x00d4ff
+};
+
+var INFO = {
+  user:{tag:'LAYER 1 — VISIBLE',tc:'#00d4ff',title:'User Interface',
+    desc:'The only layer users see. Your browser, your screen. Everything below is invisible — hidden behind corporate walls and geographic distance.',
+    corp:'CONTROLLED BY: Google Chrome (67% market share), Apple Safari, Microsoft Edge — browser vendors dictate web standards, collect telemetry, can block sites',
+    alt:'ICP: Browser connects directly to boundary nodes. Certified responses are cryptographically verified — no trust required.',
+    cost:'You pay nothing directly, but your data is monetized at every layer below — you ARE the product',
+    data:'Your request headers, IP, cookies, and behavior data begin their journey through 6 more corporate entities'},
+  cdn:{tag:'LAYER 2 — EDGE',tc:'#ff9500',title:'CDN / Edge Network',
+    desc:'Cloudflare, Akamai, Fastly — corporate gatekeepers caching content at 300+ global PoPs. They see ALL your traffic. When one goes down, millions of sites vanish.',
+    corp:'CONTROLLED BY: Cloudflare (80%+ of CDN market), Akamai, Fastly, AWS CloudFront — 4 companies see most of the internet\'s traffic',
+    alt:'ICP: No CDN needed. Boundary nodes serve certified content directly. No corporate middleman caching (and reading) your data.',
+    cost:'Paying for bandwidth and caching — per-GB charges that scale with popularity. Enterprise plans cost tens of thousands monthly.',
+    data:'CDN caches your content, logs every request, can read unencrypted data, shares analytics with customers. Your browsing patterns are a product.'},
+  lb:{tag:'LAYER 3 — ROUTING',tc:'#7c3aed',title:'Load Balancers & DNS',
+    desc:'Traffic directors deciding which server handles your request. AWS ELB, Nginx, HAProxy. Another corporate dependency, another failure point, another entity logging everything.',
+    corp:'CONTROLLED BY: AWS ELB, Google Cloud LB, Azure LB, Cloudflare DNS — your routing is decided by corporations',
+    alt:'ICP: Consensus-based routing. The subnet protocol deterministically routes requests — no corporate traffic director.',
+    cost:'Paying for traffic routing and DNS queries — per-hour charges for load balancers plus per-million charges for DNS lookups',
+    data:'Load balancer sees every request, logs source IPs, can perform deep packet inspection. DNS providers know every domain you visit.'},
+  app:{tag:'LAYER 4 — COMPUTE',tc:'#ff3366',title:'Application Servers',
+    desc:'Where your code runs — on someone else\'s computer. Rented EC2 instances, Lambda functions, Kubernetes pods. You don\'t own the hardware. They can shut you down.',
+    corp:'CONTROLLED BY: AWS EC2 (33%), Azure (22%), GCP (11%) — three companies run 66% of all cloud compute',
+    alt:'ICP: Code runs in canisters — replicated across independent nodes with consensus. No single entity can shut you down. Code is tamperproof.',
+    cost:'Renting compute by the hour — paying for CPU time, memory, and auto-scaling that can spiral out of control',
+    data:'Cloud provider has root access to your servers. They can read your memory, your code, your environment variables. AWS Terms of Service allow inspection.'},
+  db:{tag:'LAYER 5 — DATA',tc:'#3b82f6',title:'Databases & Storage',
+    desc:'Your data lives in someone else\'s database. RDS, DynamoDB, S3. They can read it, lose it, or lock you out. No cryptographic guarantees. Just trust.',
+    corp:'CONTROLLED BY: AWS RDS/DynamoDB, Google Cloud SQL, Azure SQL, MongoDB Atlas — your data is their leverage',
+    alt:'ICP: Data lives inside canisters, replicated with consensus. Orthogonal persistence means no separate database. VetKeys enable encrypted storage only YOU can read.',
+    cost:'Paying to store your own data — per-GB monthly charges plus egress fees that punish you for accessing your own data',
+    data:'Provider can read, copy, analyze, and lose your data. No cryptographic proof they haven\'t. Backups exist in unknown locations. Deletion is a promise, not a proof.'},
+  cloud:{tag:'LAYER 6 — PLATFORM',tc:'#6366f1',title:'Cloud Platform (AWS/GCP/Azure)',
+    desc:'Three companies control 65%+ of all cloud infrastructure. Your entire stack depends on their availability, pricing, and policies. Deplatforming is real.',
+    corp:'CONTROLLED BY: Amazon (33%), Microsoft (22%), Google (11%) — deplatforming risk is existential. Parler, Russia, WikiLeaks all learned this.',
+    alt:'ICP: No platform owner. Network Nervous System (NNS) governs via token holder democracy. No CEO can flip a switch.',
+    cost:'Vendor lock-in is the real cost — proprietary services make switching providers 2-5x more expensive than staying',
+    data:'AWS/GCP/Azure have physical access to ALL your infrastructure. Government subpoenas go to THEM, not you. Compliance means they already scan your data.'},
+  phys:{tag:'LAYER 7 — PHYSICAL',tc:'#64748b',title:'Physical Infrastructure',
+    desc:'Data centers, submarine cables, power grids. Vulnerable to natural disasters, government seizure, and physical attacks. Concentrated in a few regions.',
+    corp:'CONTROLLED BY: Equinix, Digital Realty, AWS, Google — data center oligopoly. 70% of internet traffic flows through Virginia.',
+    alt:'ICP: Node machines operated by independent providers across 30+ global data centers in multiple jurisdictions. No geographic concentration.',
+    cost:'Massive capital expenditure — building and powering data centers costs millions, and those costs flow up to every layer above',
+    data:'Physical access = total access. Government raids, natural disasters, and power failures affect everything above. All 6 layers collapse.'},
+  // ICP layers - using ICP brand palette
+  icp_user:{tag:'ICP — USER',tc:'#29ABE2',title:'User (Direct Connection)',
+    desc:'On ICP, the user connects directly to the network. No CDN, no corporate gateway. Certified responses are cryptographically verified by the browser — trustless by design.',
+    corp:'NO CORPORATE DEPENDENCY — the client verifies responses using chain-key cryptography, not corporate trust',
+    alt:'',
+    data:'✅ Your data is verified client-side via certified variables. No middleman ever sees raw request data.',
+    cost:'✅ Users never pay gas — the reverse gas model means developers pay for compute, not users'},
+  icp_bn:{tag:'ICP — BOUNDARY',tc:'#F15A24',title:'Boundary Nodes',
+    desc:'Decentralized entry points to the network. They route requests to the correct subnet but CANNOT tamper with responses — cryptographic certification guarantees integrity.',
+    corp:'DECENTRALIZED — run by independent node providers, not a single corporation. No Cloudflare equivalent.',
+    alt:'',
+    data:'✅ Boundary nodes route but CANNOT read or modify data. Responses are cryptographically certified end-to-end.',
+    cost:'✅ Replaces CDN + DNS + Load Balancer — three entire paid traditional layers eliminated'},
+  icp_sub:{tag:'ICP — SUBNET',tc:'#00e676',title:'Subnet & Canisters',
+    desc:'The key innovation. Canisters bundle compute + storage + governance together. No separate DB, no separate app server. This single layer replaces traditional stack layers 3-6. Replicated across independent nodes with BFT consensus.',
+    corp:'REPLACES 4 TRADITIONAL LAYERS — no AWS, no database vendor, no load balancer. Code + data + logic unified in tamperproof canisters.',
+    alt:'',
+    data:'✅ Data lives inside canisters with orthogonal persistence. VetKeys enable encrypted storage only YOU can decrypt. No provider can read your data.',
+    cost:'✅ Developers pay cycles for compute and storage — reverse gas model means the end user pays nothing'},
+  icp_nns:{tag:'ICP — GOVERNANCE',tc:'#FBB03B',title:'Network Nervous System (NNS)',
+    desc:'Autonomous on-chain governance via liquid democracy. No CEO, no board, no corporate decisions. Token holders propose and vote on everything from upgrades to node additions.',
+    corp:'DAO GOVERNED — no single entity controls the network. Proposals require community consensus to execute.',
+    alt:'',
+    data:'✅ All governance is on-chain and publicly verifiable. No backroom decisions. No hidden policy changes.',
+    cost:'✅ Governance is a public good — participate by staking ICP neurons, no fees to propose or vote'},
+  icp_nodes:{tag:'ICP — NODES',tc:'#522785',title:'Independent Node Machines',
+    desc:'Standardized hardware run by independent operators across 30+ data centers globally. AMD SEV-SNP technology provides hardware-level confidential computing, ensuring even node operators cannot access data in memory. VetKeys add a cryptographic layer enabling on-chain secret management and encrypted storage.',
+    corp:'INDEPENDENT OPERATORS — no Amazon, no Google, no Microsoft. Truly decentralized physical infrastructure.',
+    alt:'',
+    data:'✅ AMD SEV-SNP hardware security ensures node operators cannot inspect data in memory. VetKeys enable decentralised key management and encrypted storage on-chain.',
+    cost:'✅ Node providers earn ICP rewards for running infrastructure — competitive market drives costs down, no rent-seeking cloud oligopoly'},
+};
+
+var WEB2_LAYERS = ['phys','cloud','db','app','lb','cdn','user'];
+var WEB2_Y = {phys:-6, cloud:-4, db:-2, app:0, lb:2, cdn:4, user:6};
+
+/* ═══════════════════════════════════════════════
+   REQUEST TRACE DATA
+   ═══════════════════════════════════════════════ */
+
+var WEB2_TRACE = [
+  {name:'DNS Lookup', ms:50, corp:'Cloudflare DNS', layer:'cdn'},
+  {name:'CDN Edge Hit?', ms:15, corp:'Cloudflare', layer:'cdn'},
+  {name:'CDN Miss → Origin', ms:80, corp:'Cloudflare → AWS', layer:'cdn'},
+  {name:'Load Balancer', ms:5, corp:'AWS ELB', layer:'lb'},
+  {name:'App Server', ms:120, corp:'AWS EC2', layer:'app'},
+  {name:'Database Query', ms:45, corp:'AWS RDS', layer:'db'},
+  {name:'Response Assembly', ms:30, corp:'AWS EC2', layer:'app'},
+  {name:'Back Through CDN', ms:10, corp:'Cloudflare', layer:'cdn'},
+  {name:'Render in Browser', ms:200, corp:'Chrome', layer:'user'},
+];
+
+var ICP_TRACE = [
+  {name:'DNS → Boundary Node', ms:30, corp:'Decentralized', layer:'icp_bn'},
+  {name:'Route to Subnet', ms:10, corp:'Consensus Protocol', layer:'icp_sub'},
+  {name:'Canister Execution', ms:2, corp:'Chain-Key Crypto', layer:'icp_sub'},
+  {name:'Certified Response', ms:1, corp:'Threshold Signature', layer:'icp_sub'},
+  {name:'Render in Browser', ms:200, corp:'Client Verified', layer:'icp_user'},
+];
+
+/* ═══════════════════════════════════════════════
+   THREE.JS STATE
+   ═══════════════════════════════════════════════ */
+
+var scene, cam, ren, clk;
+var layers = {}, icpG = null;
+var flowParts = [];
+
+var st = {
+  exploded:false, rotating:true, traceMode:false, cascadeMode:null,
+  icpMode:false, dataMode:false, costMode:false,
+  dragging:false, pmx:0, pmy:0,
+  camAX:0.3, camAY:0.5, camDist:18, targetDist:18,
+  expProg:0, expTarget:0, t:0,
+  traceStep:-1, traceTimer:null, traceStepICP:-1, traceTimerICP:null,
+};
+
+/* ═══════════════════════════════════════════════
+   MATERIAL FACTORY
+   ═══════════════════════════════════════════════ */
+
+function mg(hex,op){
+  op=op||0.3;
+  var c=new THREE.Color(hex);
+  var m=new THREE.MeshPhongMaterial({color:c,transparent:true,opacity:op,emissive:c.clone(),emissiveIntensity:0.8,side:THREE.DoubleSide});
+  m._oh=hex;m._oo=op;return m;
+}
+function me(hex){
+  var m=new THREE.LineBasicMaterial({color:new THREE.Color(hex),transparent:true,opacity:0.65});
+  m._oh=hex;m._oo=0.65;return m;
+}
+function mb(hex,op){
+  var m=new THREE.MeshBasicMaterial({color:new THREE.Color(hex),transparent:true,opacity:op,side:THREE.DoubleSide});
+  m._oh=hex;m._oo=op;return m;
+}
+function ml(hex,op){
+  var m=new THREE.LineBasicMaterial({color:new THREE.Color(hex),transparent:true,opacity:op});
+  m._oh=hex;m._oo=op;return m;
+}
+function resetMat(m){
+  if(m._oh===undefined)return;
+  m.color.set(m._oh);m.opacity=m._oo;
+  if(m.emissive){m.emissive.set(m._oh);m.emissiveIntensity=0.8;}
+}
+
+/* ═══════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════ */
+
+function init(){
+  scene=new THREE.Scene();
+  scene.fog=new THREE.FogExp2(0x08081a,0.003);
+  cam=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,0.1,100);
+  ren=new THREE.WebGLRenderer({antialias:true,alpha:true});
+  ren.setSize(innerWidth,innerHeight);
+  ren.setPixelRatio(Math.min(devicePixelRatio,2));
+  ren.toneMapping=THREE.ACESFilmicToneMapping;
+  ren.toneMappingExposure=2.2;
+  document.getElementById('cv').appendChild(ren.domElement);
+  clk=new THREE.Clock();
+
+  scene.add(new THREE.AmbientLight(0x667799,1.0));
+  var d1=new THREE.DirectionalLight(0xffffff,1.2);d1.position.set(10,20,10);scene.add(d1);
+  var d2=new THREE.DirectionalLight(0x6699ff,0.6);d2.position.set(-10,5,-10);scene.add(d2);
+  var pl=new THREE.PointLight(0xff3366,0.6,50);pl.position.set(0,-5,8);scene.add(pl);
+  var pl2=new THREE.PointLight(0x00d4ff,0.5,50);pl2.position.set(5,10,-5);scene.add(pl2);
+  var pl3=new THREE.PointLight(0xffffff,0.4,40);pl3.position.set(-8,3,6);scene.add(pl3);
+
+  buildWeb2();
+  buildICP();
+  buildStars();
+  setupUI();
+  loop();
+  setTimeout(function(){document.getElementById('instr').classList.add('hide')},5000);
+}
+
+/* ═══════════════════════════════════════════════
+   BUILD TRADITIONAL STACK
+   ═══════════════════════════════════════════════ */
+
+function edges(g,hex){
+  var add=[];
+  g.children.forEach(function(c){
+    if(c.isMesh&&c.geometry){
+      var e=new THREE.LineSegments(new THREE.EdgesGeometry(c.geometry),me(hex));
+      e.position.copy(c.position);e.rotation.copy(c.rotation);e.scale.copy(c.scale);
+      add.push(e);
+    }
+  });
+  add.forEach(function(a){g.add(a)});
+}
+
+function mkLayer(name,y,hex,fn){
+  var g=new THREE.Group();
+  fn(g);
+  edges(g,hex);
+  g.position.y=y;
+  g.userData={name:name,baseY:y,color:hex,fail:false};
+  scene.add(g);
+  layers[name]=g;
+}
+
+function buildWeb2(){
+  mkLayer('phys',-6,C.phys,function(g){
+    for(var i=0;i<6;i++){
+      var a=(i/6)*Math.PI*2;
+      var bx=new THREE.Mesh(new THREE.BoxGeometry(1,0.5,1),mg(C.phys,0.35));bx.position.set(Math.cos(a)*4,0,Math.sin(a)*4);g.add(bx);
+      var at=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,0.5),mg(C.phys,0.55));at.position.set(Math.cos(a)*4,0.5,Math.sin(a)*4);g.add(at);
+    }
+    var c=new THREE.Mesh(new THREE.TorusGeometry(5,0.025,8,64),mg(C.phys,0.35));c.rotation.x=Math.PI/2;g.add(c);
+    var c2=new THREE.Mesh(new THREE.TorusGeometry(3.5,0.015,8,48),mg(C.phys,0.25));c2.rotation.x=Math.PI/2;g.add(c2);
+  });
+
+  mkLayer('cloud',-4,C.cloud,function(g){
+    for(var i=0;i<3;i++){
+      var a=(i/3)*Math.PI*2+0.3,r=3;
+      var m=new THREE.Mesh(new THREE.BoxGeometry(2.5,0.25,1.5),mg(C.cloud,0.35));
+      m.position.set(Math.cos(a)*r,0,Math.sin(a)*r);m.rotation.y=a;g.add(m);
+      for(var j=0;j<4;j++){
+        var rk=new THREE.Mesh(new THREE.BoxGeometry(0.25,0.12,0.7),mg(C.cloud,0.4));
+        rk.position.set(Math.cos(a)*r+Math.cos(a+Math.PI/2)*(j-1.5)*0.4,0.2,Math.sin(a)*r+Math.sin(a+Math.PI/2)*(j-1.5)*0.4);
+        rk.rotation.y=a;g.add(rk);
+      }
+    }
+  });
+
+  mkLayer('db',-2,C.db,function(g){
+    g.add(new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,0.5,16),mg(C.db,0.4)));
+    for(var i=0;i<3;i++){var d=new THREE.Mesh(new THREE.CylinderGeometry(1,1,0.03,16),mg(C.db,0.25));d.position.y=-0.12+i*0.12;g.add(d);}
+    for(var i=0;i<2;i++){var a=(i/2)*Math.PI*2+Math.PI/4;var r=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,0.35,12),mg(C.db,0.25));r.position.set(Math.cos(a)*3,0,Math.sin(a)*3);g.add(r);}
+  });
+
+  mkLayer('app',0,C.app,function(g){
+    for(var i=0;i<6;i++){var a=(i/6)*Math.PI*2;var m=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.7,0.7),mg(C.app,0.35));m.position.set(Math.cos(a)*2.5,0,Math.sin(a)*2.5);m.rotation.y=a;g.add(m);}
+    g.add(new THREE.Mesh(new THREE.OctahedronGeometry(0.45),mg(C.app,0.45)));
+  });
+
+  mkLayer('lb',2,C.lb,function(g){
+    var r=new THREE.Mesh(new THREE.TorusGeometry(2,0.12,8,32),mg(C.lb,0.4));r.rotation.x=Math.PI/2;g.add(r);
+    for(var i=0;i<4;i++){var a=(i/4)*Math.PI*2;var dn=new THREE.Mesh(new THREE.SphereGeometry(0.22,12,12),mg(C.dns,0.5));dn.position.set(Math.cos(a)*2,0,Math.sin(a)*2);g.add(dn);}
+  });
+
+  mkLayer('cdn',4,C.cdn,function(g){
+    for(var i=0;i<8;i++){var a=(i/8)*Math.PI*2;var cd=new THREE.Mesh(new THREE.DodecahedronGeometry(0.3),mg(C.cdn,0.45));cd.position.set(Math.cos(a)*3.5,0,Math.sin(a)*3.5);g.add(cd);}
+    g.add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.55),mg(C.cdn,0.5)));
+  });
+
+  mkLayer('user',6,C.user,function(g){
+    g.add(new THREE.Mesh(new THREE.BoxGeometry(3,0.06,2),mg(C.user,0.45)));
+    var s=new THREE.Mesh(new THREE.PlaneGeometry(2.8,1.8),mb(0x00d4ff,0.06));s.position.y=0.04;s.rotation.x=-Math.PI/2;g.add(s);
+    var hd=new THREE.Mesh(new THREE.SphereGeometry(0.3,12,12),mg(C.user,0.5));hd.position.set(0,0.8,-1.5);g.add(hd);
+  });
+
+  // Connections
+  var cg=new THREE.Group();cg.userData={name:'conn'};
+  var ys=[-6,-4,-2,0,2,4,6];
+  for(var i=0;i<ys.length-1;i++){
+    for(var j=0;j<3;j++){
+      var a=(j/3)*Math.PI*2,s=1.5;
+      var pts=new THREE.CatmullRomCurve3([
+        new THREE.Vector3(Math.cos(a)*s*0.5,ys[i]+0.3,Math.sin(a)*s*0.5),
+        new THREE.Vector3(Math.cos(a+0.2)*s,(ys[i]+ys[i+1])/2,Math.sin(a+0.2)*s),
+        new THREE.Vector3(Math.cos(a+0.1)*s*0.5,ys[i+1]-0.3,Math.sin(a+0.1)*s*0.5)
+      ]).getPoints(20);
+      cg.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),ml(0x445577,0.25)));
+    }
+  }
+  scene.add(cg);layers.conn=cg;
+}
+
+/* ═══════════════════════════════════════════════
+   BUILD ICP
+   ═══════════════════════════════════════════════ */
+
+function buildICP(){
+  icpG=new THREE.Group();
+  icpG.visible=false;
+  icpG.position.x=14;
+
+  function a(geo,mat,pos,tag){
+    var m=new THREE.Mesh(geo,mat);m.position.copy(pos);m.userData={icpLayer:tag};icpG.add(m);return m;
+  }
+
+  // User (y=5) — ICP Blue
+  a(new THREE.BoxGeometry(3,0.06,2),mg(C.icp,0.4),new THREE.Vector3(0,5,0),'icp_user');
+  a(new THREE.SphereGeometry(0.3,12,12),mg(C.icp,0.5),new THREE.Vector3(0,5.8,-1.5),'icp_user');
+
+  // Boundary nodes (y=3) — ICP Orange
+  var bnr=a(new THREE.TorusGeometry(2.5,0.1,8,32),mg(C.icpOrange,0.35),new THREE.Vector3(0,3,0),'icp_bn');
+  bnr.rotation.x=Math.PI/2;
+  for(var i=0;i<6;i++){var ang=(i/6)*Math.PI*2;a(new THREE.SphereGeometry(0.18,12,12),mg(C.icpOrange,0.55),new THREE.Vector3(Math.cos(ang)*2.5,3,Math.sin(ang)*2.5),'icp_bn');}
+
+  // NNS governance (y=1.2) — ICP Yellow
+  a(new THREE.OctahedronGeometry(0.5),mg(C.icpYellow,0.55),new THREE.Vector3(0,1.2,0),'icp_nns');
+
+  // Subnet & Canisters (y=-0.5) — Green
+  var sr=a(new THREE.TorusGeometry(2,0.2,8,28),mg(C.green,0.35),new THREE.Vector3(0,-0.5,0),'icp_sub');
+  sr.rotation.x=Math.PI/2;
+  for(var i=0;i<5;i++){var ang=(i/5)*Math.PI*2;a(new THREE.CylinderGeometry(0.3,0.3,0.6,8),mg(C.green,0.45),new THREE.Vector3(Math.cos(ang)*2,-0.5,Math.sin(ang)*2),'icp_sub');}
+
+  // NNS → Canister governance lines (ICP Yellow)
+  for(var i=0;i<5;i++){
+    var ang=(i/5)*Math.PI*2;
+    var nnsLine=new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0,1.2,0),
+      new THREE.Vector3(Math.cos(ang)*1,0.35,Math.sin(ang)*1),
+      new THREE.Vector3(Math.cos(ang)*2,-0.5,Math.sin(ang)*2)
+    ]).getPoints(16);
+    icpG.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(nnsLine),ml(C.icpYellow,0.35)));
+  }
+
+  // Node machines (y=-3) — ICP Purple
+  for(var i=0;i<10;i++){var ang=(i/10)*Math.PI*2;a(new THREE.BoxGeometry(0.5,0.35,0.5),mg(C.icpPurple,0.35),new THREE.Vector3(Math.cos(ang)*3.5,-3,Math.sin(ang)*3.5),'icp_nodes');}
+  var nr=a(new THREE.TorusGeometry(3.5,0.04,8,40),mg(C.icpPurple,0.25),new THREE.Vector3(0,-3,0),'icp_nodes');
+  nr.rotation.x=Math.PI/2;
+
+  // Connection lines
+  var c1=new THREE.CatmullRomCurve3([new THREE.Vector3(0,5,0),new THREE.Vector3(0,3,0),new THREE.Vector3(0,1.2,0),new THREE.Vector3(0,-0.5,0)]).getPoints(40);
+  icpG.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(c1),ml(C.icp,0.5)));
+
+  var c2=new THREE.CatmullRomCurve3([new THREE.Vector3(0,-0.5,0),new THREE.Vector3(0,-1.7,0),new THREE.Vector3(0,-3,0)]).getPoints(20);
+  icpG.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(c2),ml(C.icp,0.35)));
+
+  for(var i=0;i<10;i++){
+    var ang=(i/10)*Math.PI*2;
+    var c3=new THREE.CatmullRomCurve3([
+      new THREE.Vector3(Math.cos(ang)*2,-0.5,Math.sin(ang)*2),
+      new THREE.Vector3(Math.cos(ang)*2.7,-1.7,Math.sin(ang)*2.7),
+      new THREE.Vector3(Math.cos(ang)*3.5,-3,Math.sin(ang)*3.5)
+    ]).getPoints(12);
+    icpG.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(c3),ml(C.icp,0.2)));
+  }
+
+  // Edges
+  var add=[];
+  icpG.children.forEach(function(c){
+    if(c.isMesh&&c.geometry){
+      var e=new THREE.LineSegments(new THREE.EdgesGeometry(c.geometry),me(C.icp));
+      e.position.copy(c.position);e.rotation.copy(c.rotation);e.scale.copy(c.scale);add.push(e);
+    }
+  });
+  add.forEach(function(e){icpG.add(e)});
+  scene.add(icpG);
+}
+
+/* ═══════════════════════════════════════════════
+   STARFIELD
+   ═══════════════════════════════════════════════ */
+
+function buildStars(){
+  var n=600,p=new Float32Array(n*3),c=new Float32Array(n*3);
+  for(var i=0;i<n;i++){
+    p[i*3]=(Math.random()-0.5)*50;p[i*3+1]=(Math.random()-0.5)*35;p[i*3+2]=(Math.random()-0.5)*50;
+    var cl=new THREE.Color().setHSL(0.55+Math.random()*0.15,0.5,0.35+Math.random()*0.25);
+    c[i*3]=cl.r;c[i*3+1]=cl.g;c[i*3+2]=cl.b;
+  }
+  var g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.BufferAttribute(p,3));
+  g.setAttribute('color',new THREE.BufferAttribute(c,3));
+  scene.add(new THREE.Points(g,new THREE.PointsMaterial({size:0.04,vertexColors:true,transparent:true,opacity:0.7,sizeAttenuation:true})));
+}
+
+/* ═══════════════════════════════════════════════
+   DATA FLOW
+   ═══════════════════════════════════════════════ */
+
+function spawnFlow(){
+  var m=new THREE.Mesh(new THREE.SphereGeometry(0.05,6,6),mb(C.flow,0.8));
+  m.userData={p:0,spd:0.004+Math.random()*0.008,ox:(Math.random()-0.5)*2,oz:(Math.random()-0.5)*2};
+  scene.add(m);flowParts.push(m);
+}
+
+function updateFlow(t){
+  if(!st.traceMode)return;
+  if(Math.random()<0.12)spawnFlow();
+  for(var i=flowParts.length-1;i>=0;i--){
+    var p=flowParts[i],d=p.userData;
+    d.p+=d.spd;
+    if(d.p>1){scene.remove(p);flowParts.splice(i,1);}
+    else{
+      var y=6-d.p*12;
+      p.position.set(Math.sin(d.p*Math.PI*3+t)*(1+d.ox),y+(st.exploded?st.expProg*2*(1-d.p*2):0),Math.cos(d.p*Math.PI*2+t)*(1+d.oz));
+      p.material.opacity=0.7*(1-d.p*0.5);
+      if(st.cascadeMode){var mx=Math.sin(t*5)*0.5+0.5;p.material.color.setRGB(mx,0.18*(1-mx)+0.83*mx*0,(1-mx));}
+      else p.material.color.set(C.flow);
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   CASCADE FAILURE
+   ═══════════════════════════════════════════════ */
+
+function setFail(name){
+  var l=layers[name];if(!l)return;l.userData.fail=true;
+  l.traverse(function(c){if(!c.material)return;
+    if(c.isMesh){c.material.color.set(C.fail);c.material.opacity=0.35;if(c.material.emissive){c.material.emissive.set(C.fail);c.material.emissiveIntensity=0.8;}}
+    else if(c.isLineSegments){c.material.color.set(C.fail);c.material.opacity=0.6;}
+  });
+}
+
+function triggerCascade(type){
+  if(st.cascadeMode===type){resetCascade();return;}
+  st.cascadeMode=type;
+  var b=document.getElementById('badge');b.className='badge fail';b.textContent='⚠ CASCADE FAILURE';
+
+  if(type==='cf'){
+    document.getElementById('cascTitle').textContent='⚠ CLOUDFLARE DOWN';
+    document.getElementById('cascDesc').textContent='CDN failure → Load balancers unreachable → 502/503 errors → Users see blank pages';
+    setFail('cdn');
+    setTimeout(function(){setFail('lb')},700);
+    setTimeout(function(){setFail('app')},1400);
+    setTimeout(function(){setFail('user')},2100);
+    document.getElementById('bCF').classList.add('on');
+  } else {
+    document.getElementById('cascTitle').textContent='⚠ AWS us-east-1 DOWN';
+    document.getElementById('cascDesc').textContent='Cloud platform fail → All services down → Databases unreachable → Complete outage';
+    setFail('cloud');
+    setTimeout(function(){setFail('db')},500);
+    setTimeout(function(){setFail('app')},1000);
+    setTimeout(function(){setFail('lb')},1400);
+    setTimeout(function(){setFail('cdn')},1800);
+    setTimeout(function(){setFail('user')},2200);
+    document.getElementById('bAWS').classList.add('on');
+  }
+  document.getElementById('cascAlert').classList.add('vis');
+  // Show ICP safe banner if ICP visible
+  if(st.icpMode) document.getElementById('icpSafe').classList.add('vis');
+}
+
+function resetCascade(){
+  st.cascadeMode=null;
+  document.getElementById('cascAlert').classList.remove('vis');
+  document.getElementById('icpSafe').classList.remove('vis');
+  document.getElementById('bCF').classList.remove('on');
+  document.getElementById('bAWS').classList.remove('on');
+  var b=document.getElementById('badge');
+  b.className=st.icpMode?'badge compare':'badge web2';
+  b.textContent=st.icpMode?'ICP COMPARISON':'TRADITIONAL STACK';
+  Object.keys(layers).forEach(function(k){
+    if(k==='conn')return;var l=layers[k];if(!l||!l.userData)return;
+    l.userData.fail=false;l.position.x=0;l.position.z=0;
+    l.traverse(function(c){if(c.material)resetMat(c.material);});
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   REQUEST TRACE
+   ═══════════════════════════════════════════════ */
+
+function startTrace(){
+  st.traceMode=true;
+  document.getElementById('bTrace').classList.add('on');
+  document.getElementById('tracePanel').classList.add('vis');
+  buildTraceUI();
+  runTrace();
+}
+
+function stopTrace(){
+  st.traceMode=false;
+  if(st.traceTimer)clearTimeout(st.traceTimer);
+  if(st.traceTimerICP)clearTimeout(st.traceTimerICP);
+  st.traceStep=-1;st.traceStepICP=-1;
+  document.getElementById('bTrace').classList.remove('on');
+  document.getElementById('tracePanel').classList.remove('vis');
+  flowParts.forEach(function(p){scene.remove(p)});flowParts=[];
+}
+
+function buildTraceCol(data,prefix,title,titleColor,totalColor){
+  var html='<div class="trace-col"><h4 style="color:'+titleColor+'">'+title+'</h4>';
+  data.forEach(function(s,i){
+    var corpColor=prefix==='w'?'color:var(--red)':'color:var(--green)';
+    html+='<div class="trace-step" id="'+prefix+'s'+i+'"><div class="dot" style="color:'+titleColor+'"></div><div>'+s.name+'<span class="corp-tag" style="'+corpColor+'">'+s.corp+'</span></div><span class="ms" style="color:'+totalColor+'">+'+s.ms+'ms</span>';
+    if(i<data.length-1)html+='<div class="line"></div>';
+    html+='</div>';
+  });
+  var total=data.reduce(function(a,b){return a+b.ms},0);
+  html+='<div class="trace-total"><span style="color:var(--text2)">Total</span><span style="color:'+totalColor+'">'+total+'ms</span></div></div>';
+  return html;
+}
+
+function buildTraceUI(){
+  var cols=document.getElementById('traceCols');
+  var html=buildTraceCol(WEB2_TRACE,'w','📡 TRADITIONAL TRACE','var(--pink)','var(--orange)');
+  if(st.icpMode){
+    html+=buildTraceCol(ICP_TRACE,'i','📡 ICP TRACE','var(--icp)','var(--icp)');
+    document.getElementById('tracePanel').style.width='560px';
+  } else {
+    document.getElementById('tracePanel').style.width='300px';
+  }
+  cols.innerHTML=html;
+}
+
+function runTrace(){
+  st.traceStep=-1;
+  st.traceStepICP=-1;
+  function nextW(){
+    st.traceStep++;
+    if(st.traceStep>=WEB2_TRACE.length){
+      setTimeout(function(){
+        for(var i=0;i<WEB2_TRACE.length;i++){var e=document.getElementById('ws'+i);if(e)e.classList.remove('active');}
+        if(st.traceMode)runTraceW();
+      },2000);
+      return;
+    }
+    var e=document.getElementById('ws'+st.traceStep);if(e)e.classList.add('active');
+    if(st.traceMode)st.traceTimer=setTimeout(nextW, WEB2_TRACE[st.traceStep].ms*3+100);
+  }
+  function nextI(){
+    st.traceStepICP++;
+    if(st.traceStepICP>=ICP_TRACE.length){
+      setTimeout(function(){
+        for(var i=0;i<ICP_TRACE.length;i++){var e=document.getElementById('is'+i);if(e)e.classList.remove('active');}
+        if(st.traceMode)runTraceI();
+      },2000);
+      return;
+    }
+    var e=document.getElementById('is'+st.traceStepICP);if(e)e.classList.add('active');
+    if(st.traceMode)st.traceTimerICP=setTimeout(nextI, ICP_TRACE[st.traceStepICP].ms*3+100);
+  }
+  function runTraceW(){st.traceStep=-1;nextW();}
+  function runTraceI(){st.traceStepICP=-1;nextI();}
+  nextW();
+  if(st.icpMode)nextI();
+}
+
+/* ═══════════════════════════════════════════════
+   INFO PANEL
+   ═══════════════════════════════════════════════ */
+
+function showInfo(key){
+  var d=INFO[key];if(!d)return;
+  var p=document.getElementById('info');
+  var t=document.getElementById('iTag');
+  t.textContent=d.tag;t.style.background=d.tc+'22';t.style.color=d.tc;t.style.border='1px solid '+d.tc+'44';
+  document.getElementById('iTitle').textContent=d.title;
+  document.getElementById('iTitle').style.color=d.tc;
+  document.getElementById('iDesc').textContent=d.desc;
+
+  var corpEl=document.getElementById('iCorp');
+  var altEl=document.getElementById('iAlt');
+
+  // Always show corp dependency info
+  if(d.corp){corpEl.textContent=d.corp;corpEl.style.display='block';
+    if(key.indexOf('icp')===0){corpEl.style.color='var(--green)';corpEl.style.borderColor='rgba(0,230,118,0.15)';}
+    else{corpEl.style.color='var(--red)';corpEl.style.borderColor='rgba(255,45,85,0.15)';}
+  } else corpEl.style.display='none';
+
+  // Build alt content from multiple sources
+  var altParts=[];
+  if(d.alt&&st.icpMode) altParts.push('→ '+d.alt);
+  if(st.dataMode&&d.data) altParts.push('🔒 '+d.data);
+  if(st.costMode&&d.cost) altParts.push('💰 '+d.cost);
+
+  if(altParts.length>0){
+    altEl.textContent=altParts.join('\n\n');
+    altEl.style.display='block';
+    // Color based on content priority
+    if(st.dataMode&&d.data&&key.indexOf('icp')===0){altEl.style.color='var(--green)';altEl.style.borderColor='rgba(0,230,118,0.15)';}
+    else if(st.costMode&&d.cost&&key.indexOf('icp')===0){altEl.style.color='var(--icp)';altEl.style.borderColor='rgba(41,171,226,0.15)';}
+    else if(st.dataMode){altEl.style.color='var(--green)';altEl.style.borderColor='rgba(0,230,118,0.15)';}
+    else if(st.costMode){altEl.style.color='var(--gold)';altEl.style.borderColor='rgba(255,215,0,0.15)';}
+    else{altEl.style.color='var(--icp)';altEl.style.borderColor='rgba(41,171,226,0.15)';}
+  } else altEl.style.display='none';
+
+  p.classList.add('vis');
+}
+
+/* ═══════════════════════════════════════════════
+   DATA OWNERSHIP OVERLAY
+   ═══════════════════════════════════════════════ */
+
+// We'll create HTML labels that float near each layer (positioned via JS in the loop)
+var dataLabels=[], costLabels=[];
+
+var ICP_LAYER_NAMES = ['icp_user','icp_bn','icp_sub','icp_nns','icp_nodes'];
+var ICP_Y_MAP = {icp_user:5, icp_bn:3, icp_nns:1.2, icp_sub:-0.5, icp_nodes:-3};
+
+function createOverlayLabels(){
+  var dataTexts={
+    user:'📋 IP, cookies, headers collected',
+    cdn:'📋 All traffic cached & logged',
+    lb:'📋 Request routing logged',
+    app:'📋 Full server access by provider',
+    db:'📋 Data readable by host',
+    cloud:'📋 Government subpoena target',
+    phys:'📋 Physical access = total access',
+  };
+  var costTexts={
+    user:'💰 You are the product',
+    cdn:'💰 Paying for caching & bandwidth',
+    lb:'💰 Paying for traffic routing',
+    app:'💰 Renting someone else\'s computer',
+    db:'💰 Paying to store your own data',
+    cloud:'💰 Vendor lock-in traps you',
+    phys:'💰 Massive capital infrastructure cost',
+  };
+  var icpDataTexts={
+    icp_user:'✅ Client-verified responses',
+    icp_bn:'✅ Cannot read or modify data',
+    icp_sub:'✅ VetKeys encrypted storage',
+    icp_nns:'✅ On-chain & publicly verifiable',
+    icp_nodes:'✅ SEV-SNP hardware security',
+  };
+  var icpCostTexts={
+    icp_user:'✅ Users never pay gas fees',
+    icp_bn:'✅ Replaces CDN + DNS + LB',
+    icp_sub:'✅ Devs pay cycles, not users',
+    icp_nns:'✅ Free to participate in governance',
+    icp_nodes:'✅ Competitive providers, no oligopoly',
+  };
+
+  // Traditional stack labels
+  WEB2_LAYERS.forEach(function(name){
+    var dl=document.createElement('div');dl.className='overlay-label';
+    dl.style.background='rgba(255,45,85,0.08)';dl.style.border='1px solid rgba(255,45,85,0.2)';dl.style.color='#ff5577';
+    dl.textContent=dataTexts[name]||'';
+    document.body.appendChild(dl);
+    dataLabels.push({el:dl,layer:name,type:'web2'});
+
+    var cl=document.createElement('div');cl.className='overlay-label';
+    cl.style.background='rgba(255,215,0,0.08)';cl.style.border='1px solid rgba(255,215,0,0.2)';cl.style.color='#ffd700';
+    cl.textContent=costTexts[name]||'';
+    document.body.appendChild(cl);
+    costLabels.push({el:cl,layer:name,type:'web2'});
+  });
+
+  // ICP labels
+  ICP_LAYER_NAMES.forEach(function(name){
+    var dl=document.createElement('div');dl.className='overlay-label';
+    dl.style.background='rgba(0,230,118,0.08)';dl.style.border='1px solid rgba(0,230,118,0.2)';dl.style.color='#00e676';
+    dl.textContent=icpDataTexts[name]||'';
+    document.body.appendChild(dl);
+    dataLabels.push({el:dl,layer:name,type:'icp'});
+
+    var cl=document.createElement('div');cl.className='overlay-label';
+    cl.style.background='rgba(41,171,226,0.08)';cl.style.border='1px solid rgba(41,171,226,0.2)';cl.style.color='#29abe2';
+    cl.textContent=icpCostTexts[name]||'';
+    document.body.appendChild(cl);
+    costLabels.push({el:cl,layer:name,type:'icp'});
+  });
+}
+
+function updateOverlayPositions(){
+  var v=new THREE.Vector3();
+  dataLabels.forEach(function(d){
+    if(d.type==='web2'){
+      var l=layers[d.layer];if(!l)return;
+      v.set(5,l.position.y,0);
+      v.project(cam);
+      var x=(v.x*0.5+0.5)*innerWidth;
+      var y=(-v.y*0.5+0.5)*innerHeight;
+      d.el.style.left=x+'px';d.el.style.top=y+'px';
+      d.el.classList.toggle('vis',st.dataMode&&v.z<1);
+    } else {
+      // ICP labels - offset by icpG.position.x
+      var iy=ICP_Y_MAP[d.layer];if(iy===undefined)return;
+      v.set(icpG.position.x+5,iy,0);
+      v.project(cam);
+      var x=(v.x*0.5+0.5)*innerWidth;
+      var y=(-v.y*0.5+0.5)*innerHeight;
+      d.el.style.left=x+'px';d.el.style.top=y+'px';
+      d.el.classList.toggle('vis',st.dataMode&&st.icpMode&&v.z<1);
+    }
+  });
+  costLabels.forEach(function(d){
+    if(d.type==='web2'){
+      var l=layers[d.layer];if(!l)return;
+      v.set(-5.5,l.position.y,0);
+      v.project(cam);
+      var x=(v.x*0.5+0.5)*innerWidth;
+      var y=(-v.y*0.5+0.5)*innerHeight;
+      d.el.style.left=x+'px';d.el.style.top=y+'px';
+      d.el.classList.toggle('vis',st.costMode&&v.z<1);
+    } else {
+      var iy=ICP_Y_MAP[d.layer];if(iy===undefined)return;
+      v.set(icpG.position.x-5,iy,0);
+      v.project(cam);
+      var x=(v.x*0.5+0.5)*innerWidth;
+      var y=(-v.y*0.5+0.5)*innerHeight;
+      d.el.style.left=x+'px';d.el.style.top=y+'px';
+      d.el.classList.toggle('vis',st.costMode&&st.icpMode&&v.z<1);
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   EVENT SETUP
+   ═══════════════════════════════════════════════ */
+
+function setupUI(){
+  var cv=ren.domElement;
+
+  // ── Info panel drag & close ──
+  var infoEl=document.getElementById('info');
+  var dragBar=document.getElementById('infoDrag');
+  var infoDragging=false, infoOX=0, infoOY=0, infoStartX=0, infoStartY=0;
+
+  dragBar.addEventListener('mousedown',function(e){
+    if(e.target.classList.contains('close-btn'))return;
+    infoDragging=true;
+    var rect=infoEl.getBoundingClientRect();
+    infoOX=e.clientX-rect.left;
+    infoOY=e.clientY-rect.top;
+    e.preventDefault();e.stopPropagation();
+  });
+  window.addEventListener('mousemove',function(e){
+    if(!infoDragging)return;
+    var nx=e.clientX-infoOX;
+    var ny=e.clientY-infoOY;
+    nx=Math.max(0,Math.min(innerWidth-infoEl.offsetWidth,nx));
+    ny=Math.max(0,Math.min(innerHeight-infoEl.offsetHeight,ny));
+    infoEl.style.left=nx+'px';
+    infoEl.style.top=ny+'px';
+    infoEl.style.bottom='auto';
+    infoEl.style.transform='none';
+  });
+  window.addEventListener('mouseup',function(){infoDragging=false});
+
+  // Touch drag
+  dragBar.addEventListener('touchstart',function(e){
+    if(e.target.classList.contains('close-btn'))return;
+    infoDragging=true;
+    var rect=infoEl.getBoundingClientRect();
+    infoOX=e.touches[0].clientX-rect.left;
+    infoOY=e.touches[0].clientY-rect.top;
+    e.stopPropagation();
+  });
+  window.addEventListener('touchmove',function(e){
+    if(!infoDragging)return;
+    var nx=e.touches[0].clientX-infoOX;
+    var ny=e.touches[0].clientY-infoOY;
+    nx=Math.max(0,Math.min(innerWidth-infoEl.offsetWidth,nx));
+    ny=Math.max(0,Math.min(innerHeight-infoEl.offsetHeight,ny));
+    infoEl.style.left=nx+'px';
+    infoEl.style.top=ny+'px';
+    infoEl.style.bottom='auto';
+    infoEl.style.transform='none';
+  });
+  window.addEventListener('touchend',function(){infoDragging=false});
+
+  document.getElementById('infoClose').addEventListener('click',function(e){
+    infoEl.classList.remove('vis');
+    e.stopPropagation();
+  });
+
+  // ── Trace panel drag & close ──
+  var traceEl=document.getElementById('tracePanel');
+  var traceDragBar=document.getElementById('traceDrag');
+  var traceDragging=false, traceOX=0, traceOY=0;
+
+  traceDragBar.addEventListener('mousedown',function(e){
+    if(e.target.classList.contains('close-btn'))return;
+    traceDragging=true;
+    var rect=traceEl.getBoundingClientRect();
+    traceOX=e.clientX-rect.left;traceOY=e.clientY-rect.top;
+    e.preventDefault();e.stopPropagation();
+  });
+  window.addEventListener('mousemove',function(e){
+    if(!traceDragging)return;
+    var nx=Math.max(0,Math.min(innerWidth-traceEl.offsetWidth,e.clientX-traceOX));
+    var ny=Math.max(0,Math.min(innerHeight-traceEl.offsetHeight,e.clientY-traceOY));
+    traceEl.style.left=nx+'px';traceEl.style.top=ny+'px';traceEl.style.transform='none';
+  });
+  window.addEventListener('mouseup',function(){traceDragging=false});
+
+  traceDragBar.addEventListener('touchstart',function(e){
+    if(e.target.classList.contains('close-btn'))return;
+    traceDragging=true;
+    var rect=traceEl.getBoundingClientRect();
+    traceOX=e.touches[0].clientX-rect.left;traceOY=e.touches[0].clientY-rect.top;
+    e.stopPropagation();
+  });
+  window.addEventListener('touchmove',function(e){
+    if(!traceDragging)return;
+    var nx=Math.max(0,Math.min(innerWidth-traceEl.offsetWidth,e.touches[0].clientX-traceOX));
+    var ny=Math.max(0,Math.min(innerHeight-traceEl.offsetHeight,e.touches[0].clientY-traceOY));
+    traceEl.style.left=nx+'px';traceEl.style.top=ny+'px';traceEl.style.transform='none';
+  });
+  window.addEventListener('touchend',function(){traceDragging=false});
+
+  document.getElementById('traceClose').addEventListener('click',function(e){
+    stopTrace();e.stopPropagation();
+  });
+
+  cv.addEventListener('mousedown',function(e){st.dragging=true;st.pmx=e.clientX;st.pmy=e.clientY;st.rotating=false;document.getElementById('bRotate').classList.remove('on')});
+  window.addEventListener('mousemove',function(e){if(st.dragging){st.camAY+=(e.clientX-st.pmx)*0.005;st.camAX=Math.max(-1,Math.min(1.2,st.camAX-(e.clientY-st.pmy)*0.005));st.pmx=e.clientX;st.pmy=e.clientY;}});
+  window.addEventListener('mouseup',function(){st.dragging=false});
+
+  cv.addEventListener('touchstart',function(e){st.dragging=true;st.pmx=e.touches[0].clientX;st.pmy=e.touches[0].clientY;st.rotating=false});
+  cv.addEventListener('touchmove',function(e){if(st.dragging&&e.touches.length===1){st.camAY+=(e.touches[0].clientX-st.pmx)*0.005;st.camAX=Math.max(-1,Math.min(1.2,st.camAX-(e.touches[0].clientY-st.pmy)*0.005));st.pmx=e.touches[0].clientX;st.pmy=e.touches[0].clientY;}e.preventDefault()},{passive:false});
+  cv.addEventListener('touchend',function(){st.dragging=false});
+
+  cv.addEventListener('wheel',function(e){st.targetDist=Math.max(8,Math.min(35,st.targetDist+e.deltaY*0.01));e.preventDefault()},{passive:false});
+
+  // CLICK RAYCAST
+  var rc=new THREE.Raycaster();
+  cv.addEventListener('click',function(e){
+    var m=new THREE.Vector2((e.clientX/innerWidth)*2-1,-(e.clientY/innerHeight)*2+1);
+    rc.setFromCamera(m,cam);
+    scene.updateMatrixWorld(true);
+    var hitK=null,hitD=Infinity;
+
+    Object.keys(layers).forEach(function(k){
+      if(k==='conn')return;
+      var hits=rc.intersectObjects(layers[k].children,true);
+      if(hits.length>0&&hits[0].distance<hitD){hitD=hits[0].distance;hitK=k;}
+    });
+
+    if(st.icpMode&&icpG&&icpG.visible){
+      var meshes=[];
+      icpG.traverse(function(c){if(c.isMesh)meshes.push(c)});
+      var hits=rc.intersectObjects(meshes,false);
+      if(hits.length>0&&hits[0].distance<hitD){
+        hitD=hits[0].distance;
+        var obj=hits[0].object;
+        if(obj.userData&&obj.userData.icpLayer)hitK=obj.userData.icpLayer;
+      }
+    }
+
+    if(hitK&&INFO[hitK])showInfo(hitK);
+  });
+
+  // BUTTONS
+  document.getElementById('bExplode').addEventListener('click',function(){
+    st.exploded=!st.exploded;st.expTarget=st.exploded?1:0;
+    this.classList.toggle('on',st.exploded);
+  });
+
+  document.getElementById('bRotate').addEventListener('click',function(){
+    st.rotating=!st.rotating;this.classList.toggle('on',st.rotating);
+  });
+
+  document.getElementById('bTrace').addEventListener('click',function(){
+    if(st.traceMode)stopTrace();else startTrace();
+  });
+
+  document.getElementById('bCF').addEventListener('click',function(){triggerCascade('cf')});
+  document.getElementById('bAWS').addEventListener('click',function(){triggerCascade('aws')});
+
+  document.getElementById('bData').addEventListener('click',function(){
+    st.dataMode=!st.dataMode;this.classList.toggle('on',st.dataMode);
+  });
+
+  document.getElementById('bCost').addEventListener('click',function(){
+    st.costMode=!st.costMode;this.classList.toggle('on',st.costMode);
+  });
+
+  document.getElementById('bICP').addEventListener('click',function(){
+    st.icpMode=!st.icpMode;
+    this.classList.toggle('on',st.icpMode);
+    icpG.visible=st.icpMode;
+    var b=document.getElementById('badge');
+    var sb=document.getElementById('statsBar');
+    if(st.icpMode){
+      b.className='badge compare';b.textContent='ICP COMPARISON';
+      st.targetDist=26;sb.classList.add('visible');
+    } else {
+      b.className=st.cascadeMode?'badge fail':'badge web2';
+      b.textContent=st.cascadeMode?'⚠ CASCADE FAILURE':'TRADITIONAL STACK';
+      st.targetDist=18;sb.classList.remove('visible');
+      document.getElementById('icpSafe').classList.remove('vis');
+    }
+    // Rebuild trace if active
+    if(st.traceMode){buildTraceUI();runTrace();}
+  });
+
+  document.getElementById('bReset').addEventListener('click',function(){
+    resetCascade();stopTrace();
+    st.exploded=false;st.expTarget=0;st.icpMode=false;st.dataMode=false;st.costMode=false;st.rotating=true;
+    st.camAX=0.3;st.camAY=0.5;st.targetDist=18;
+    document.querySelectorAll('.cbtn').forEach(function(b){b.classList.remove('on')});
+    document.getElementById('bRotate').classList.add('on');
+    document.getElementById('info').classList.remove('vis');
+    document.getElementById('statsBar').classList.remove('visible');
+    document.getElementById('icpSafe').classList.remove('vis');
+    icpG.visible=false;
+    var b=document.getElementById('badge');b.className='badge web2';b.textContent='TRADITIONAL STACK';
+    document.querySelectorAll('.lbtn').forEach(function(b){b.classList.remove('on')});
+    document.querySelector('.lbtn[data-l="all"]').classList.add('on');
+    Object.keys(layers).forEach(function(k){
+      if(k==='conn')return;layers[k].visible=true;
+      layers[k].traverse(function(c){if(c.material)resetMat(c.material)});
+    });
+  });
+
+  // Layer nav
+  document.querySelectorAll('.lbtn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var l=btn.dataset.l;
+      document.querySelectorAll('.lbtn').forEach(function(b){b.classList.remove('on')});
+      btn.classList.add('on');
+      Object.keys(layers).forEach(function(k){
+        if(k==='conn')return;
+        var ly=layers[k];
+        if(l==='all'){ly.visible=true;ly.traverse(function(c){if(c.material)resetMat(c.material)});}
+        else if(k===l){ly.visible=true;ly.traverse(function(c){if(c.material)c.material.opacity=0.5});showInfo(k);}
+        else{ly.visible=true;ly.traverse(function(c){if(c.material)c.material.opacity=0.03});}
+      });
+      if(l==='all')document.getElementById('info').classList.remove('vis');
+    });
+  });
+
+  window.addEventListener('resize',function(){cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)});
+
+  createOverlayLabels();
+}
+
+/* ═══════════════════════════════════════════════
+   ANIMATION LOOP
+   ═══════════════════════════════════════════════ */
+
+function loop(){
+  requestAnimationFrame(loop);
+  var dt=clk.getDelta();
+  st.t+=dt;
+
+  if(st.rotating)st.camAY+=dt*0.12;
+  st.camDist+=(st.targetDist-st.camDist)*0.05;
+  st.expProg+=(st.expTarget-st.expProg)*0.04;
+
+  var lx=st.icpMode?7:0;
+  cam.position.set(
+    Math.sin(st.camAY)*Math.cos(st.camAX)*st.camDist+lx,
+    Math.sin(st.camAX)*st.camDist,
+    Math.cos(st.camAY)*Math.cos(st.camAX)*st.camDist
+  );
+  cam.lookAt(lx,0,0);
+
+  // Animate layers
+  Object.keys(layers).forEach(function(k){
+    if(k==='conn')return;
+    var l=layers[k];if(!l.userData)return;
+    var by=l.userData.baseY;
+    l.position.y=by+by*st.expProg*0.6+Math.sin(st.t*0.8+by)*0.04;
+    if(l.userData.fail){
+      l.position.x=Math.sin(st.t*20)*0.04;
+      l.position.z=Math.cos(st.t*15)*0.02;
+      l.traverse(function(c){if(c.isMesh&&c.material)c.material.opacity=0.18+Math.sin(st.t*10)*0.14;});
+    }
+  });
+
+  // ICP animations
+  if(st.icpMode&&icpG.visible){
+    icpG.children.forEach(function(c){
+      if(c.isMesh&&c.geometry&&c.geometry.type==='OctahedronGeometry'){
+        c.rotation.y=st.t*0.5;c.rotation.x=st.t*0.3;
+      }
+    });
+    // Pulse the ICP green during cascade to show it's unaffected
+    if(st.cascadeMode){
+      icpG.traverse(function(c){
+        if(c.isMesh&&c.material&&c.material.emissive){
+          c.material.emissiveIntensity=0.8+Math.sin(st.t*2)*0.3;
+        }
+      });
+    }
+  }
+
+  updateFlow(st.t);
+  updateOverlayPositions();
+  ren.render(scene,cam);
+}
+
+init();
+})();
+</script>
+</body>
+</html>
