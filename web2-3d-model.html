@@ -52,12 +52,12 @@ canvas{display:block}
 .stat-side{padding:12px 20px;backdrop-filter:blur(12px);display:flex;gap:18px;align-items:center}
 .stat-side.web2-side{background:rgba(255,51,102,0.1);border:1px solid rgba(255,51,102,0.2);border-radius:10px 0 0 10px;border-right:none}
 .stat-side.icp-side{background:rgba(41,171,226,0.1);border:1px solid rgba(41,171,226,0.2);border-radius:0 10px 10px 0;border-left:none}
-.stat-side .side-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;writing-mode:vertical-rl;text-orientation:mixed;opacity:0.8}
+.stat-side .side-label{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:2px;text-transform:uppercase;writing-mode:vertical-rl;text-orientation:mixed;opacity:0.8}
 .stat-side.web2-side .side-label{color:var(--pink)}
 .stat-side.icp-side .side-label{color:var(--icp)}
 .stat-item{text-align:center}
 .stat-item .num{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;line-height:1}
-.stat-item .label{font-size:10px;color:var(--text2);margin-top:3px;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px;text-transform:uppercase}
+.stat-item .label{font-size:13px;color:var(--text2);margin-top:3px;font-family:'JetBrains Mono',monospace;letter-spacing:0.5px;text-transform:uppercase}
 .web2-side .num{color:var(--pink)}
 .icp-side .num{color:var(--icp)}
 .stat-vs{display:flex;align-items:center;justify-content:center;width:36px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);background:var(--glass);border-top:1px solid rgba(255,255,255,0.08);border-bottom:1px solid rgba(255,255,255,0.08)}
@@ -84,11 +84,11 @@ canvas{display:block}
 .info .close-btn{width:24px;height:24px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--dim);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0}
 .info .close-btn:hover{color:var(--red);border-color:rgba(255,45,85,0.3);background:rgba(255,45,85,0.1)}
 .info .body{padding:0 16px 16px 16px}
-.info .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 9px;border-radius:4px;margin-bottom:10px;letter-spacing:1px}
-.info h3{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
-.info p{font-size:14px;line-height:1.7;color:var(--text2)}
-.info .corp{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);letter-spacing:0.5px}
-.info .icp-alt{margin-top:10px;padding-top:10px;border-top:1px solid rgba(41,171,226,0.2);font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--icp);letter-spacing:0.5px;white-space:pre-wrap}
+.info .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:13px;padding:3px 9px;border-radius:4px;margin-bottom:10px;letter-spacing:1px}
+.info h3{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.info p{font-size:16px;line-height:1.7;color:var(--text2)}
+.info .corp{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--red);letter-spacing:0.5px}
+.info .icp-alt{margin-top:10px;padding-top:10px;border-top:1px solid rgba(41,171,226,0.2);font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--icp);letter-spacing:0.5px;white-space:pre-wrap}
 
 /* ── LAYER NAV ── */
 .lnav{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:100;display:flex;gap:4px;background:var(--glass);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:5px}
@@ -124,19 +124,144 @@ canvas{display:block}
 .trace-step .dot{width:8px;height:8px;border-radius:50%;background:var(--dim);transition:all 0.3s;flex-shrink:0}
 .trace-step.active .dot{box-shadow:0 0 10px currentColor}
 .trace-step .line{position:absolute;left:3.5px;top:17px;width:1px;height:10px;background:rgba(255,255,255,0.08)}
-.trace-step .ms{margin-left:auto;font-size:10px;opacity:0;transition:opacity 0.3s}
+.trace-step .ms{margin-left:auto;font-size:13px;opacity:0;transition:opacity 0.3s}
 .trace-step.active .ms{opacity:1}
-.trace-step .corp-tag{font-size:9px;margin-left:4px;opacity:0;transition:opacity 0.3s}
+.trace-step .corp-tag{font-size:12px;margin-left:4px;opacity:0;transition:opacity 0.3s}
 .trace-step.active .corp-tag{opacity:0.7}
-.trace-total{margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:13px;display:flex;justify-content:space-between}
+.trace-total{margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:15px;display:flex;justify-content:space-between}
 
 /* ── DATA/COST OVERLAY LABELS ── */
-.overlay-label{position:fixed;z-index:95;font-family:'JetBrains Mono',monospace;font-size:11px;padding:4px 10px;border-radius:5px;pointer-events:none;opacity:0;transition:all 0.3s;letter-spacing:0.5px;white-space:nowrap}
+.overlay-label{position:fixed;z-index:95;font-family:'JetBrains Mono',monospace;font-size:14px;padding:4px 10px;border-radius:5px;pointer-events:none;opacity:0;transition:all 0.3s;letter-spacing:0.5px;white-space:nowrap}
 .overlay-label.vis{opacity:1}
 
 /* ── INSTRUCTIONS ── */
-.instr{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);z-index:90;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:1.5px;text-align:center;opacity:0.6;transition:opacity 2s}
+.instr{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);z-index:90;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text2);letter-spacing:1.5px;text-align:center;opacity:0.6;transition:opacity 2s}
 .instr.hide{opacity:0}
+
+/* ── STATS CLICKABLE ── */
+.stat-side.web2-side{cursor:pointer;transition:all 0.3s}
+.stat-side.web2-side:hover{background:rgba(255,51,102,0.2);border-color:rgba(255,51,102,0.5)}
+.stat-side.icp-side{cursor:pointer;transition:all 0.3s}
+.stat-side.icp-side:hover{background:rgba(41,171,226,0.2);border-color:rgba(41,171,226,0.5)}
+
+/* ── TRAD MODAL ── */
+.trad-modal-overlay{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s}
+.trad-modal-overlay.vis{display:flex;opacity:1}
+.trad-modal{background:var(--surface);border:1px solid rgba(255,51,102,0.3);border-radius:16px;padding:32px 36px;max-width:560px;width:90%;max-height:85vh;overflow-y:auto;position:relative;box-shadow:0 0 60px rgba(255,51,102,0.15)}
+.trad-modal .modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;padding:4px 8px;transition:color 0.2s}
+.trad-modal .modal-close:hover{color:var(--text)}
+.trad-modal h2{font-family:'JetBrains Mono',monospace;font-size:16px;letter-spacing:3px;text-transform:uppercase;color:var(--pink);margin-bottom:20px}
+.trad-modal .modal-section{margin-bottom:20px}
+.trad-modal .modal-section h3{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.trad-modal .modal-section h3 .num-badge{display:inline-block;background:rgba(255,51,102,0.2);border:1px solid rgba(255,51,102,0.35);color:var(--pink);padding:2px 10px;border-radius:10px;font-size:14px;margin-right:8px;letter-spacing:0}
+.trad-modal .modal-list{list-style:none;padding:0;margin:0}
+.trad-modal .modal-list li{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text2);padding:5px 0 5px 16px;position:relative;line-height:1.5}
+.trad-modal .modal-list li::before{content:'›';position:absolute;left:0;color:var(--pink);font-weight:bold}
+.trad-modal .modal-divider{height:1px;background:rgba(255,255,255,0.06);margin:16px 0}
+.trad-modal .modal-footer{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:1px;text-align:center;margin-top:8px}
+
+/* ── ICP MODAL ── */
+.icp-modal-overlay{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s}
+.icp-modal-overlay.vis{display:flex;opacity:1}
+.icp-modal{background:var(--surface);border:1px solid rgba(41,171,226,0.3);border-radius:16px;padding:32px 36px;max-width:560px;width:90%;max-height:85vh;overflow-y:auto;position:relative;box-shadow:0 0 60px rgba(41,171,226,0.15)}
+.icp-modal .modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;padding:4px 8px;transition:color 0.2s}
+.icp-modal .modal-close:hover{color:var(--text)}
+.icp-modal h2{font-family:'JetBrains Mono',monospace;font-size:16px;letter-spacing:3px;text-transform:uppercase;color:var(--icp);margin-bottom:20px}
+.icp-modal .modal-section{margin-bottom:20px}
+.icp-modal .modal-section h3{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.icp-modal .modal-section h3 .num-badge{display:inline-block;background:rgba(41,171,226,0.2);border:1px solid rgba(41,171,226,0.35);color:var(--icp);padding:2px 10px;border-radius:10px;font-size:14px;margin-right:8px;letter-spacing:0}
+.icp-modal .modal-list{list-style:none;padding:0;margin:0}
+.icp-modal .modal-list li{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text2);padding:5px 0 5px 16px;position:relative;line-height:1.5}
+.icp-modal .modal-list li::before{content:'›';position:absolute;left:0;color:var(--icp);font-weight:bold}
+.icp-modal .modal-divider{height:1px;background:rgba(255,255,255,0.06);margin:16px 0}
+.icp-modal .modal-note{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);line-height:1.6;padding:8px 12px;background:rgba(41,171,226,0.05);border-radius:8px;border:1px solid rgba(41,171,226,0.1)}
+.icp-modal .modal-footer{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:1px;text-align:center;margin-top:8px}
+
+/* ── COST CALCULATOR ── */
+.cost-calc-overlay{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s}
+.cost-calc-overlay.vis{display:flex;opacity:1}
+.cost-calc{background:var(--surface);border:1px solid rgba(255,215,0,0.3);border-radius:16px;padding:32px 36px;max-width:520px;width:90%;max-height:85vh;overflow-y:auto;position:relative;box-shadow:0 0 60px rgba(255,215,0,0.1)}
+.cost-calc .modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;padding:4px 8px;transition:color 0.2s}
+.cost-calc .modal-close:hover{color:var(--text)}
+.cost-calc h2{font-family:'JetBrains Mono',monospace;font-size:16px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:20px}
+.cost-input-group{margin-bottom:20px}
+.cost-input-group label{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:8px}
+.cost-input-row{display:flex;align-items:center;gap:10px}
+.cost-input-row span.dollar{font-family:'JetBrains Mono',monospace;font-size:24px;color:var(--gold)}
+.cost-input{font-family:'JetBrains Mono',monospace;font-size:22px;color:var(--text);background:rgba(255,255,255,0.04);border:1px solid rgba(255,215,0,0.2);border-radius:10px;padding:10px 16px;width:100%;outline:none;transition:border-color 0.2s}
+.cost-input:focus{border-color:rgba(255,215,0,0.5)}
+.cost-presets{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.cost-preset{font-family:'JetBrains Mono',monospace;font-size:11px;padding:5px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:var(--glass2);color:var(--dim);cursor:pointer;transition:all 0.2s}
+.cost-preset:hover,.cost-preset.active{border-color:rgba(255,215,0,0.3);color:var(--gold);background:rgba(255,215,0,0.08)}
+.cost-result{margin-top:20px;border-top:1px solid rgba(255,255,255,0.06);padding-top:20px}
+.cost-breakdown{display:flex;flex-direction:column;gap:10px}
+.cost-row{display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:13px}
+.cost-row .cost-label{color:var(--text2)}
+.cost-row .cost-aws{color:var(--pink)}
+.cost-row .cost-icp{color:var(--green)}
+.cost-total{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700}
+.cost-total .cost-label{color:var(--text)}
+.cost-total .cost-aws{color:var(--pink)}
+.cost-total .cost-icp{color:var(--green)}
+.cost-savings{margin-top:14px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--green);padding:10px;background:rgba(0,230,118,0.06);border:1px solid rgba(0,230,118,0.15);border-radius:8px}
+.cost-disclaimer{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);text-align:center;margin-top:14px;line-height:1.5}
+
+/* ── MOBILE BREAKPOINTS ── */
+@media (max-width:768px){
+  .topbar{padding:10px 14px}
+  .topbar h1{font-size:12px;letter-spacing:2px}
+  .topbar .sub{display:none}
+  .badge{font-size:10px;padding:4px 10px}
+  .stats-bar{flex-direction:column;width:90vw;top:44px;gap:0}
+  .stat-side{border-radius:8px 8px 0 0;flex-wrap:wrap;gap:10px;padding:8px 12px;border:1px solid rgba(255,255,255,0.1)}
+  .stat-side.web2-side{border-radius:8px 8px 0 0;border-right:1px solid rgba(255,51,102,0.2);border-bottom:none}
+  .stat-side.icp-side{border-radius:0 0 8px 8px;border-left:1px solid rgba(41,171,226,0.2);border-top:none}
+  .stat-side .side-label{writing-mode:horizontal-tb;text-orientation:mixed;font-size:11px}
+  .stat-vs{width:auto;height:20px;border:none;font-size:10px}
+  .stat-item .num{font-size:18px}
+  .stat-item .label{font-size:11px}
+  .controls{right:6px;gap:3px}
+  .cbtn{width:36px;height:36px;font-size:13px}
+  .cbtn .tip{display:none}
+  .info{max-width:90vw;left:5vw!important;right:auto!important}
+  .trace-panel{width:95vw!important;left:2.5vw!important;right:auto!important}
+  .trace-cols{flex-direction:column}
+  .lnav{flex-wrap:wrap;max-width:95vw;gap:4px}
+  .lbtn{font-size:9px;padding:5px 8px}
+  .trad-modal,.icp-modal,.cost-calc{padding:20px;max-width:95vw}
+  .trad-modal .modal-list li,.icp-modal .modal-list li{font-size:11px}
+  .cascade-alert{width:90vw;left:5vw;right:auto}
+  .icp-safe{right:auto;left:50%;transform:translateX(-50%);top:auto;bottom:80px}
+  .instr{font-size:10px;letter-spacing:1px}
+}
+@media (max-width:480px){
+  .topbar h1{font-size:10px;letter-spacing:1px}
+  .stat-item .num{font-size:16px}
+  .stat-item .label{font-size:9px}
+  .controls{top:auto;bottom:60px;right:4px;transform:none}
+  .lnav{bottom:6px}
+  .lbtn{font-size:8px;padding:4px 6px}
+  .instr{display:none}
+  .trad-modal h2,.icp-modal h2{font-size:13px}
+  .trad-modal .modal-section h3,.icp-modal .modal-section h3{font-size:11px}
+  .tour-narration{max-width:90vw;padding:16px 20px}
+  .tour-narration .tour-text{font-size:13px}
+}
+
+/* ── GUIDED TOUR ── */
+.tour-narration{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:200;background:var(--glass);backdrop-filter:blur(16px);border:1px solid rgba(0,212,255,0.25);border-radius:14px;padding:20px 28px;max-width:600px;width:90%;display:none;box-shadow:0 0 40px rgba(0,212,255,0.1)}
+.tour-narration.vis{display:block}
+.tour-step-indicator{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.tour-narration .tour-text{font-family:'Outfit',sans-serif;font-size:15px;color:var(--text);line-height:1.6;margin-bottom:16px}
+.tour-controls{display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.tour-btn{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:7px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:var(--glass2);color:var(--text2);cursor:pointer;transition:all 0.2s}
+.tour-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,0.08)}
+.tour-btn.primary{background:rgba(0,212,255,0.15);border-color:rgba(0,212,255,0.3);color:var(--accent)}
+.tour-btn.primary:hover{background:rgba(0,212,255,0.25)}
+.tour-btn.skip{color:var(--dim);border-color:transparent;background:transparent}
+.tour-btn.skip:hover{color:var(--text2)}
+.tour-progress{flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.tour-progress-bar{height:100%;background:var(--accent);border-radius:2px;transition:width 0.4s ease}
 </style>
 </head>
 <body>
@@ -146,11 +271,11 @@ canvas{display:block}
 <!-- Top Bar -->
 <div class="topbar">
   <div><h1>Traditional Stack vs ICP</h1><div class="sub">Interactive 3D Architecture Comparison</div></div>
-  <div class="badge web2" id="badge">TRADITIONAL STACK</div>
+  <div class="badge compare" id="badge">ICP COMPARISON</div>
 </div>
 
 <!-- Side-by-side Stats -->
-<div class="stats-bar" id="statsBar">
+<div class="stats-bar visible" id="statsBar">
   <div class="stat-side web2-side">
     <span class="side-label">TRAD</span>
     <div class="stat-item"><div class="num">7</div><div class="label">Layers</div></div>
@@ -161,10 +286,130 @@ canvas{display:block}
   <div class="stat-vs">vs</div>
   <div class="stat-side icp-side">
     <span class="side-label">ICP</span>
-    <div class="stat-item"><div class="num">4</div><div class="label">Layers</div></div>
-    <div class="stat-item"><div class="num">0</div><div class="label">Corp Deps</div></div>
-    <div class="stat-item"><div class="num">0</div><div class="label">Failure Pts</div></div>
+    <div class="stat-item"><div class="num">5</div><div class="label">Layers</div></div>
+    <div class="stat-item"><div class="num">~3</div><div class="label">Corp Deps</div></div>
+    <div class="stat-item"><div class="num">5</div><div class="label">Failure Pts</div></div>
     <div class="stat-item"><div class="num">∞</div><div class="label">Crypto Proof</div></div>
+  </div>
+</div>
+
+<!-- Trad Stack Modal -->
+<div class="trad-modal-overlay" id="tradModal">
+  <div class="trad-modal">
+    <button class="modal-close" id="tradModalClose">✕</button>
+    <h2>Traditional Stack Complexity</h2>
+
+    <div class="modal-section">
+      <h3><span class="num-badge">7</span> Layers</h3>
+      <ul class="modal-list">
+        <li>User Interface — Browser (Chrome, Safari, Edge)</li>
+        <li>CDN / Edge Network — Cloudflare, Akamai, Fastly</li>
+        <li>Load Balancers & DNS — AWS ELB, Route53</li>
+        <li>Application Servers — EC2, Lambda, Kubernetes</li>
+        <li>Databases & Storage — RDS, DynamoDB, S3</li>
+        <li>Cloud Platform — AWS / GCP / Azure</li>
+        <li>Physical Infrastructure — Data Centers, Cables, Power</li>
+      </ul>
+    </div>
+
+    <div class="modal-divider"></div>
+
+    <div class="modal-section">
+      <h3><span class="num-badge">12+</span> Corporate Dependencies</h3>
+      <ul class="modal-list">
+        <li>Google Chrome (67% browser share)</li>
+        <li>Cloudflare (80%+ CDN market)</li>
+        <li>Akamai, Fastly, AWS CloudFront</li>
+        <li>AWS Elastic Load Balancer</li>
+        <li>AWS EC2 / Lambda (33% cloud compute)</li>
+        <li>Microsoft Azure (22% cloud compute)</li>
+        <li>Google Cloud Platform (11% cloud compute)</li>
+        <li>AWS RDS / DynamoDB</li>
+        <li>MongoDB Atlas</li>
+        <li>Equinix & Digital Realty (data centers)</li>
+        <li>Cloudflare DNS / Route53</li>
+        <li>Kubernetes / Docker (orchestration)</li>
+      </ul>
+    </div>
+
+    <div class="modal-divider"></div>
+
+    <div class="modal-section">
+      <h3><span class="num-badge">47</span> Failure Points by Category</h3>
+      <ul class="modal-list">
+        <li><strong>DNS (3):</strong> Resolver failure, registrar outage, TLD server failure</li>
+        <li><strong>CDN (6):</strong> Edge PoP outage, origin shield failure, cache purge error, WAF rule misconfig, DDoS mitigation failure, CDN certificate error</li>
+        <li><strong>SSL/TLS (4):</strong> CA failure, certificate expiry, OCSP responder down, cipher negotiation failure</li>
+        <li><strong>Load Balancer (3):</strong> Health check failure, session affinity loss, connection drain timeout</li>
+        <li><strong>Application (8):</strong> Server crash, memory leak, thread pool exhaustion, bad deployment, dependency injection failure, config drift, secrets rotation failure, logging pipeline break</li>
+        <li><strong>Database (6):</strong> Connection pool exhaustion, replication lag, deadlock, backup corruption, schema migration failure, index corruption</li>
+        <li><strong>Cloud Platform (7):</strong> Region outage, AZ failure, IAM policy error, quota limit hit, API throttling, billing suspension, service deprecation</li>
+        <li><strong>Physical (5):</strong> Power failure, cooling failure, network switch failure, fiber cut, natural disaster</li>
+        <li><strong>Third-party (5):</strong> API rate limit, SDK breaking change, vendor outage, webhook failure, OAuth token expiry</li>
+      </ul>
+    </div>
+
+    <div class="modal-divider"></div>
+    <div class="modal-footer">CLICK OUTSIDE OR ✕ TO CLOSE</div>
+  </div>
+</div>
+
+<!-- ICP Stack Modal -->
+<div class="icp-modal-overlay" id="icpModal">
+  <div class="icp-modal">
+    <button class="modal-close" id="icpModalClose">✕</button>
+    <h2>ICP Stack — Honest Assessment</h2>
+
+    <div class="modal-section">
+      <h3><span class="num-badge">5</span> Layers</h3>
+      <ul class="modal-list">
+        <li>User — Direct browser connection, client-side verification</li>
+        <li>Boundary Nodes — Decentralized entry points, route requests to subnets</li>
+        <li>NNS Governance — On-chain DAO via liquid democracy</li>
+        <li>Subnet &amp; Canisters — Compute + storage unified, BFT consensus replicated</li>
+        <li>Node Machines — Independent operators, AMD SEV-SNP hardware security</li>
+      </ul>
+    </div>
+
+    <div class="modal-divider"></div>
+
+    <div class="modal-section">
+      <h3><span class="num-badge">~3</span> Structural Dependencies</h3>
+      <ul class="modal-list">
+        <li>DFINITY Foundation — Maintains core protocol and tooling. NNS governs upgrades, but DFINITY remains the primary contributor</li>
+        <li>AMD SEV-SNP — Hardware-level confidential computing requires specific AMD processors. No alternative vendor currently supported</li>
+        <li>Node Hardware Specs — Standardized requirements limit the pool of eligible node providers and hardware vendors</li>
+      </ul>
+      <div class="modal-note">These are structural dependencies, not corporate control points — no single entity can halt the network or access user data. But they are real constraints worth acknowledging.</div>
+    </div>
+
+    <div class="modal-divider"></div>
+
+    <div class="modal-section">
+      <h3><span class="num-badge">5</span> Known Failure Modes</h3>
+      <ul class="modal-list">
+        <li>Boundary Node Outages — Mitigated by redundancy, but regional disruptions have occurred</li>
+        <li>Subnet Halts — Have happened (e.g., fiduciary subnet 2023). Consensus stalls until nodes recover</li>
+        <li>NNS Proposal Bugs — Governance risk: a bad proposal could pass and affect the network</li>
+        <li>Canister Cycle Exhaustion — Developer responsibility. If cycles run out, canister stops responding</li>
+        <li>Replica Software Bugs — Mitigated by subnet replication, but bugs in consensus code affect all replicas</li>
+      </ul>
+    </div>
+
+    <div class="modal-divider"></div>
+
+    <div class="modal-section">
+      <h3><span class="num-badge">∞</span> Cryptographic Guarantees</h3>
+      <ul class="modal-list">
+        <li>Chain-Key Cryptography — Single public key verifies all responses from any subnet</li>
+        <li>Certified Variables — Responses include cryptographic proof of correctness</li>
+        <li>Threshold Signatures — No single node holds a complete signing key</li>
+        <li>BFT Consensus — Tolerates up to 1/3 malicious nodes per subnet</li>
+      </ul>
+    </div>
+
+    <div class="modal-divider"></div>
+    <div class="modal-footer">CLICK OUTSIDE OR ✕ TO CLOSE</div>
   </div>
 </div>
 
@@ -178,10 +423,12 @@ canvas{display:block}
   <button class="cbtn red" id="bAWS"><span>☁</span><span class="tip">AWS Region Failure</span></button>
   <div class="sep"></div>
   <button class="cbtn grn" id="bData"><span>🔒</span><span class="tip">Data Ownership</span></button>
-  <button class="cbtn gold" id="bCost"><span>$</span><span class="tip">Cost Stacking</span></button>
+  <button class="cbtn gold" id="bCost"><span>$</span><span class="tip">Cost Stacking (dbl-click: calculator)</span></button>
   <div class="sep"></div>
-  <button class="cbtn icp" id="bICP"><span>∞</span><span class="tip">Compare: ICP</span></button>
+  <button class="cbtn icp on" id="bICP"><span>∞</span><span class="tip">Compare: ICP</span></button>
   <button class="cbtn" id="bReset"><span>⟲</span><span class="tip">Reset All</span></button>
+  <div class="sep"></div>
+  <button class="cbtn" id="bTour"><span>▶</span><span class="tip">Guided Tour</span></button>
 </div>
 
 <!-- Layer Nav -->
@@ -205,6 +452,7 @@ canvas{display:block}
     <p id="iDesc">Description</p>
     <div class="corp" id="iCorp" style="display:none"></div>
     <div class="icp-alt" id="iAlt" style="display:none"></div>
+    <div class="icp-alt" id="iExample" style="display:none"></div>
   </div>
 </div>
 
@@ -224,6 +472,55 @@ canvas{display:block}
 <div class="trace-panel" id="tracePanel">
   <div class="drag-bar" id="traceDrag"><div class="grip"></div><button class="close-btn" id="traceClose">✕</button></div>
   <div class="trace-cols" id="traceCols"></div>
+</div>
+
+<!-- Cost Calculator Modal -->
+<div class="cost-calc-overlay" id="costCalcModal">
+  <div class="cost-calc">
+    <button class="modal-close" id="costCalcClose">✕</button>
+    <h2>Cost Calculator</h2>
+    <div class="cost-input-group">
+      <label>Monthly AWS Spend</label>
+      <div class="cost-input-row">
+        <span class="dollar">$</span>
+        <input type="number" class="cost-input" id="costInput" placeholder="2000" value="2000">
+      </div>
+      <div class="cost-presets">
+        <button class="cost-preset" data-val="100">$100</button>
+        <button class="cost-preset" data-val="500">$500</button>
+        <button class="cost-preset active" data-val="2000">$2K</button>
+        <button class="cost-preset" data-val="5000">$5K</button>
+        <button class="cost-preset" data-val="10000">$10K</button>
+      </div>
+    </div>
+    <div class="cost-result">
+      <div class="cost-breakdown" id="costBreakdown">
+        <div class="cost-row"><span class="cost-label">Compute (40%)</span><span class="cost-aws" id="ccCompAws">$800</span><span class="cost-icp" id="ccCompIcp">$120</span></div>
+        <div class="cost-row"><span class="cost-label">Storage (20%)</span><span class="cost-aws" id="ccStoreAws">$400</span><span class="cost-icp" id="ccStoreIcp">$20</span></div>
+        <div class="cost-row"><span class="cost-label">Bandwidth (25%)</span><span class="cost-aws" id="ccBwAws">$500</span><span class="cost-icp" id="ccBwIcp">$0</span></div>
+        <div class="cost-row"><span class="cost-label">Other (15%)</span><span class="cost-aws" id="ccOtherAws">$300</span><span class="cost-icp" id="ccOtherIcp">$45</span></div>
+      </div>
+      <div class="cost-total">
+        <span class="cost-label">TOTAL / MO</span>
+        <span class="cost-aws" id="ccTotalAws">$2,000</span>
+        <span class="cost-icp" id="ccTotalIcp">$185</span>
+      </div>
+      <div class="cost-savings" id="ccSavings">Estimated savings: ~91% ($1,815/mo)</div>
+    </div>
+    <div class="cost-disclaimer">Estimates based on published ICP cycle costs vs AWS on-demand pricing. Actual costs vary by workload. ICP bandwidth has no egress fees.</div>
+  </div>
+</div>
+
+<!-- Guided Tour Narration -->
+<div class="tour-narration" id="tourPanel">
+  <div class="tour-step-indicator" id="tourStep">STEP 1 / 10</div>
+  <div class="tour-text" id="tourText">Welcome to the guided tour.</div>
+  <div class="tour-progress"><div class="tour-progress-bar" id="tourProgress" style="width:0%"></div></div>
+  <div class="tour-controls">
+    <button class="tour-btn skip" id="tourSkip">Skip</button>
+    <button class="tour-btn" id="tourPrev">← Prev</button>
+    <button class="tour-btn primary" id="tourNext">Next →</button>
+  </div>
 </div>
 
 <div class="instr" id="instr">DRAG TO ROTATE · SCROLL TO ZOOM · CLICK LAYERS · RIGHT PANEL FOR MODES</div>
@@ -250,43 +547,50 @@ var INFO = {
     corp:'CONTROLLED BY: Google Chrome (67% market share), Apple Safari, Microsoft Edge — browser vendors dictate web standards, collect telemetry, can block sites',
     alt:'ICP: Browser connects directly to boundary nodes. Certified responses are cryptographically verified — no trust required.',
     cost:'You pay nothing directly, but your data is monetized at every layer below — you ARE the product',
-    data:'Your request headers, IP, cookies, and behavior data begin their journey through 6 more corporate entities'},
+    data:'Your request headers, IP, cookies, and behavior data begin their journey through 6 more corporate entities',
+    example:''},
   cdn:{tag:'LAYER 2 — EDGE',tc:'#ff9500',title:'CDN / Edge Network',
     desc:'Cloudflare, Akamai, Fastly — corporate gatekeepers caching content at 300+ global PoPs. They see ALL your traffic. When one goes down, millions of sites vanish.',
     corp:'CONTROLLED BY: Cloudflare (80%+ of CDN market), Akamai, Fastly, AWS CloudFront — 4 companies see most of the internet\'s traffic',
     alt:'ICP: No CDN needed. Boundary nodes serve certified content directly. No corporate middleman caching (and reading) your data.',
     cost:'Paying for bandwidth and caching — per-GB charges that scale with popularity. Enterprise plans cost tens of thousands monthly.',
-    data:'CDN caches your content, logs every request, can read unencrypted data, shares analytics with customers. Your browsing patterns are a product.'},
+    data:'CDN caches your content, logs every request, can read unencrypted data, shares analytics with customers. Your browsing patterns are a product.',
+    example:'⚠ REAL INCIDENT: Cloudflare Nov 18, 2025 — oversized config file crashed proxy servers globally for 4+ hours, taking down X, ChatGPT, Discord, Spotify. Dec 5, 2025 — a second outage impacted 28% of all HTTP traffic.'},
   lb:{tag:'LAYER 3 — ROUTING',tc:'#7c3aed',title:'Load Balancers & DNS',
     desc:'Traffic directors deciding which server handles your request. AWS ELB, Nginx, HAProxy. Another corporate dependency, another failure point, another entity logging everything.',
     corp:'CONTROLLED BY: AWS ELB, Google Cloud LB, Azure LB, Cloudflare DNS — your routing is decided by corporations',
     alt:'ICP: Consensus-based routing. The subnet protocol deterministically routes requests — no corporate traffic director.',
     cost:'Paying for traffic routing and DNS queries — per-hour charges for load balancers plus per-million charges for DNS lookups',
-    data:'Load balancer sees every request, logs source IPs, can perform deep packet inspection. DNS providers know every domain you visit.'},
+    data:'Load balancer sees every request, logs source IPs, can perform deep packet inspection. DNS providers know every domain you visit.',
+    example:'⚠ REAL INCIDENT: AWS US-EAST-1 Oct 2025 — DNS resolution failure lasted ~15 hours, cascading through DynamoDB to take down Slack, Atlassian, Barclays, and HMRC.'},
   app:{tag:'LAYER 4 — COMPUTE',tc:'#ff3366',title:'Application Servers',
     desc:'Where your code runs — on someone else\'s computer. Rented EC2 instances, Lambda functions, Kubernetes pods. You don\'t own the hardware. They can shut you down.',
     corp:'CONTROLLED BY: AWS EC2 (33%), Azure (22%), GCP (11%) — three companies run 66% of all cloud compute',
     alt:'ICP: Code runs in canisters — replicated across independent nodes with consensus. No single entity can shut you down. Code is tamperproof.',
     cost:'Renting compute by the hour — paying for CPU time, memory, and auto-scaling that can spiral out of control',
-    data:'Cloud provider has root access to your servers. They can read your memory, your code, your environment variables. AWS Terms of Service allow inspection.'},
+    data:'Cloud provider has root access to your servers. They can read your memory, your code, your environment variables. AWS Terms of Service allow inspection.',
+    example:'⚠ REAL INCIDENT: CrowdStrike Jul 2024 — faulty software update crashed 8.5 million Windows machines worldwide, grounding flights, disrupting hospitals, and causing billions in losses.'},
   db:{tag:'LAYER 5 — DATA',tc:'#3b82f6',title:'Databases & Storage',
     desc:'Your data lives in someone else\'s database. RDS, DynamoDB, S3. They can read it, lose it, or lock you out. No cryptographic guarantees. Just trust.',
     corp:'CONTROLLED BY: AWS RDS/DynamoDB, Google Cloud SQL, Azure SQL, MongoDB Atlas — your data is their leverage',
     alt:'ICP: Data lives inside canisters, replicated with consensus. Orthogonal persistence means no separate database. VetKeys enable encrypted storage only YOU can read.',
     cost:'Paying to store your own data — per-GB monthly charges plus egress fees that punish you for accessing your own data',
-    data:'Provider can read, copy, analyze, and lose your data. No cryptographic proof they haven\'t. Backups exist in unknown locations. Deletion is a promise, not a proof.'},
+    data:'Provider can read, copy, analyze, and lose your data. No cryptographic proof they haven\'t. Backups exist in unknown locations. Deletion is a promise, not a proof.',
+    example:'⚠ REAL INCIDENT: Snowflake May 2024 — compromised credentials exposed data from 100+ enterprise customers including AT&T and Ticketmaster. 82% of all breaches in 2024 involved cloud-stored data.'},
   cloud:{tag:'LAYER 6 — PLATFORM',tc:'#6366f1',title:'Cloud Platform (AWS/GCP/Azure)',
     desc:'Three companies control 65%+ of all cloud infrastructure. Your entire stack depends on their availability, pricing, and policies. Deplatforming is real.',
     corp:'CONTROLLED BY: Amazon (33%), Microsoft (22%), Google (11%) — deplatforming risk is existential. Parler, Russia, WikiLeaks all learned this.',
     alt:'ICP: No platform owner. Network Nervous System (NNS) governs via token holder democracy. No CEO can flip a switch.',
     cost:'Vendor lock-in is the real cost — proprietary services make switching providers 2-5x more expensive than staying',
-    data:'AWS/GCP/Azure have physical access to ALL your infrastructure. Government subpoenas go to THEM, not you. Compliance means they already scan your data.'},
+    data:'AWS/GCP/Azure have physical access to ALL your infrastructure. Government subpoenas go to THEM, not you. Compliance means they already scan your data.',
+    example:'⚠ REAL INCIDENT: Azure Oct 2025 — Front Door config/DNS issue caused ~50-hour disruption across Azure and Microsoft 365. Over 18,000 users reported failures. AWS, Azure, and GCP had 100+ outages between Aug 2024–Aug 2025.'},
   phys:{tag:'LAYER 7 — PHYSICAL',tc:'#64748b',title:'Physical Infrastructure',
     desc:'Data centers, submarine cables, power grids. Vulnerable to natural disasters, government seizure, and physical attacks. Concentrated in a few regions.',
     corp:'CONTROLLED BY: Equinix, Digital Realty, AWS, Google — data center oligopoly. 70% of internet traffic flows through Virginia.',
     alt:'ICP: Node machines operated by independent providers across 30+ global data centers in multiple jurisdictions. No geographic concentration.',
     cost:'Massive capital expenditure — building and powering data centers costs millions, and those costs flow up to every layer above',
-    data:'Physical access = total access. Government raids, natural disasters, and power failures affect everything above. All 6 layers collapse.'},
+    data:'Physical access = total access. Government raids, natural disasters, and power failures affect everything above. All 6 layers collapse.',
+    example:'⚠ REAL INCIDENT: Tonga Jan 2022 — a single submarine cable severed by volcanic eruption cut the entire country off from the internet for 5 weeks. 70% of global internet traffic flows through data centers in Virginia.'},
   // ICP layers - using ICP brand palette
   icp_user:{tag:'ICP — USER',tc:'#29ABE2',title:'User (Direct Connection)',
     desc:'On ICP, the user connects directly to the network. No CDN, no corporate gateway. Certified responses are cryptographically verified by the browser — trustless by design.',
@@ -340,10 +644,10 @@ var WEB2_TRACE = [
 ];
 
 var ICP_TRACE = [
-  {name:'DNS → Boundary Node', ms:30, corp:'Decentralized', layer:'icp_bn'},
-  {name:'Route to Subnet', ms:10, corp:'Consensus Protocol', layer:'icp_sub'},
-  {name:'Canister Execution', ms:2, corp:'Chain-Key Crypto', layer:'icp_sub'},
-  {name:'Certified Response', ms:1, corp:'Threshold Signature', layer:'icp_sub'},
+  {name:'DNS → Boundary Node', ms:50, corp:'Decentralized', layer:'icp_bn'},
+  {name:'Route to Subnet', ms:20, corp:'Consensus Protocol', layer:'icp_sub'},
+  {name:'Canister Query Execution', ms:200, corp:'Chain-Key Crypto', layer:'icp_sub'},
+  {name:'Certified Response', ms:50, corp:'Threshold Signature', layer:'icp_sub'},
   {name:'Render in Browser', ms:200, corp:'Client Verified', layer:'icp_user'},
 ];
 
@@ -357,9 +661,9 @@ var flowParts = [];
 
 var st = {
   exploded:false, rotating:true, traceMode:false, cascadeMode:null,
-  icpMode:false, dataMode:false, costMode:false,
+  icpMode:true, dataMode:false, costMode:false,
   dragging:false, pmx:0, pmy:0,
-  camAX:0.3, camAY:0.5, camDist:18, targetDist:18,
+  camAX:0.3, camAY:0.5, camDist:26, targetDist:26,
   expProg:0, expTarget:0, t:0,
   traceStep:-1, traceTimer:null, traceStepICP:-1, traceTimerICP:null,
 };
@@ -523,7 +827,7 @@ function buildWeb2(){
 
 function buildICP(){
   icpG=new THREE.Group();
-  icpG.visible=false;
+  icpG.visible=true;
   icpG.position.x=14;
 
   function a(geo,mat,pos,tag){
@@ -765,7 +1069,7 @@ function runTrace(){
       return;
     }
     var e=document.getElementById('is'+st.traceStepICP);if(e)e.classList.add('active');
-    if(st.traceMode)st.traceTimerICP=setTimeout(nextI, ICP_TRACE[st.traceStepICP].ms*3+100);
+    if(st.traceMode)st.traceTimerICP=setTimeout(nextI, ICP_TRACE[st.traceStepICP].ms*2+100);
   }
   function runTraceW(){st.traceStep=-1;nextW();}
   function runTraceI(){st.traceStepICP=-1;nextI();}
@@ -812,6 +1116,12 @@ function showInfo(key){
     else{altEl.style.color='var(--icp)';altEl.style.borderColor='rgba(41,171,226,0.15)';}
   } else altEl.style.display='none';
 
+  var exEl=document.getElementById('iExample');
+  if(d.example){
+    exEl.textContent=d.example;exEl.style.display='block';
+    exEl.style.color='var(--orange)';exEl.style.borderColor='rgba(255,149,0,0.2)';exEl.style.background='rgba(255,149,0,0.05)';
+  } else exEl.style.display='none';
+
   p.classList.add('vis');
 }
 
@@ -836,13 +1146,13 @@ function createOverlayLabels(){
     phys:'📋 Physical access = total access',
   };
   var costTexts={
-    user:'💰 You are the product',
-    cdn:'💰 Paying for caching & bandwidth',
-    lb:'💰 Paying for traffic routing',
-    app:'💰 Renting someone else\'s computer',
-    db:'💰 Paying to store your own data',
-    cloud:'💰 Vendor lock-in traps you',
-    phys:'💰 Massive capital infrastructure cost',
+    user:'💰 You ARE the product — data monetized below',
+    cdn:'💰 CloudFront ~$85/TB · Cloudflare Enterprise ~$5K/mo',
+    lb:'💰 AWS ELB ~$22/mo + $0.008/GB data',
+    app:'💰 EC2 m5.large ~$70/mo · Lambda per-invocation',
+    db:'💰 RDS ~$150/mo · DynamoDB per-read/write',
+    cloud:'💰 S3 ~$23/TB/mo + egress ~$90/TB',
+    phys:'💰 Data center build: $10M+ · Power: $1M+/yr',
   };
   var icpDataTexts={
     icp_user:'✅ Client-verified responses',
@@ -852,11 +1162,11 @@ function createOverlayLabels(){
     icp_nodes:'✅ SEV-SNP hardware security',
   };
   var icpCostTexts={
-    icp_user:'✅ Users never pay gas fees',
-    icp_bn:'✅ Replaces CDN + DNS + LB',
-    icp_sub:'✅ Devs pay cycles, not users',
-    icp_nns:'✅ Free to participate in governance',
-    icp_nodes:'✅ Competitive providers, no oligopoly',
+    icp_user:'✅ Users pay nothing — reverse gas model',
+    icp_bn:'✅ Replaces CDN + DNS + LB — no per-GB fees',
+    icp_sub:'✅ ~$5/GB/yr storage · ~0.4T cycles/sec compute',
+    icp_nns:'✅ Free governance — stake neurons to vote',
+    icp_nodes:'✅ Providers earn ICP rewards — no rent-seeking',
   };
 
   // Traditional stack labels
@@ -1116,15 +1426,16 @@ function setupUI(){
 
   document.getElementById('bReset').addEventListener('click',function(){
     resetCascade();stopTrace();
-    st.exploded=false;st.expTarget=0;st.icpMode=false;st.dataMode=false;st.costMode=false;st.rotating=true;
-    st.camAX=0.3;st.camAY=0.5;st.targetDist=18;
+    st.exploded=false;st.expTarget=0;st.icpMode=true;st.dataMode=false;st.costMode=false;st.rotating=true;
+    st.camAX=0.3;st.camAY=0.5;st.targetDist=26;
     document.querySelectorAll('.cbtn').forEach(function(b){b.classList.remove('on')});
     document.getElementById('bRotate').classList.add('on');
+    document.getElementById('bICP').classList.add('on');
     document.getElementById('info').classList.remove('vis');
-    document.getElementById('statsBar').classList.remove('visible');
+    document.getElementById('statsBar').classList.add('visible');
     document.getElementById('icpSafe').classList.remove('vis');
-    icpG.visible=false;
-    var b=document.getElementById('badge');b.className='badge web2';b.textContent='TRADITIONAL STACK';
+    icpG.visible=true;
+    var b=document.getElementById('badge');b.className='badge compare';b.textContent='ICP COMPARISON';
     document.querySelectorAll('.lbtn').forEach(function(b){b.classList.remove('on')});
     document.querySelector('.lbtn[data-l="all"]').classList.add('on');
     Object.keys(layers).forEach(function(k){
@@ -1151,6 +1462,165 @@ function setupUI(){
   });
 
   window.addEventListener('resize',function(){cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)});
+
+  // ── Trad modal ──
+  var tradOverlay=document.getElementById('tradModal');
+  var tradClose=document.getElementById('tradModalClose');
+  document.querySelector('.stat-side.web2-side').addEventListener('click',function(){
+    tradOverlay.classList.add('vis');
+  });
+  tradClose.addEventListener('click',function(){
+    tradOverlay.classList.remove('vis');
+  });
+  tradOverlay.addEventListener('click',function(e){
+    if(e.target===tradOverlay) tradOverlay.classList.remove('vis');
+  });
+
+  // ── ICP modal ──
+  var icpOverlay=document.getElementById('icpModal');
+  var icpClose=document.getElementById('icpModalClose');
+  document.querySelector('.stat-side.icp-side').addEventListener('click',function(){
+    icpOverlay.classList.add('vis');
+  });
+  icpClose.addEventListener('click',function(){
+    icpOverlay.classList.remove('vis');
+  });
+  icpOverlay.addEventListener('click',function(e){
+    if(e.target===icpOverlay) icpOverlay.classList.remove('vis');
+  });
+
+  // ── Cost Calculator ──
+  var costCalcOverlay=document.getElementById('costCalcModal');
+  var costInput=document.getElementById('costInput');
+
+  function calcCosts(){
+    var aws=parseFloat(costInput.value)||0;
+    var compute=aws*0.4, storage=aws*0.2, bandwidth=aws*0.25, other=aws*0.15;
+    // ICP estimates: compute ~15%, storage ~5%, bandwidth ~0% (no egress), other ~30%
+    var icpCompute=compute*0.15, icpStorage=storage*0.05, icpBw=0, icpOther=other*0.30;
+    var icpTotal=icpCompute+icpStorage+icpBw+icpOther;
+    var savings=aws>0?((1-icpTotal/aws)*100):0;
+
+    function fmt(n){return n>=1000?'$'+Math.round(n).toLocaleString():'$'+Math.round(n);}
+    document.getElementById('ccCompAws').textContent=fmt(compute);
+    document.getElementById('ccCompIcp').textContent=fmt(icpCompute);
+    document.getElementById('ccStoreAws').textContent=fmt(storage);
+    document.getElementById('ccStoreIcp').textContent=fmt(icpStorage);
+    document.getElementById('ccBwAws').textContent=fmt(bandwidth);
+    document.getElementById('ccBwIcp').textContent=fmt(icpBw);
+    document.getElementById('ccOtherAws').textContent=fmt(other);
+    document.getElementById('ccOtherIcp').textContent=fmt(icpOther);
+    document.getElementById('ccTotalAws').textContent=fmt(aws);
+    document.getElementById('ccTotalIcp').textContent=fmt(icpTotal);
+    document.getElementById('ccSavings').textContent=aws>0?'Estimated savings: ~'+Math.round(savings)+'% ('+fmt(aws-icpTotal)+'/mo)':'Enter your monthly AWS spend above';
+
+    document.querySelectorAll('.cost-preset').forEach(function(b){b.classList.toggle('active',parseFloat(b.dataset.val)===aws);});
+  }
+
+  document.getElementById('bCost').addEventListener('dblclick',function(){
+    costCalcOverlay.classList.add('vis');calcCosts();
+  });
+  document.getElementById('costCalcClose').addEventListener('click',function(){
+    costCalcOverlay.classList.remove('vis');
+  });
+  costCalcOverlay.addEventListener('click',function(e){
+    if(e.target===costCalcOverlay) costCalcOverlay.classList.remove('vis');
+  });
+  costInput.addEventListener('input',calcCosts);
+  document.querySelectorAll('.cost-preset').forEach(function(btn){
+    btn.addEventListener('click',function(){costInput.value=btn.dataset.val;calcCosts();});
+  });
+
+  // ── Guided Tour ──
+  var TOUR_STEPS=[
+    {text:'Welcome to the Traditional Stack vs ICP comparison. This visualization shows the 7 layers your data passes through in a traditional web app — and how ICP replaces them.',
+     action:function(){st.rotating=true;st.targetDist=26;st.camAX=0.3;st.camAY=0.5;}},
+    {text:'Layer 7 — Physical Infrastructure. Data centers, submarine cables, power grids. Concentrated in a few regions. When Tonga lost one cable in 2022, the entire country went offline for 5 weeks.',
+     action:function(){st.rotating=false;st.camAX=0.1;st.camAY=0;st.targetDist=20;showInfo('phys');}},
+    {text:'Layer 6 — Cloud Platform. Three companies (AWS, Azure, GCP) control 65%+ of all cloud infrastructure. Your entire stack depends on their availability and policies.',
+     action:function(){showInfo('cloud');}},
+    {text:'Layer 5 — Databases & Storage. Your data lives on someone else\'s servers. They can read it, lose it, or lock you out. No cryptographic guarantees.',
+     action:function(){showInfo('db');}},
+    {text:'Layer 4 — Application Servers. Your code runs on rented hardware. CrowdStrike\'s 2024 faulty update crashed 8.5 million machines — showing how one vendor can bring everything down.',
+     action:function(){showInfo('app');}},
+    {text:'Layer 3 — Load Balancers & DNS. Traffic directors deciding where your request goes. AWS\'s Oct 2025 DNS failure lasted 15 hours, cascading across Slack, Atlassian, and major banks.',
+     action:function(){showInfo('lb');}},
+    {text:'Layer 2 — CDN / Edge Network. Cloudflare sees most of the internet\'s traffic. In Nov 2025, a single config file crashed their proxies globally for 4+ hours, taking down X, ChatGPT, Discord, and Spotify.',
+     action:function(){showInfo('cdn');}},
+    {text:'Watch what happens when one of these layers fails. A Cloudflare outage cascades through the entire stack — every layer above it breaks.',
+     action:function(){document.getElementById('info').classList.remove('vis');triggerCascade('cf');}},
+    {text:'Now look at ICP. No CDN, no corporate cloud, no separate database. Canisters bundle compute + storage with BFT consensus. The cascade failure on the left? ICP is completely unaffected.',
+     action:function(){
+       resetCascade();
+       if(!st.icpMode){st.icpMode=true;icpG.visible=true;document.getElementById('bICP').classList.add('on');document.getElementById('badge').className='badge compare';document.getElementById('badge').textContent='ICP COMPARISON';document.getElementById('statsBar').classList.add('visible');}
+       st.targetDist=26;st.camAX=0.3;st.camAY=1.2;
+     }},
+    {text:'ICP isn\'t perfect — it has ~3 structural dependencies and 5 known failure modes. But it eliminates 7 layers, 12+ corporate gatekeepers, and 47 failure points. Click the stat bars above to explore the details. Enjoy exploring!',
+     action:function(){st.rotating=true;st.camAY=0.5;st.camAX=0.3;st.targetDist=26;document.getElementById('info').classList.remove('vis');}}
+  ];
+
+  var tourActive=false,tourIdx=0;
+  var tourPanel=document.getElementById('tourPanel');
+  var tourText=document.getElementById('tourText');
+  var tourStepEl=document.getElementById('tourStep');
+  var tourProgress=document.getElementById('tourProgress');
+  var preTourState=null;
+
+  function saveTourState(){
+    preTourState={icpMode:st.icpMode,rotating:st.rotating,camAX:st.camAX,camAY:st.camAY,targetDist:st.targetDist,exploded:st.exploded,expTarget:st.expTarget,cascadeMode:st.cascadeMode,dataMode:st.dataMode,costMode:st.costMode};
+  }
+  function restoreTourState(){
+    if(!preTourState)return;
+    resetCascade();stopTrace();
+    st.icpMode=preTourState.icpMode;st.rotating=preTourState.rotating;
+    st.camAX=preTourState.camAX;st.camAY=preTourState.camAY;st.targetDist=preTourState.targetDist;
+    st.exploded=preTourState.exploded;st.expTarget=preTourState.expTarget;
+    st.dataMode=preTourState.dataMode;st.costMode=preTourState.costMode;
+    icpG.visible=st.icpMode;
+    document.getElementById('bICP').classList.toggle('on',st.icpMode);
+    document.getElementById('bRotate').classList.toggle('on',st.rotating);
+    document.getElementById('info').classList.remove('vis');
+    var b=document.getElementById('badge');
+    if(st.icpMode){b.className='badge compare';b.textContent='ICP COMPARISON';document.getElementById('statsBar').classList.add('visible');}
+    else{b.className='badge web2';b.textContent='TRADITIONAL STACK';document.getElementById('statsBar').classList.remove('visible');}
+    preTourState=null;
+  }
+
+  function showTourStep(){
+    var s=TOUR_STEPS[tourIdx];
+    tourText.textContent=s.text;
+    tourStepEl.textContent='STEP '+(tourIdx+1)+' / '+TOUR_STEPS.length;
+    tourProgress.style.width=((tourIdx+1)/TOUR_STEPS.length*100)+'%';
+    document.getElementById('tourPrev').style.visibility=tourIdx>0?'visible':'hidden';
+    document.getElementById('tourNext').textContent=tourIdx<TOUR_STEPS.length-1?'Next →':'Finish';
+    s.action();
+  }
+
+  function startTour(){
+    tourActive=true;tourIdx=0;
+    saveTourState();
+    document.getElementById('bTour').classList.add('on');
+    tourPanel.classList.add('vis');
+    showTourStep();
+  }
+  function stopTour(){
+    tourActive=false;
+    document.getElementById('bTour').classList.remove('on');
+    tourPanel.classList.remove('vis');
+    restoreTourState();
+  }
+
+  document.getElementById('bTour').addEventListener('click',function(){
+    if(tourActive) stopTour(); else startTour();
+  });
+  document.getElementById('tourNext').addEventListener('click',function(){
+    if(tourIdx<TOUR_STEPS.length-1){tourIdx++;showTourStep();}
+    else stopTour();
+  });
+  document.getElementById('tourPrev').addEventListener('click',function(){
+    if(tourIdx>0){tourIdx--;showTourStep();}
+  });
+  document.getElementById('tourSkip').addEventListener('click',function(){stopTour();});
 
   createOverlayLabels();
 }
